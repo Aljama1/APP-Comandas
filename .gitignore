@@ -1,0 +1,19 @@
+# Dependencias
+app-comandas/node_modules/
+app-comandas/www/
+app-comandas/stats/
+app-comandas/.sourcemaps/
+app-comandas/.angular/cache/
+
+# IDEs
+.vscode/
+.idea/
+
+# Archivos de sistema
+Thumbs.db
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
