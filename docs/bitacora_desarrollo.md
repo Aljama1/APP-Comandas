@@ -28,4 +28,4 @@ Aplicación Híbrida orientada al **Cliente Final (Comensal)** para la autogesti
 - **Decisión de Arquitectura**: Se optó por un diseño de "ruta limpia" (`/check-in`) como acceso único para el comensal tras el escaneo del código QR.
 
 ---
-*Última actualización: 11 de abril de 2026*
+*Última actualización: 13 de abril de 2026*
