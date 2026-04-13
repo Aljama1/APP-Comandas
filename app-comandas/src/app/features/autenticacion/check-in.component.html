@@ -1,0 +1,59 @@
+<ion-content [fullscreen]="true" class="sleek-content">
+  <div class="background-mesh">
+    <div class="mesh-shape shape-1"></div>
+    <div class="mesh-shape shape-2"></div>
+  </div>
+  
+  <div class="check-in-container">
+    <div class="glass-panel">
+      
+      <div class="header-section">
+        <div class="logo-mark">
+          <ion-icon name="restaurant-outline"></ion-icon>
+        </div>
+        <h1>Bienvenido a <strong>Trace</strong></h1>
+        <p>Tu seguridad alimentaria es lo primero.</p>
+      </div>
+
+      <div class="form-section fade-in">
+        <div class="input-wrapper">
+          <ion-icon name="person-outline" class="input-icon"></ion-icon>
+          <input type="text" placeholder="¿Cómo te llamas?" [(ngModel)]="nombre" class="sleek-input">
+        </div>
+
+        <div class="input-wrapper mt-4">
+          <ion-icon name="scan-outline" class="input-icon"></ion-icon>
+          <input type="number" placeholder="ID de la Mesa" [(ngModel)]="mesaId" class="sleek-input">
+        </div>
+      </div>
+
+      <div class="allergies-section fade-in-delay-1">
+        <div class="section-header">
+          <div class="pulse-dot"></div>
+          <p class="section-title">Perfil Médico</p>
+        </div>
+        <p class="section-subtitle">Selecciona tus alergias para filtrar la carta con total seguridad.</p>
+        
+        <div class="allergy-grid">
+          <div *ngFor="let item of alergenos" 
+               class="allergy-item" 
+               [class.active]="item.activo"
+               (click)="toggleAlergeno(item.id)">
+            <div class="icon-container">
+              <ion-icon [name]="item.icono"></ion-icon>
+            </div>
+            <span>{{ item.nombre }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-section fade-in-delay-2">
+        <button class="sleek-btn-primary" (click)="acceder()">
+          <span>Comenzar Experiencia</span>
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</ion-content>

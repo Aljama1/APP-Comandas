@@ -1,0 +1,21 @@
+# AI Agent Skills (Manual Installation for TFG)
+
+## 1. Sleek Mobile App Design & Frontend
+- **Aesthetics First**: Siempre prioriza un diseño moderno, limpio y "premium". Evita colores genéricos y planos. Usa paletas de colores armoniosas y, preferiblemente, soporta un modo oscuro elegante.
+- **Glassmorfismo y Sombras**: Utiliza sombras suaves y desenfoques de fondo (backdrop-filter) donde aporte valor a la jerarquía visual.
+- **Micro-animaciones**: Añade transiciones suaves (`transition: all 0.3s ease`) en botones e interacciones clave. Ningún cambio de estado debe ser brusco.
+- **Tipografías**: Implementa jerarquías visuales claras usando variables de diseño.
+- **Ionic/Mobile UX**: Al usar componentes de Ionic, asegúrate de que el diseño se sienta nativo y táctil (áreas de toque mínimo de 44x44px para cumplir con normativas de accesibilidad).
+
+## 2. Professional Git & Commits
+- **Conventional Commits**: Si ayudas con comandos Git, escribe siempre o sugiere usar el estándar: `tipo(ámbito): mensaje corto`.
+  - `feat`: Nuevas características importantes (ej. check-in, motor de alérgenos).
+  - `fix`: Corrección de errores en la interfaz o la lógica.
+  - `refactor`: Cambios de código (Clean Architecture) sin alterar funcionalidades externas.
+  - `style`: Ajustes estéticos de SCSS o HTML.
+- **Lenguaje**: Utiliza el imperativo ("añadir pantalla", "corregir bug") para el título del commit, asegurando un repositorio inmaculado para la evaluación del tribunal.
+
+## 3. Firebase & Firestore Standard
+- **Ecosistema Modular**: Utiliza obligatoriamente el SDK modular de Firebase (v9+ AngularFire module). Nunca uses el formato legado.
+- **Tipado Férreo**: Todo documento recuperado de Firestore o inyectado como Payload a base de datos debe cruzar una interfaz TypeScript estricta (ej. interfaz `Comanda`, `Producto`). Nunca utilices `any`.
+- **Colecciones Reactivas**: Para las funciones del Día 7 y 8 (Sincronización en Tiempo Real), utiliza los flujos reactivos nativos combinados con Signals si es necesario, minimizando las lecturas muertas a base de datos.

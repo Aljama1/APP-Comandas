@@ -17,5 +17,15 @@ Aplicación Híbrida orientada al **Cliente Final (Comensal)** para la autogesti
     - Creación de carpeta de documentación académica (`/docs`).
 - **Configuración Git**: Repositorio inicializado y saneado de forma formal para la revisión del profesorado.
 
+### Fase 1: Identidad y Acceso del Comensal (En desarrollo)
+
+#### Día 1: Interfaz de Bienvenida y Perfil de Usuario
+- **Hito**: Implementación del esqueleto del `CheckInComponent` como pieza central de la entrada del cliente.
+- **Detalles técnicos**:
+    - **Enfoque Standalone**: Uso de componentes independientes para optimizar el bundle y facilitar el testing unitario futuro.
+    - **Diseño UI/UX (Minimalist White)**: Implementación de un diseño limpio estilo Apple para reducir la carga cognitiva del cliente.
+    - **Reactividad Base**: Integración de `FormsModule` para capturar el `Nombre` y `MesaID` mediante "Two-way data binding".
+- **Decisión de Arquitectura**: Se optó por un diseño de "ruta limpia" (`/check-in`) como acceso único para el comensal tras el escaneo del código QR.
+
 ---
-*Última actualización: Abril de 2026*
+*Última actualización: 11 de abril de 2026*

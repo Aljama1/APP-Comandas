@@ -3,12 +3,12 @@ import { Routes } from '@angular/router';
 // Definición de las rutas principales de nuestra aplicación de Comandas
 export const routes: Routes = [
   {
-    path: 'inicio',
-    loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
+    path: 'check-in',
+    loadComponent: () => import('./features/autenticacion/check-in.component').then((m) => m.CheckInComponent),
   },
   {
     path: '',
-    redirectTo: 'inicio',
+    redirectTo: 'check-in',
     pathMatch: 'full',
   },
 ];
