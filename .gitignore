@@ -17,3 +17,9 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Herramientas de Desarrollo y Temporales
+.antigravityrules
+.cache/
+dist/
+tmp/

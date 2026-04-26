@@ -1,0 +1,13 @@
+<div class="pildora-flotante animate-slide-up" *ngIf="comandaService.totalArticulos() > 0" (click)="irALaComanda()">
+  <div class="info-izquierda">
+    <div class="circulo-cantidad">
+      <span>{{ comandaService.totalArticulos() }}</span>
+    </div>
+    <span class="texto-ver-comanda">Ver Comanda</span>
+  </div>
+  
+  <div class="info-derecha">
+    <span class="subtotal">{{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+    <ion-icon name="chevron-forward-outline"></ion-icon>
+  </div>
+</div>

@@ -40,7 +40,8 @@
                [class.active]="item.activo"
                (click)="toggleAlergeno(item.id)">
             <div class="icon-container">
-              <ion-icon [name]="item.icono"></ion-icon>
+              <ion-icon *ngIf="!item.esSvg" [name]="item.icono"></ion-icon>
+              <ion-icon *ngIf="item.esSvg" [src]="item.icono"></ion-icon>
             </div>
             <span>{{ item.nombre }}</span>
           </div>

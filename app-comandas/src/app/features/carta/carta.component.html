@@ -1,0 +1,115 @@
+<ion-content [fullscreen]="true" class="sleek-content">
+  <!-- Mesh Background (Consistente con la identidad visual) -->
+  <div class="background-mesh" aria-hidden="true">
+    <div class="mesh-shape shape-1"></div>
+    <div class="mesh-shape shape-2"></div>
+  </div>
+
+  <!-- Header Flotante Moderno -->
+  <div class="modern-header">
+    <div class="header-top">
+      <div class="greeting-chip">
+        <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
+        <span class="user-text">Hola, <strong>{{ perfil()?.nombre }}</strong></span>
+      </div>
+      <div class="table-chip" role="status" aria-label="Mesa asignada">
+        MESA {{ perfil()?.mesaId }}
+      </div>
+      <div class="header-actions">
+        <button class="logout-btn" 
+                (click)="confirmarCierreSesion()" 
+                aria-label="Cerrar sesión">
+          <ion-icon name="log-out-outline" aria-hidden="true"></ion-icon>
+        </button>
+        <button class="cart-btn" 
+                (click)="irALaComanda()" 
+                aria-label="Ver carrito de la comanda ({{ comandaService.totalArticulos() }} artículos)">
+          <ion-icon name="cart-outline" aria-hidden="true"></ion-icon>
+          <span class="cart-badge" *ngIf="comandaService.totalArticulos() > 0" aria-hidden="true">{{ comandaService.totalArticulos() }}</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="header-title">
+      <h1>Nuestra Carta</h1>
+    </div>
+
+    <!-- Píldora de Seguridad Médica Simplificada -->
+    <div class="safety-chip" 
+         [class.active-danger]="perfil()?.alergenos?.length"
+         role="status"
+         [attr.aria-label]="perfil()?.alergenos?.length ? 'Filtro activo para: ' + perfil()?.alergenos?.join(', ') : 'Sin filtros de alérgenos activos'">
+      <ion-icon [name]="perfil()?.alergenos?.length ? 'shield-checkmark' : 'shield-outline'" aria-hidden="true"></ion-icon>
+      <span>{{ perfil()?.alergenos?.length ? 'Protección activa: ' + perfil()?.alergenos?.join(', ') : 'Carta completa sin filtros' }}</span>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal de Platos (Agrupados por Categoría) -->
+  <div class="carta-container">
+
+    <!-- Iteración por secciones de categoría -->
+    <section *ngFor="let grupo of productosPorCategoria()" class="categoria-section">
+      <h2 class="categoria-titulo">{{ grupo.etiqueta }}</h2>
+
+      <div class="products-list">
+        <!-- Producto Glass Card -->
+        <article class="product-card" 
+             *ngFor="let producto of grupo.items" 
+             [class.is-danger]="!producto.esSeguro"
+             [attr.aria-label]="producto.nombre + ' - ' + (producto.precio | currency:'EUR')">
+          
+          <div class="card-hero">
+            <img [src]="producto.imagenUrl" [alt]="'Fotografía de ' + producto.nombre">
+            <div class="price-tag" aria-hidden="true">{{ producto.precio | currency:'EUR' }}</div>
+            
+            <!-- Capa de Incompatibilidad Letal -->
+            <div class="danger-veil" *ngIf="!producto.esSeguro" role="alert">
+              <ion-icon name="warning-outline" aria-hidden="true"></ion-icon>
+              <span class="danger-title">Incompatible</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="title-row">
+              <h3>{{ producto.nombre }}</h3>
+            </div>
+            <p class="desc">{{ producto.descripcion }}</p>
+            
+            <div class="card-actions">
+              <!-- Píldoras de alérgenos minimalistas -->
+              <div class="allergen-pill-group" role="list" aria-label="Alérgenos del plato">
+                 <span class="pill" role="listitem" *ngFor="let al of producto.alergenos" [class.pill-danger]="producto.alergenosPeligrosos.includes(al)">{{ al }}</span>
+                 <span class="pill pill-safe" role="listitem" *ngIf="producto.alergenos.length === 0">Sin alérgenos</span>
+              </div>
+
+              <!-- Botón Añadir con feedback visual -->
+              <button class="sleek-add-btn" 
+                      [disabled]="!producto.esSeguro" 
+                      [class.added-feedback]="productoRecienAnadido() === producto.id"
+                      (click)="agregarAlCarrito(producto)"
+                      [attr.aria-label]="'Añadir ' + producto.nombre + ' al carrito'">
+                <ion-icon [name]="productoRecienAnadido() === producto.id ? 'checkmark-outline' : 'add-outline'" aria-hidden="true"></ion-icon>
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Empty State Elegante -->
+    <div class="empty-state" *ngIf="productosPorCategoria().length === 0">
+      <div class="glass-orb">
+        <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+      </div>
+      <h3>Sin resultados</h3>
+      <p>No hay platos en el sistema en este momento.</p>
+    </div>
+
+    <!-- Espacio para que la píldora flotante no tape el último producto -->
+    <div class="spacer" style="height: 90px;" aria-hidden="true"></div>
+  </div>
+
+  <!-- Píldora Flotante Integrada -->
+  <app-resumen-flotante slot="fixed"></app-resumen-flotante>
+</ion-content>
+

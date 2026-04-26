@@ -1,18 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 
 import { FormsModule } from '@angular/forms';
 
 import { Router } from '@angular/router';
+import { Auth, signInAnonymously } from '@angular/fire/auth';
+import { UsuarioService } from '../../core/services/usuario.service';
+import { PerfilUsuario } from '../../core/models/perfil-usuario.model';
 import { addIcons } from 'ionicons';
-import { 
-  nutritionOutline, 
-  waterOutline, 
-  leafOutline, 
-  eggOutline, 
-  fishOutline, 
-  restaurantOutline 
+import {
+  nutritionOutline,
+  waterOutline,
+  leafOutline,
+  eggOutline,
+  fishOutline,
+  restaurantOutline,
+  personOutline,
+  scanOutline,
+  arrowForwardOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -28,24 +34,27 @@ export class CheckInComponent {
 
   // Lista de alérgenos del TFG (siguiendo normativa europea)
   alergenos = [
-    { id: 'gluten', nombre: 'Gluten', icono: 'nutrition-outline', activo: false },
-    { id: 'lactosa', nombre: 'Lactosa', icono: 'water-outline', activo: false },
-    { id: 'frutos-secos', nombre: 'F. Secos', icono: 'leaf-outline', activo: false },
-    { id: 'huevo', nombre: 'Huevo', icono: 'egg-outline', activo: false },
-    { id: 'pescado', nombre: 'Pescado', icono: 'fish-outline', activo: false },
-    { id: 'marisco', nombre: 'Marisco', icono: 'restaurant-outline', activo: false }
+    { id: 'gluten', nombre: 'Gluten', icono: '/assets/icon/gluten.svg', activo: false, esSvg: true },
+    { id: 'lactosa', nombre: 'Lactosa', icono: '/assets/icon/lactosa.svg', activo: false, esSvg: true },
+    { id: 'frutos-secos', nombre: 'F. Secos', icono: '/assets/icon/frutos-secos.svg', activo: false, esSvg: true },
+    { id: 'huevo', nombre: 'Huevo', icono: 'egg-outline', activo: false, esSvg: false },
+    { id: 'pescado', nombre: 'Pescado', icono: 'fish-outline', activo: false, esSvg: false },
+    { id: 'marisco', nombre: 'Marisco', icono: 'restaurant-outline', activo: false, esSvg: false }
   ];
 
+  // Inyección de servicios
+  private usuarioService = inject(UsuarioService);
+  private auth = inject(Auth);
+
   constructor(private router: Router) {
-    // En las versiones recientes de Ionic (Standalone), debemos registrar 
-    // manualmente los iconos para que la app no cargue toda la librería y sea más rápida.
+    // Registro de iconos
     addIcons({
-      'nutrition-outline': nutritionOutline,
-      'water-outline': waterOutline,
-      'leaf-outline': leafOutline,
       'egg-outline': eggOutline,
       'fish-outline': fishOutline,
-      'restaurant-outline': restaurantOutline
+      'restaurant-outline': restaurantOutline,
+      'person-outline': personOutline,
+      'scan-outline': scanOutline,
+      'arrow-forward-outline': arrowForwardOutline
     });
   }
 
@@ -56,19 +65,36 @@ export class CheckInComponent {
     }
   }
 
-  acceder() {
+  async acceder() {
     if (!this.nombre || !this.mesaId) {
-      // Por ahora, solo mostramos una alerta simple si falta algo
       alert('Por favor, indica tu nombre y el número de mesa para continuar.');
       return;
     }
 
-    const alergiasSeleccionadas = this.alergenos.filter(a => a.activo).map(a => a.nombre);
-    console.log('Cliente:', this.nombre, 'Mesa:', this.mesaId);
-    console.log('Alergias:', alergiasSeleccionadas);
-    
-    // Próximo hito (Fase 2): Navegaremos a la carta de productos.
-    // this.router.navigate(['/carta']);
-    alert('¡Check-in completado! Revisa la consola (F12) para ver los datos guardados provisionalmente.');
+    try {
+      // 1. Autenticación Anónima en Firebase
+      const credential = await signInAnonymously(this.auth);
+      const uid = credential.user.uid;
+
+      // 2. Creamos el objeto de perfil con el UID incluido
+      const nuevoPerfil: PerfilUsuario = {
+        uid: uid,
+        nombre: this.nombre,
+        mesaId: this.mesaId,
+        alergenos: this.alergenos.filter(a => a.activo).map(a => a.id)
+      };
+
+      // 3. Guardamos en el estado global (Signal)
+      this.usuarioService.establecerPerfil(nuevoPerfil);
+
+      console.log('Check-in exitoso. UID:', uid);
+
+      // 4. Navegamos a la carta
+      this.router.navigate(['/carta']);
+
+    } catch (error) {
+      console.error('Error en el check-in:', error);
+      alert('Hubo un problema al conectar con el servidor. Por favor, inténtalo de nuevo.');
+    }
   }
 }

@@ -1,0 +1,94 @@
+<ion-content [fullscreen]="true" class="sleek-content">
+  <!-- Mesh Background (Consistente con la carta) -->
+  <div class="background-mesh" aria-hidden="true">
+    <div class="mesh-shape shape-1"></div>
+    <div class="mesh-shape shape-2"></div>
+  </div>
+
+  <div class="modern-header">
+    <button class="back-btn" (click)="volver()" aria-label="Volver a la carta">
+      <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+    </button>
+    <div class="header-title" style="margin-left: 12px;">
+      <h1>Tu Comanda</h1>
+    </div>
+  </div>
+
+  <div class="contenedor-principal">
+    
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="comandaService.lineasComanda().length === 0">
+      <div class="glass-orb" aria-hidden="true">
+        <ion-icon name="reader-outline"></ion-icon>
+      </div>
+      <h3>Sin Selecciones</h3>
+      <p>Aún no has añadido ningún plato a la comanda.</p>
+      <button class="btn-seguir-pidiendo" (click)="volver()" aria-label="Ir a la carta para añadir platos">
+        <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+        <span>Explorar la carta</span>
+      </button>
+    </div>
+
+    <!-- Lista de elementos -->
+    <div class="lista-items" *ngIf="comandaService.lineasComanda().length > 0" role="list" aria-label="Productos en tu comanda">
+      
+      <article class="item-card glass-panel" *ngFor="let linea of comandaService.lineasComanda()" role="listitem">
+        <div class="item-header">
+          <h3>{{ linea.nombreProducto }}</h3>
+          <span class="precio" [attr.aria-label]="'Subtotal: ' + (linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es')">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+        </div>
+
+        <div class="item-notas" *ngIf="linea.notasEspeciales" role="note">
+          <p><strong>Nota a cocina:</strong> "{{ linea.notasEspeciales }}"</p>
+        </div>
+
+        <div class="item-footer">
+          <button class="action-btn notes-btn" 
+                  [class.has-notes]="linea.notasEspeciales"
+                  (click)="abrirNotas(linea)"
+                  [attr.aria-label]="linea.notasEspeciales ? 'Editar nota de cocina para ' + linea.nombreProducto : 'Añadir nota de cocina para ' + linea.nombreProducto">
+            <ion-icon name="chatbubble-ellipses-outline" aria-hidden="true"></ion-icon>
+            <span>{{ linea.notasEspeciales ? 'Editar nota' : 'Añadir nota' }}</span>
+          </button>
+
+          <div class="stepper" role="group" [attr.aria-label]="'Cantidad de ' + linea.nombreProducto">
+            <button class="stepper-btn" 
+                    [class.eliminar]="linea.cantidad === 1" 
+                    (click)="actualizarCantidad(linea, 'decrementar')"
+                    [attr.aria-label]="linea.cantidad === 1 ? 'Eliminar ' + linea.nombreProducto : 'Reducir cantidad de ' + linea.nombreProducto">
+              <ion-icon [name]="linea.cantidad === 1 ? 'trash-outline' : 'remove-outline'" aria-hidden="true"></ion-icon>
+            </button>
+            <span class="cantidad" aria-live="polite">{{ linea.cantidad }}</span>
+            <button class="stepper-btn" 
+                    (click)="actualizarCantidad(linea, 'incrementar')"
+                    [attr.aria-label]="'Aumentar cantidad de ' + linea.nombreProducto">
+              <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Botón secundario: Seguir pidiendo -->
+      <button class="btn-seguir-pidiendo" (click)="volver()" aria-label="Volver a la carta para seguir añadiendo platos">
+        <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+        <span>Seguir pidiendo</span>
+      </button>
+    </div>
+    
+    <!-- Espacio invisible para no solapar el footer -->
+    <div class="spacer" style="height: 120px;" aria-hidden="true"></div>
+  </div>
+</ion-content>
+
+<!-- Cárter flotante inferior -->
+<div class="footer-pago animate-slide-up" *ngIf="comandaService.lineasComanda().length > 0" role="region" aria-label="Resumen del pedido">
+  <div class="desglose">
+    <span class="label">Total a pagar ({{ comandaService.totalArticulos() }} ítems)</span>
+    <span class="total" aria-live="polite">{{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+  </div>
+  <button class="btn-confirmar" (click)="confirmarPedido()" aria-label="Confirmar y enviar el pedido">
+    <span>Confirmar y Enviar</span>
+    <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+  </button>
+</div>
+

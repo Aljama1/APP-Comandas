@@ -1,6 +1,6 @@
 export type EstadoComanda = 'PENDIENTE' | 'PREPARANDO' | 'LISTO' | 'SERVIDO' | 'PAGADO';
 
-export interface LineaPedido {
+export interface LineaComanda {
   idProducto: string;          // Referencia al ID del producto
   nombreProducto: string;      // Nombre congelado en el momento de pedir
   cantidad: number;            // Cantidad solicitada
@@ -10,12 +10,13 @@ export interface LineaPedido {
 }
 
 export interface Comanda {
-  id: string;                  // ID único de la comanda
+  id?: string;                  // ID único de la comanda (opcional porque Firestore lo genera)
   idMesa: string;              // ID de la mesa desde la que el cliente solicitó
-  idCliente: string;           // ID del cliente que generó la comanda
-  lineasPedido: LineaPedido[]; // Matriz con los platos solicitados
+  idCliente: string;           // UID del cliente (Firebase Auth)
+  nombreCliente: string;       // Nombre para facilitar lectura en cocina
+  lineasComanda: LineaComanda[]; // Matriz con los platos solicitados
   estado: EstadoComanda;       // Estado de flujo de vida de la comanda en cocina
   precioTotal: number;         // Sumatorio total
-  fechaCreacion: number;       // Timestamp
+  fechaCreacion: number;       // Timestamp (Date.now())
   fechaActualizacion: number;  // Timestamp
 }

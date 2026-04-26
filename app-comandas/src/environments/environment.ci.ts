@@ -1,12 +1,12 @@
 export const environment = {
   production: true,
   firebase: {
-    projectId: "tfg-comandas-app",
-    appId: "1:860317442778:web:45768f6250c7512caffbe3",
-    storageBucket: "tfg-comandas-app.firebasestorage.app",
-    apiKey: "AIzaSyA7HgctBRQ-azzX2rUxI8_ZYyuWHsWol5Q",
-    authDomain: "tfg-comandas-app.firebaseapp.com",
-    messagingSenderId: "860317442778",
-    projectNumber: "860317442778",
+    apiKey: "AIzaSyCVujTcksT_EJ1Aky5cDJRJq1ygQwGNuQs",
+    authDomain: "trace-6a41a.firebaseapp.com",
+    projectId: "trace-6a41a",
+    storageBucket: "trace-6a41a.firebasestorage.app",
+    messagingSenderId: "224107812856",
+    appId: "1:224107812856:web:b3ce8718821554198be80d",
+    measurementId: "G-5TDB3TRPZ2"
   }
 };
