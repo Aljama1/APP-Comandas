@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FormsModule } from '@angular/forms';
 
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Auth, signInAnonymously } from '@angular/fire/auth';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { PerfilUsuario } from '../../core/models/perfil-usuario.model';
@@ -18,7 +18,9 @@ import {
   restaurantOutline,
   personOutline,
   scanOutline,
-  arrowForwardOutline
+  arrowForwardOutline,
+  lockClosedOutline,
+  qrCodeOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -31,6 +33,7 @@ import {
 export class CheckInComponent {
   nombre: string = '';
   mesaId: number | null = null;
+  mesaDesdeQR: boolean = false;
 
   // Lista de alérgenos del TFG (siguiendo normativa europea)
   alergenos = [
@@ -45,6 +48,7 @@ export class CheckInComponent {
   // Inyección de servicios
   private usuarioService = inject(UsuarioService);
   private auth = inject(Auth);
+  private route = inject(ActivatedRoute);
 
   constructor(private router: Router) {
     // Registro de iconos
@@ -54,8 +58,22 @@ export class CheckInComponent {
       'restaurant-outline': restaurantOutline,
       'person-outline': personOutline,
       'scan-outline': scanOutline,
-      'arrow-forward-outline': arrowForwardOutline
+      'arrow-forward-outline': arrowForwardOutline,
+      'lock-closed-outline': lockClosedOutline,
+      'qr-code-outline': qrCodeOutline
     });
+
+    // Leer parámetro de mesa desde la URL (QR)
+    const mesa = this.route.snapshot.queryParamMap.get('mesa');
+    if (mesa) {
+      this.mesaId = Number(mesa);
+      this.mesaDesdeQR = true;
+    }
+
+    // Si ya existe una sesión guardada, saltar directamente a la carta
+    if (this.usuarioService.estaAutenticado()) {
+      this.router.navigate(['/carta']);
+    }
   }
 
   toggleAlergeno(id: string) {

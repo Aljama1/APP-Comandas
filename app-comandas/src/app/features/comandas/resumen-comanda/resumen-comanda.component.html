@@ -1,24 +1,24 @@
-<ion-content [fullscreen]="true" class="sleek-content">
-  <!-- Mesh Background (Consistente con la carta) -->
-  <div class="background-mesh" aria-hidden="true">
-    <div class="mesh-shape shape-1"></div>
-    <div class="mesh-shape shape-2"></div>
+<ion-content [fullscreen]="true" class="contenido-elegante">
+  <!-- Fondo Malla (Consistente con la carta) -->
+  <div class="fondo-malla" aria-hidden="true">
+    <div class="forma-malla forma-1"></div>
+    <div class="forma-malla forma-2"></div>
   </div>
 
-  <div class="modern-header">
-    <button class="back-btn" (click)="volver()" aria-label="Volver a la carta">
+  <div class="cabecera-moderna">
+    <button class="btn-volver" (click)="volver()" aria-label="Volver a la carta">
       <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
     </button>
-    <div class="header-title" style="margin-left: 12px;">
+    <div class="titulo-cabecera" style="margin-left: 12px;">
       <h1>Tu Comanda</h1>
     </div>
   </div>
 
   <div class="contenedor-principal">
     
-    <!-- Empty state -->
-    <div class="empty-state" *ngIf="comandaService.lineasComanda().length === 0">
-      <div class="glass-orb" aria-hidden="true">
+    <!-- Estado vacío -->
+    <div class="estado-vacio" *ngIf="comandaService.lineasComanda().length === 0">
+      <div class="orbe-cristal" aria-hidden="true">
         <ion-icon name="reader-outline"></ion-icon>
       </div>
       <h3>Sin Selecciones</h3>
@@ -32,8 +32,8 @@
     <!-- Lista de elementos -->
     <div class="lista-items" *ngIf="comandaService.lineasComanda().length > 0" role="list" aria-label="Productos en tu comanda">
       
-      <article class="item-card glass-panel" *ngFor="let linea of comandaService.lineasComanda()" role="listitem">
-        <div class="item-header">
+      <article class="tarjeta-item panel-cristal" *ngFor="let linea of comandaService.lineasComanda()" role="listitem">
+        <div class="cabecera-item">
           <h3>{{ linea.nombreProducto }}</h3>
           <span class="precio" [attr.aria-label]="'Subtotal: ' + (linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es')">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
         </div>
@@ -42,24 +42,24 @@
           <p><strong>Nota a cocina:</strong> "{{ linea.notasEspeciales }}"</p>
         </div>
 
-        <div class="item-footer">
-          <button class="action-btn notes-btn" 
-                  [class.has-notes]="linea.notasEspeciales"
+        <div class="pie-item">
+          <button class="btn-accion btn-notas" 
+                  [class.tiene-notas]="linea.notasEspeciales"
                   (click)="abrirNotas(linea)"
                   [attr.aria-label]="linea.notasEspeciales ? 'Editar nota de cocina para ' + linea.nombreProducto : 'Añadir nota de cocina para ' + linea.nombreProducto">
             <ion-icon name="chatbubble-ellipses-outline" aria-hidden="true"></ion-icon>
             <span>{{ linea.notasEspeciales ? 'Editar nota' : 'Añadir nota' }}</span>
           </button>
 
-          <div class="stepper" role="group" [attr.aria-label]="'Cantidad de ' + linea.nombreProducto">
-            <button class="stepper-btn" 
+          <div class="control-cantidad" role="group" [attr.aria-label]="'Cantidad de ' + linea.nombreProducto">
+            <button class="btn-paso" 
                     [class.eliminar]="linea.cantidad === 1" 
                     (click)="actualizarCantidad(linea, 'decrementar')"
                     [attr.aria-label]="linea.cantidad === 1 ? 'Eliminar ' + linea.nombreProducto : 'Reducir cantidad de ' + linea.nombreProducto">
               <ion-icon [name]="linea.cantidad === 1 ? 'trash-outline' : 'remove-outline'" aria-hidden="true"></ion-icon>
             </button>
             <span class="cantidad" aria-live="polite">{{ linea.cantidad }}</span>
-            <button class="stepper-btn" 
+            <button class="btn-paso" 
                     (click)="actualizarCantidad(linea, 'incrementar')"
                     [attr.aria-label]="'Aumentar cantidad de ' + linea.nombreProducto">
               <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
@@ -76,14 +76,14 @@
     </div>
     
     <!-- Espacio invisible para no solapar el footer -->
-    <div class="spacer" style="height: 120px;" aria-hidden="true"></div>
+    <div style="height: 120px;" aria-hidden="true"></div>
   </div>
 </ion-content>
 
-<!-- Cárter flotante inferior -->
-<div class="footer-pago animate-slide-up" *ngIf="comandaService.lineasComanda().length > 0" role="region" aria-label="Resumen del pedido">
+<!-- Pie flotante inferior -->
+<div class="footer-pago animar-deslizar-arriba" *ngIf="comandaService.lineasComanda().length > 0" role="region" aria-label="Resumen del pedido">
   <div class="desglose">
-    <span class="label">Total a pagar ({{ comandaService.totalArticulos() }} ítems)</span>
+    <span class="etiqueta">Total a pagar ({{ comandaService.totalArticulos() }} ítems)</span>
     <span class="total" aria-live="polite">{{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
   </div>
   <button class="btn-confirmar" (click)="confirmarPedido()" aria-label="Confirmar y enviar el pedido">
@@ -91,4 +91,3 @@
     <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
   </button>
 </div>
-

@@ -1,50 +1,50 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap');
 
-$title-font: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-$body-font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-$primary-dark: #111111;
-$bg-color: #f7f9fc;
+$fuente-titulo: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$fuente-cuerpo: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$oscuro-primario: #111111;
+$color-fondo: #f7f9fc;
 
-@keyframes floatBackground {
+@keyframes fondoFlotante {
   0% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-20px) scale(1.05); }
   100% { transform: translateY(0) scale(1); }
 }
 
-@keyframes slideUp {
+@keyframes deslizarArriba {
   0% { transform: translateY(100px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
 
 html, body {
-  font-family: $body-font;
+  font-family: $fuente-cuerpo;
 }
 
-.sleek-content {
-  --background: #{$bg-color};
+.contenido-elegante {
+  --background: #{$color-fondo};
 }
 
-// Background Mesh
-.background-mesh {
+// Fondo Malla
+.fondo-malla {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   overflow: hidden;
   z-index: -1;
-  background-color: $bg-color;
+  background-color: $color-fondo;
 
-  .mesh-shape {
+  .forma-malla {
     position: absolute;
     border-radius: 50%;
     filter: blur(80px);
     opacity: 0.6;
-    animation: floatBackground 15s ease-in-out infinite;
+    animation: fondoFlotante 15s ease-in-out infinite;
 
-    &.shape-1 {
+    &.forma-1 {
       top: -5%; left: -10%;
       width: 350px; height: 350px;
       background: rgba(43, 88, 255, 0.12);
     }
-    &.shape-2 {
+    &.forma-2 {
       bottom: 10%; right: -10%;
       width: 400px; height: 400px;
       background: rgba(255, 43, 115, 0.08);
@@ -53,8 +53,8 @@ html, body {
   }
 }
 
-// Header
-.modern-header {
+// Cabecera
+.cabecera-moderna {
   position: sticky;
   top: 0;
   z-index: 100;
@@ -66,7 +66,7 @@ html, body {
   display: flex;
   align-items: center;
 
-  .back-btn {
+  .btn-volver {
     background: white;
     border: 1px solid rgba(0,0,0,0.05);
     width: 40px; height: 40px;
@@ -79,26 +79,26 @@ html, body {
     transition: transform 0.2s;
 
     &:active { transform: scale(0.9); }
-    ion-icon { font-size: 20px; color: $primary-dark; }
+    ion-icon { font-size: 20px; color: $oscuro-primario; }
   }
 
-  .header-title h1 {
-    font-family: $title-font;
+  .titulo-cabecera h1 {
+    font-family: $fuente-titulo;
     font-size: 1.5rem;
     font-weight: 800;
-    color: $primary-dark;
+    color: $oscuro-primario;
     margin: 0;
     letter-spacing: -0.5px;
   }
 }
 
-// Main Contenedor
+// Contenedor Principal
 .contenedor-principal {
   padding: 20px;
 }
 
-// Empy state
-.empty-state {
+// Estado vacío
+.estado-vacio {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -106,7 +106,7 @@ html, body {
   text-align: center;
   padding: 60px 20px;
   
-  .glass-orb {
+  .orbe-cristal {
     width: 64px; height: 64px;
     background: rgba(255,255,255,0.7);
     backdrop-filter: blur(8px);
@@ -117,23 +117,23 @@ html, body {
     ion-icon { font-size: 28px; color: #a1a1a6; }
   }
   h3 {
-    font-family: $title-font;
+    font-family: $fuente-titulo;
     font-size: 1.2rem;
     font-weight: 700;
-    color: $primary-dark;
+    color: $oscuro-primario;
     margin: 0 0 6px 0;
   }
   p { color: #8e8e93; font-size: 0.9rem; margin: 0; }
 }
 
-// Lista Items
+// Lista de Items
 .lista-items {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.item-card {
+.tarjeta-item {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -142,24 +142,24 @@ html, body {
   padding: 16px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.03);
 
-  .item-header {
+  .cabecera-item {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 8px;
 
     h3 {
-      font-family: $title-font;
+      font-family: $fuente-titulo;
       font-size: 1.1rem;
       font-weight: 700;
-      color: $primary-dark;
+      color: $oscuro-primario;
       margin: 0;
       line-height: 1.3;
     }
     .precio {
-      font-family: $title-font;
+      font-family: $fuente-titulo;
       font-weight: 800;
-      color: $primary-dark;
+      color: $oscuro-primario;
       background: rgba(0,0,0,0.04);
       padding: 4px 8px;
       border-radius: 8px;
@@ -182,13 +182,13 @@ html, body {
     }
   }
 
-  .item-footer {
+  .pie-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 12px;
 
-    .notes-btn {
+    .btn-notas {
       background: transparent;
       border: 1px solid #e5e5ea;
       padding: 6px 12px;
@@ -204,16 +204,16 @@ html, body {
 
       ion-icon { font-size: 16px; }
 
-      &.has-notes {
+      &.tiene-notas {
         background: #f2f2f7;
-        color: $primary-dark;
+        color: $oscuro-primario;
         border-color: #d1d1d6;
       }
 
       &:active { transform: scale(0.95); }
     }
 
-    .stepper {
+    .control-cantidad {
       display: flex;
       align-items: center;
       background: white;
@@ -221,12 +221,12 @@ html, body {
       border-radius: 16px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 
-      .stepper-btn {
+      .btn-paso {
         background: transparent;
         border: none;
         width: 36px; height: 36px;
         display: flex; justify-content: center; align-items: center;
-        color: $primary-dark;
+        color: $oscuro-primario;
         cursor: pointer;
         transition: opacity 0.2s;
 
@@ -239,18 +239,18 @@ html, body {
       }
 
       .cantidad {
-        font-family: $title-font;
+        font-family: $fuente-titulo;
         font-weight: 800;
         width: 24px;
         text-align: center;
         font-size: 1.05rem;
-        color: $primary-dark;
+        color: $oscuro-primario;
       }
     }
   }
 }
 
-// Footer Pago
+// Pie de Pago
 .footer-pago {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -265,8 +265,8 @@ html, body {
   flex-direction: column;
   gap: 16px;
 
-  &.animate-slide-up {
-    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  &.animar-deslizar-arriba {
+    animation: deslizarArriba 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .desglose {
@@ -274,21 +274,21 @@ html, body {
     justify-content: space-between;
     align-items: center;
 
-    .label {
+    .etiqueta {
       font-size: 1rem;
       font-weight: 600;
       color: #6e6e73;
     }
     .total {
-      font-family: $title-font;
+      font-family: $fuente-titulo;
       font-size: 1.6rem;
       font-weight: 800;
-      color: $primary-dark;
+      color: $oscuro-primario;
     }
   }
 
   .btn-confirmar {
-    background: $primary-dark;
+    background: $oscuro-primario;
     color: white;
     border: none;
     padding: 16px;
@@ -324,10 +324,10 @@ html, body {
   background: transparent;
   border: 1.5px solid #d1d1d6;
   border-radius: 16px;
-  font-family: $body-font;
+  font-family: $fuente-cuerpo;
   font-size: 1rem;
   font-weight: 600;
-  color: $primary-dark;
+  color: $oscuro-primario;
   cursor: pointer;
   transition: all 0.2s ease;
 

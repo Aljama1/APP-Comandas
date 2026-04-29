@@ -86,5 +86,24 @@ Aplicación Híbrida orientada al **Cliente Final (Comensal)** para la autogesti
     - **Refactorización de Interfaz de Envío**: Inclusión de estados de carga (`LoadingController`) y diálogos de confirmación asíncronos en el `ResumenComandaComponent` para mejorar el feedback visual durante la comunicación con el servidor.
     - **Internacionalización de Activos**: Normalización del set de iconos de alérgenos (`gluten.svg`, `lactosa.svg`, `frutos-secos.svg`) garantizando consistencia semántica en todo el proyecto.
 
+### Corrección Transversal: Normalización de Nomenclatura (Completado)
+
+#### Auditoría y corrección de nomenclatura SCSS/HTML
+- **Hito**: Refactorización integral de toda la nomenclatura personalizada en archivos de estilos (SCSS) y plantillas (HTML) para cumplir con la convención establecida de **español de España** en todo el código no obligatorio del stack.
+- **Detalles técnicos**:
+    - **Alcance**: Se identificaron y corrigieron ~80+ casos distribuidos en 8 archivos (4 pares SCSS/HTML): `check-in`, `carta`, `resumen-comanda` y `resumen-flotante`.
+    - **Clases CSS**: Renombrado sistemático de todas las clases personalizadas (ej. `.allergies-section` → `.seccion-alergenos`, `.glass-panel` → `.panel-cristal`, `.product-card` → `.tarjeta-producto`, `.empty-state` → `.estado-vacio`).
+    - **Variables SCSS**: Normalización de variables compartidas (ej. `$title-font` → `$fuente-titulo`, `$primary-dark` → `$oscuro-primario`, `$bg-color` → `$color-fondo`).
+    - **Keyframes**: Traducción de animaciones (ej. `fadeIn` → `aparicionSuave`, `floatBackground` → `fondoFlotante`, `pulse` → `latido`, `slideUp` → `deslizarArriba`).
+    - **Comentarios**: Traducción de comentarios en inglés residuales dentro de los archivos SCSS.
+    - **Criterio**: Se respetó la nomenclatura obligatoria del stack (propiedades CSS nativas, directivas Angular, APIs de Ionic) manteniendo solo en inglés lo que el framework exige.
+
+#### Día 8 (cont.): Mejoras de Robustez y Experiencia de Usuario (Completado)
+- **Hito**: Refinamiento del flujo B2C con funcionalidades orientadas a la resiliencia de la sesión y la integración física (QR) con la plataforma digital.
+- **Detalles técnicos**:
+    - **Auto-llenado por QR (Mesas Inteligentes)**: Implementación de lectura de `queryParams` mediante `ActivatedRoute.snapshot` en el `CheckInComponent`. Si la URL contiene el parámetro `?mesa=X` (proveniente de un código QR físico), el campo de mesa se rellena automáticamente y se bloquea (`readonly`) con un indicador visual (`qr-badge`) que informa al usuario de que la mesa fue asignada por escaneo. Se optó por `snapshot` frente a `subscribe` para evitar suscripciones innecesarias y advertencias del contexto de inyección de Firebase.
+    - **Persistencia de Sesión (localStorage)**: Refactorización del `UsuarioService` y `ComandaService` para sincronizar el estado reactivo (Signals) con `localStorage`. Al inicializar cada servicio, se intenta recuperar el perfil y el carrito del almacenamiento local. Cada mutación (`establecerPerfil`, `agregarLinea`, `vaciarComanda`, etc.) persiste automáticamente el estado actualizado. Esto garantiza que un refresco accidental del navegador (F5) no destruya la sesión del comensal ni su carrito de productos.
+    - **Redirección Inteligente**: El `CheckInComponent` evalúa en su constructor si ya existe un perfil autenticado en memoria. De ser así, redirige automáticamente a `/carta`, eliminando la fricción de un doble check-in tras una recarga de página.
+
 ---
 *Última actualización: 26 de abril de 2026*

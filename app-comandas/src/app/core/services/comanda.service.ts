@@ -6,8 +6,10 @@ import { Producto } from '../models/producto.interface';
   providedIn: 'root'
 })
 export class ComandaService {
+  private readonly STORAGE_KEY = 'trace_carrito';
+
   // Estado reactivo principal
-  public lineasComanda = signal<LineaComanda[]>([]);
+  public lineasComanda = signal<LineaComanda[]>(this.recuperarDeStorage());
 
   // Señales computadas derivadas del estado
   public totalArticulos = computed(() => {
@@ -47,6 +49,7 @@ export class ComandaService {
         return [...lineas, nuevaLinea];
       }
     });
+    this.persistir();
   }
 
   /**
@@ -54,6 +57,7 @@ export class ComandaService {
    */
   public eliminarLinea(idProducto: string, notasEspeciales: string | undefined = undefined): void {
     this.lineasComanda.update(lineas => lineas.filter(l => !(l.idProducto === idProducto && l.notasEspeciales === notasEspeciales)));
+    this.persistir();
   }
 
   /**
@@ -79,6 +83,7 @@ export class ComandaService {
       }
       return lineasActualizadas;
     });
+    this.persistir();
   }
 
   /**
@@ -94,6 +99,7 @@ export class ComandaService {
       }
       return lineasActualizadas;
     });
+    this.persistir();
   }
 
   /**
@@ -101,5 +107,25 @@ export class ComandaService {
    */
   public vaciarComanda(): void {
     this.lineasComanda.set([]);
+    this.persistir();
+  }
+
+  /**
+   * Guarda el estado actual del carrito en localStorage.
+   */
+  private persistir(): void {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.lineasComanda()));
+  }
+
+  /**
+   * Intenta recuperar el carrito guardado en localStorage.
+   */
+  private recuperarDeStorage(): LineaComanda[] {
+    try {
+      const datos = localStorage.getItem(this.STORAGE_KEY);
+      return datos ? JSON.parse(datos) : [];
+    } catch {
+      return [];
+    }
   }
 }

@@ -1,50 +1,50 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap');
 
-$title-font: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-$body-font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-$primary-dark: #111111;
-$bg-color: #f7f9fc;
+$fuente-titulo: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$fuente-cuerpo: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$oscuro-primario: #111111;
+$color-fondo: #f7f9fc;
 
-@keyframes floatBackground {
+@keyframes fondoFlotante {
   0% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-20px) scale(1.05); }
   100% { transform: translateY(0) scale(1); }
 }
 
-@keyframes slideUpFade {
+@keyframes deslizarArribaFade {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 html, body {
-  font-family: $body-font;
+  font-family: $fuente-cuerpo;
 }
 
-.sleek-content {
-  --background: #{$bg-color};
+.contenido-elegante {
+  --background: #{$color-fondo};
 }
 
-// Background Mesh
-.background-mesh {
+// Fondo Malla
+.fondo-malla {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   overflow: hidden;
   z-index: -1;
-  background-color: $bg-color;
+  background-color: $color-fondo;
 
-  .mesh-shape {
+  .forma-malla {
     position: absolute;
     border-radius: 50%;
     filter: blur(80px);
     opacity: 0.6;
-    animation: floatBackground 15s ease-in-out infinite;
+    animation: fondoFlotante 15s ease-in-out infinite;
 
-    &.shape-1 {
+    &.forma-1 {
       top: -5%; left: -10%;
       width: 350px; height: 350px;
       background: rgba(43, 88, 255, 0.12);
     }
-    &.shape-2 {
+    &.forma-2 {
       bottom: 10%; right: -10%;
       width: 400px; height: 400px;
       background: rgba(255, 43, 115, 0.08);
@@ -53,8 +53,8 @@ html, body {
   }
 }
 
-// Modern Header Stick Top
-.modern-header {
+// Cabecera Moderna Fija Superior
+.cabecera-moderna {
   position: sticky;
   top: 0;
   z-index: 100;
@@ -65,13 +65,13 @@ html, body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
 
-  .header-top {
+  .cabecera-superior {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
 
-    .greeting-chip {
+    .chip-saludo {
       display: flex;
       align-items: center;
       gap: 6px;
@@ -84,28 +84,28 @@ html, body {
 
       ion-icon {
         font-size: 20px;
-        color: $primary-dark;
+        color: $oscuro-primario;
       }
-      strong { color: $primary-dark; }
+      strong { color: $oscuro-primario; }
     }
 
-    .table-chip {
-      font-family: $title-font;
+    .chip-mesa {
+      font-family: $fuente-titulo;
       font-weight: 800;
       font-size: 0.75rem;
-      background: $primary-dark;
+      background: $oscuro-primario;
       color: white;
       padding: 6px 10px;
       border-radius: 10px;
       letter-spacing: 0.5px;
     }
 
-    .header-actions {
+    .acciones-cabecera {
       display: flex;
       gap: 10px;
       align-items: center;
 
-      .cart-btn, .logout-btn {
+      .btn-carrito, .btn-salir {
         position: relative;
         background: white;
         border: 1px solid rgba(0,0,0,0.05);
@@ -124,18 +124,18 @@ html, body {
         
         ion-icon {
           font-size: 20px;
-          color: $primary-dark;
+          color: $oscuro-primario;
         }
       }
 
-      .logout-btn {
+      .btn-salir {
         ion-icon {
           color: #ff3b30; // Color rojo para destacar acción de salida
         }
       }
 
-      .cart-btn {
-        .cart-badge {
+      .btn-carrito {
+        .insignia-carrito {
           position: absolute;
           top: -4px; right: -4px;
           background: #ff3b30;
@@ -154,18 +154,18 @@ html, body {
     }
   }
 
-  .header-title {
+  .titulo-cabecera {
     h1 {
-      font-family: $title-font;
+      font-family: $fuente-titulo;
       font-size: 2rem;
       font-weight: 800;
-      color: $primary-dark;
+      color: $oscuro-primario;
       margin: 0 0 10px 0;
       letter-spacing: -0.5px;
     }
   }
 
-  .safety-chip {
+  .chip-seguridad {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -181,7 +181,7 @@ html, body {
       font-size: 14px;
     }
 
-    &.active-danger {
+    &.peligro-activo {
       background: #fff0f0;
       color: #ff3b30;
       border-color: rgba(255, 59, 48, 0.2);
@@ -190,18 +190,18 @@ html, body {
 }
 
 // Contenedor Carta
-.carta-container {
+.contenedor-carta {
   padding: 20px;
 }
 
-.products-list {
+.lista-productos {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-// Glass Product Card
-.product-card {
+// Tarjeta Producto con Cristal
+.tarjeta-producto {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -209,7 +209,7 @@ html, body {
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 12px 32px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.5) inset;
-  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: deslizarArribaFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @for $i from 1 through 10 {
     &:nth-child(#{$i}) {
@@ -217,22 +217,22 @@ html, body {
     }
   }
 
-  &.is-danger {
+  &.es-peligroso {
     filter: grayscale(35%);
     opacity: 0.9;
     
-    .card-body h3 {
+    .cuerpo-tarjeta h3 {
       color: #6e6e73;
     }
     
-    .card-hero {
-      .price-tag {
-        display: none; // Hide price if invalid
+    .heroe-tarjeta {
+      .etiqueta-precio {
+        display: none; // Ocultar precio si es incompatible
       }
     }
   }
 
-  .card-hero {
+  .heroe-tarjeta {
     position: relative;
     height: 190px;
 
@@ -242,7 +242,7 @@ html, body {
       object-fit: cover;
     }
 
-    .price-tag {
+    .etiqueta-precio {
       position: absolute;
       bottom: 12px;
       right: 12px;
@@ -250,15 +250,15 @@ html, body {
       backdrop-filter: blur(8px);
       padding: 6px 14px;
       border-radius: 12px;
-      font-family: $title-font;
+      font-family: $fuente-titulo;
       font-weight: 700;
       font-size: 0.95rem;
-      color: $primary-dark;
+      color: $oscuro-primario;
       box-shadow: 0 8px 16px rgba(0,0,0,0.1);
       z-index: 2;
     }
 
-    .danger-veil {
+    .velo-peligro {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(255, 59, 48, 0.85);
@@ -276,8 +276,8 @@ html, body {
         margin-bottom: 8px;
         filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
       }
-      .danger-title {
-        font-family: $title-font;
+      .titulo-peligro {
+        font-family: $fuente-titulo;
         font-size: 1.1rem;
         font-weight: 800;
         text-transform: uppercase;
@@ -286,47 +286,47 @@ html, body {
     }
   }
 
-  .card-body {
+  .cuerpo-tarjeta {
     padding: 20px;
 
-    .title-row {
+    .fila-titulo {
       margin-bottom: 6px;
       h3 {
-        font-family: $title-font;
+        font-family: $fuente-titulo;
         font-size: 1.35rem;
         font-weight: 700;
-        color: $primary-dark;
+        color: $oscuro-primario;
         margin: 0;
         line-height: 1.25;
       }
     }
 
-    .desc {
+    .descripcion {
       font-size: 0.85rem;
       color: #6e6e73;
       margin: 0 0 20px 0;
       line-height: 1.5;
-      // Line clamp para evitar descripciones kilométricas
+      // Limitar líneas para evitar descripciones kilométricas
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
-    .card-actions {
+    .acciones-tarjeta {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
 
-      .allergen-pill-group {
+      .grupo-pildoras-alergenos {
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
         flex: 1;
         padding-right: 16px;
 
-        .pill {
-          font-family: $body-font;
+        .pildora {
+          font-family: $fuente-cuerpo;
           font-size: 0.7rem;
           font-weight: 600;
           padding: 4px 10px;
@@ -336,23 +336,23 @@ html, body {
           text-transform: uppercase;
           letter-spacing: 0.3px;
 
-          &.pill-danger {
+          &.pildora-peligro {
             background: #ff3b30;
             color: white;
           }
-          &.pill-safe {
+          &.pildora-seguro {
             background: rgba(52, 199, 89, 0.1);
             color: #34c759;
           }
         }
       }
 
-      .sleek-add-btn {
+      .btn-anadir-elegante {
         width: 48px;
         height: 48px;
         min-width: 48px;
-        border-radius: 12px; // Rounded borders specifically requested
-        background: $primary-dark;
+        border-radius: 12px; // Bordes redondeados solicitados específicamente
+        background: $oscuro-primario;
         color: white;
         border: none;
         display: flex;
@@ -388,30 +388,30 @@ html, body {
 }
 
 // Títulos de sección (Categorías)
-.categoria-section {
+.categoria-seccion {
   margin-bottom: 32px;
 }
 
 .categoria-titulo {
-  font-family: $title-font;
+  font-family: $fuente-titulo;
   font-size: 1.3rem;
   font-weight: 800;
-  color: $primary-dark;
+  color: $oscuro-primario;
   margin: 0 0 16px 0;
   padding-left: 4px;
   letter-spacing: -0.3px;
 }
 
 // Feedback visual al añadir al carrito
-.sleek-add-btn.added-feedback {
+.btn-anadir-elegante.feedback-anadido {
   background: #34c759 !important;
   transform: scale(1.1) !important;
   box-shadow: 0 8px 20px rgba(52, 199, 89, 0.35) !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-// Empty State
-.empty-state {
+// Estado Vacío
+.estado-vacio {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -419,7 +419,7 @@ html, body {
   text-align: center;
   padding: 40px 20px;
   
-  .glass-orb {
+  .orbe-cristal {
     width: 64px; height: 64px;
     background: rgba(255,255,255,0.7);
     backdrop-filter: blur(8px);
@@ -435,10 +435,10 @@ html, body {
   }
 
   h3 {
-    font-family: $title-font;
+    font-family: $fuente-titulo;
     font-size: 1.2rem;
     font-weight: 700;
-    color: $primary-dark;
+    color: $oscuro-primario;
     margin: 0 0 6px 0;
   }
   p {

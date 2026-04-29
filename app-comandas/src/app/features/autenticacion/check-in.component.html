@@ -1,45 +1,53 @@
-<ion-content [fullscreen]="true" class="sleek-content">
-  <div class="background-mesh">
-    <div class="mesh-shape shape-1"></div>
-    <div class="mesh-shape shape-2"></div>
+<ion-content [fullscreen]="true" class="contenido-elegante">
+  <div class="fondo-malla">
+    <div class="forma-malla forma-1"></div>
+    <div class="forma-malla forma-2"></div>
   </div>
   
-  <div class="check-in-container">
-    <div class="glass-panel">
+  <div class="contenedor-registro">
+    <div class="panel-cristal">
       
-      <div class="header-section">
-        <div class="logo-mark">
+      <div class="seccion-cabecera">
+        <div class="marca-logo">
           <ion-icon name="restaurant-outline"></ion-icon>
         </div>
         <h1>Bienvenido a <strong>Trace</strong></h1>
         <p>Tu seguridad alimentaria es lo primero.</p>
       </div>
 
-      <div class="form-section fade-in">
-        <div class="input-wrapper">
-          <ion-icon name="person-outline" class="input-icon"></ion-icon>
-          <input type="text" placeholder="¿Cómo te llamas?" [(ngModel)]="nombre" class="sleek-input">
+      <div class="seccion-formulario aparicion">
+        <div class="envoltorio-campo">
+          <ion-icon name="person-outline" class="icono-campo"></ion-icon>
+          <input type="text" placeholder="¿Cómo te llamas?" [(ngModel)]="nombre" class="campo-elegante">
         </div>
 
-        <div class="input-wrapper mt-4">
-          <ion-icon name="scan-outline" class="input-icon"></ion-icon>
-          <input type="number" placeholder="ID de la Mesa" [(ngModel)]="mesaId" class="sleek-input">
+        <div class="envoltorio-campo mt-4" [class.qr-bloqueado]="mesaDesdeQR">
+          <ion-icon [name]="mesaDesdeQR ? 'lock-closed-outline' : 'scan-outline'" class="icono-campo"></ion-icon>
+          <input type="number" 
+                 placeholder="ID de la Mesa" 
+                 [(ngModel)]="mesaId" 
+                 class="campo-elegante" 
+                 [readonly]="mesaDesdeQR">
+          <span *ngIf="mesaDesdeQR" class="insignia-qr">
+            <ion-icon name="qr-code-outline"></ion-icon>
+            Mesa asignada
+          </span>
         </div>
       </div>
 
-      <div class="allergies-section fade-in-delay-1">
-        <div class="section-header">
-          <div class="pulse-dot"></div>
-          <p class="section-title">Perfil Médico</p>
+      <div class="seccion-alergenos aparicion-retardo-1">
+        <div class="cabecera-seccion">
+          <div class="punto-latido"></div>
+          <p class="titulo-seccion">Perfil Médico</p>
         </div>
-        <p class="section-subtitle">Selecciona tus alergias para filtrar la carta con total seguridad.</p>
+        <p class="subtitulo-seccion">Selecciona tus alergias para filtrar la carta con total seguridad.</p>
         
-        <div class="allergy-grid">
+        <div class="cuadricula-alergenos">
           <div *ngFor="let item of alergenos" 
-               class="allergy-item" 
-               [class.active]="item.activo"
+               class="elemento-alergeno" 
+               [class.activo]="item.activo"
                (click)="toggleAlergeno(item.id)">
-            <div class="icon-container">
+            <div class="contenedor-icono">
               <ion-icon *ngIf="!item.esSvg" [name]="item.icono"></ion-icon>
               <ion-icon *ngIf="item.esSvg" [src]="item.icono"></ion-icon>
             </div>
@@ -48,8 +56,8 @@
         </div>
       </div>
 
-      <div class="action-section fade-in-delay-2">
-        <button class="sleek-btn-primary" (click)="acceder()">
+      <div class="seccion-accion aparicion-retardo-2">
+        <button class="btn-primario-elegante" (click)="acceder()">
           <span>Comenzar Experiencia</span>
           <ion-icon name="arrow-forward-outline"></ion-icon>
         </button>
@@ -57,4 +65,5 @@
 
     </div>
   </div>
+
 </ion-content>

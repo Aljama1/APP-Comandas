@@ -1,25 +1,25 @@
-@keyframes fadeIn {
+@keyframes aparicionSuave {
   from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes floatBackground {
+@keyframes fondoFlotante {
   0% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-20px) scale(1.05); }
   100% { transform: translateY(0) scale(1); }
 }
 
-@keyframes pulse {
+@keyframes latido {
   0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
   70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 59, 48, 0); }
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
 }
 
-.sleek-content {
+.contenido-elegante {
   --background: #f7f9fc;
 }
 
-.background-mesh {
+.fondo-malla {
   position: absolute;
   top: 0;
   left: 0;
@@ -29,14 +29,14 @@
   z-index: -1;
   background-color: #f7f9fc;
 
-  .mesh-shape {
+  .forma-malla {
     position: absolute;
     border-radius: 50%;
     filter: blur(60px);
     opacity: 0.6;
-    animation: floatBackground 15s ease-in-out infinite;
+    animation: fondoFlotante 15s ease-in-out infinite;
 
-    &.shape-1 {
+    &.forma-1 {
       top: -10%;
       left: -20%;
       width: 300px;
@@ -44,7 +44,7 @@
       background: rgba(43, 88, 255, 0.15);
     }
 
-    &.shape-2 {
+    &.forma-2 {
       bottom: -10%;
       right: -20%;
       width: 400px;
@@ -55,7 +55,7 @@
   }
 }
 
-.check-in-container {
+.contenedor-registro {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -64,7 +64,7 @@
   padding: 24px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-  .glass-panel {
+  .panel-cristal {
     background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -75,12 +75,12 @@
     max-width: 480px;
     box-shadow: 0 24px 48px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
     
-    .header-section {
+    .seccion-cabecera {
       text-align: center;
       margin-bottom: 40px;
-      animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: aparicionSuave 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
-      .logo-mark {
+      .marca-logo {
         width: 64px;
         height: 64px;
         margin: 0 auto 16px;
@@ -117,21 +117,21 @@
       }
     }
 
-    .fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
-    .fade-in-delay-1 { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
-    .fade-in-delay-2 { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+    .aparicion { animation: aparicionSuave 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+    .aparicion-retardo-1 { animation: aparicionSuave 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+    .aparicion-retardo-2 { animation: aparicionSuave 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
 
-    .form-section {
+    .seccion-formulario {
       margin-bottom: 32px;
 
       .mt-4 { margin-top: 16px; }
 
-      .input-wrapper {
+      .envoltorio-campo {
         position: relative;
         display: flex;
         align-items: center;
 
-        .input-icon {
+        .icono-campo {
           position: absolute;
           left: 16px;
           font-size: 20px;
@@ -139,7 +139,7 @@
           z-index: 10;
         }
 
-        .sleek-input {
+        .campo-elegante {
           width: 100%;
           background: rgba(255, 255, 255, 0.8);
           border: 1.5px solid rgba(0, 0, 0, 0.05);
@@ -163,35 +163,69 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
             transform: translateY(-2px);
             
-            & + .input-icon {
+            & + .icono-campo {
               color: #111111;
             }
+          }
+        }
+
+        // Estado bloqueado por QR
+        &.qr-bloqueado {
+          .icono-campo {
+            color: #007aff;
+          }
+
+          .campo-elegante {
+            background: rgba(0, 122, 255, 0.06);
+            border-color: rgba(0, 122, 255, 0.2);
+            color: #007aff;
+            font-weight: 600;
+            cursor: default;
+          }
+        }
+
+        .insignia-qr {
+          position: absolute;
+          right: 12px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          background: rgba(0, 122, 255, 0.1);
+          color: #007aff;
+          font-size: 0.7rem;
+          font-weight: 600;
+          padding: 4px 10px;
+          border-radius: 12px;
+          letter-spacing: 0.3px;
+
+          ion-icon {
+            font-size: 14px;
           }
         }
       }
     }
 
-    .allergies-section {
+    .seccion-alergenos {
       background: rgba(255, 255, 255, 0.5);
       border-radius: 24px;
       padding: 24px 20px;
       border: 1px solid rgba(255, 255, 255, 0.5);
 
-      .section-header {
+      .cabecera-seccion {
         display: flex;
         align-items: center;
         margin-bottom: 8px;
 
-        .pulse-dot {
+        .punto-latido {
           width: 8px;
           height: 8px;
           border-radius: 50%;
           background: #ff3b30;
           margin-right: 10px;
-          animation: pulse 2s infinite;
+          animation: latido 2s infinite;
         }
 
-        .section-title {
+        .titulo-seccion {
           font-weight: 700;
           color: #111111;
           font-size: 0.9rem;
@@ -201,19 +235,19 @@
         }
       }
 
-      .section-subtitle {
+      .subtitulo-seccion {
         font-size: 0.85rem;
         color: #6e6e73;
         margin-bottom: 20px;
         line-height: 1.4;
       }
 
-      .allergy-grid {
+      .cuadricula-alergenos {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 12px;
 
-        .allergy-item {
+        .elemento-alergeno {
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -230,7 +264,7 @@
             transform: scale(0.92);
           }
 
-          .icon-container {
+          .contenedor-icono {
             width: 44px;
             height: 44px;
             display: flex;
@@ -254,12 +288,12 @@
             transition: all 0.3s ease;
           }
 
-          &.active {
+          &.activo {
             border-color: rgba(255, 59, 48, 0.3);
             background-color: #fff0f0;
             box-shadow: 0 8px 16px rgba(255, 59, 48, 0.12);
 
-            .icon-container {
+            .contenedor-icono {
               background: #ff3b30;
               
               ion-icon {
@@ -277,10 +311,10 @@
       }
     }
 
-    .action-section {
+    .seccion-accion {
       margin-top: 32px;
 
-      .sleek-btn-primary {
+      .btn-primario-elegante {
         width: 100%;
         height: 64px;
         background: linear-gradient(135deg, #111111 0%, #333333 100%);
