@@ -1,0 +1,91 @@
+<ion-content [fullscreen]="true" class="contenido-elegante">
+  <!-- Fondo Malla (Consistente con el resto de la app) -->
+  <div class="fondo-malla" aria-hidden="true">
+    <div class="forma-malla forma-1"></div>
+    <div class="forma-malla forma-2"></div>
+  </div>
+
+  <div class="cabecera-moderna">
+    <div class="icono-cabecera" aria-hidden="true">
+      <ion-icon name="receipt-outline"></ion-icon>
+    </div>
+    <div class="titulo-cabecera">
+      <h1>Seguimiento</h1>
+    </div>
+  </div>
+
+  <div class="contenedor-principal">
+
+    <!-- Mensaje de bienvenida personalizado -->
+    <div class="mensaje-bienvenida">
+      <p>{{ nombreCliente() }}, tu pedido está en marcha 🍽️</p>
+    </div>
+
+    <!-- Error de conexión -->
+    <div class="aviso-error" *ngIf="error()" role="alert">
+      <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+      <span>{{ error() }}</span>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         RASTREADOR VISUAL (Stepper de estados)
+         Cada paso se pinta según su posición relativa al
+         estado actual de la comanda en Firestore.
+         ══════════════════════════════════════════════════ -->
+    <div class="rastreador" role="list" aria-label="Progreso de tu comanda">
+
+      <div
+        class="paso-rastreador"
+        *ngFor="let paso of pasosEstado; let i = index"
+        [class.completado]="i < indicePasoActual()"
+        [class.activo]="i === indicePasoActual()"
+        [class.pendiente]="i > indicePasoActual()"
+        role="listitem"
+        [attr.aria-current]="i === indicePasoActual() ? 'step' : null"
+      >
+        <!-- Indicador circular del paso -->
+        <div class="indicador-paso">
+          <div class="circulo-paso">
+            <ion-icon [name]="paso.icono" aria-hidden="true"></ion-icon>
+          </div>
+          <!-- Línea conectora (no se muestra en el último paso) -->
+          <div class="linea-conectora" *ngIf="i < pasosEstado.length - 1" aria-hidden="true"></div>
+        </div>
+
+        <!-- Contenido textual del paso -->
+        <div class="contenido-paso">
+          <h3>{{ paso.etiqueta }}</h3>
+          <p *ngIf="i === indicePasoActual()">{{ paso.descripcion }}</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Resumen del pedido (datos de Firestore) -->
+    <div class="resumen-pedido panel-cristal" *ngIf="datosComanda()">
+      <h3>Detalle del pedido</h3>
+      <div class="lineas-resumen" role="list">
+        <div class="linea-resumen" *ngFor="let linea of datosComanda()!.lineasComanda" role="listitem">
+          <span class="nombre-linea">{{ linea.cantidad }}x {{ linea.nombreProducto }}</span>
+          <span class="precio-linea">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+        </div>
+      </div>
+      <div class="total-resumen">
+        <span class="etiqueta-total">Total</span>
+        <span class="valor-total" aria-live="polite">{{ datosComanda()!.precioTotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+      </div>
+    </div>
+
+    <!-- Botón para volver al inicio (solo cuando la comanda está SERVIDA) -->
+    <button
+      class="btn-volver-inicio"
+      *ngIf="estadoActual() === 'SERVIDO'"
+      (click)="volverAlInicio()"
+      aria-label="Volver al inicio y realizar un nuevo pedido"
+    >
+      <ion-icon name="home-outline" aria-hidden="true"></ion-icon>
+      <span>Nuevo pedido</span>
+    </button>
+
+  </div>
+</ion-content>

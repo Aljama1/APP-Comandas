@@ -1,0 +1,356 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap');
+
+// ─── Variables de diseño (consistentes con el resto de la app) ─────
+$fuente-titulo: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$fuente-cuerpo: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$oscuro-primario: #111111;
+$color-fondo: #f7f9fc;
+
+// Colores semánticos para los estados del rastreador
+$color-completado: #34c759;   // Verde Apple - paso ya superado
+$color-activo: #007aff;       // Azul iOS - paso en curso
+$color-pendiente: #d1d1d6;    // Gris suave - paso futuro
+
+// ─── Animaciones ───────────────────────────────────────────────────
+
+@keyframes fondoFlotante {
+  0%   { transform: translateY(0) scale(1); }
+  50%  { transform: translateY(-20px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes aparicionSuave {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// Animación sutil de pulso para el paso activo
+@keyframes latidoSuave {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.3); }
+  50%      { box-shadow: 0 0 0 10px rgba(0, 122, 255, 0); }
+}
+
+// ─── Layout base ───────────────────────────────────────────────────
+
+.contenido-elegante {
+  --background: #{$color-fondo};
+}
+
+// Fondo Malla
+.fondo-malla {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+  z-index: -1;
+  background-color: $color-fondo;
+
+  .forma-malla {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.6;
+    animation: fondoFlotante 15s ease-in-out infinite;
+
+    &.forma-1 {
+      top: -5%; left: -10%;
+      width: 350px; height: 350px;
+      background: rgba(43, 88, 255, 0.12);
+    }
+    &.forma-2 {
+      bottom: 10%; right: -10%;
+      width: 400px; height: 400px;
+      background: rgba(255, 43, 115, 0.08);
+      animation-delay: -5s;
+    }
+  }
+}
+
+// ─── Cabecera ──────────────────────────────────────────────────────
+
+.cabecera-moderna {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .icono-cabecera {
+    width: 40px; height: 40px;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+
+    ion-icon { font-size: 20px; color: $oscuro-primario; }
+  }
+
+  .titulo-cabecera h1 {
+    font-family: $fuente-titulo;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: $oscuro-primario;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+}
+
+// ─── Contenedor Principal ──────────────────────────────────────────
+
+.contenedor-principal {
+  padding: 20px;
+  animation: aparicionSuave 0.5s ease-out;
+}
+
+// Mensaje de bienvenida
+.mensaje-bienvenida {
+  text-align: center;
+  margin-bottom: 28px;
+
+  p {
+    font-family: $fuente-cuerpo;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #6e6e73;
+    margin: 0;
+  }
+}
+
+// ─── Aviso de error ────────────────────────────────────────────────
+
+.aviso-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 59, 48, 0.08);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+
+  ion-icon {
+    font-size: 22px;
+    color: #ff3b30;
+    flex-shrink: 0;
+  }
+
+  span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #cc2d25;
+    line-height: 1.4;
+  }
+}
+
+// ─── RASTREADOR (Stepper Visual) ───────────────────────────────────
+
+.rastreador {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 28px;
+}
+
+.paso-rastreador {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+
+  // ── Indicador circular + línea ──
+  .indicador-paso {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+
+    .circulo-paso {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 2px solid $color-pendiente;
+      background: white;
+
+      ion-icon {
+        font-size: 20px;
+        color: $color-pendiente;
+        transition: color 0.4s;
+      }
+    }
+
+    .linea-conectora {
+      width: 3px;
+      height: 36px;
+      background: $color-pendiente;
+      border-radius: 2px;
+      margin: 4px 0;
+      transition: background 0.4s;
+    }
+  }
+
+  // ── Textos del paso ──
+  .contenido-paso {
+    padding-top: 8px;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    h3 {
+      font-family: $fuente-titulo;
+      font-size: 1rem;
+      font-weight: 700;
+      color: $color-pendiente;
+      margin: 0;
+      transition: color 0.4s;
+    }
+
+    p {
+      font-family: $fuente-cuerpo;
+      font-size: 0.85rem;
+      color: #8e8e93;
+      margin: 4px 0 0 0;
+      line-height: 1.4;
+      animation: aparicionSuave 0.4s ease-out;
+    }
+  }
+
+  // ── Modificadores de estado ──
+
+  // Paso COMPLETADO: círculo verde, línea verde
+  &.completado {
+    .circulo-paso {
+      background: $color-completado;
+      border-color: $color-completado;
+      ion-icon { color: white; }
+    }
+    .linea-conectora { background: $color-completado; }
+    .contenido-paso h3 { color: $oscuro-primario; }
+  }
+
+  // Paso ACTIVO: círculo azul con pulso, texto oscuro
+  &.activo {
+    .circulo-paso {
+      background: $color-activo;
+      border-color: $color-activo;
+      animation: latidoSuave 2s ease-in-out infinite;
+      ion-icon { color: white; }
+    }
+    .contenido-paso h3 {
+      color: $oscuro-primario;
+      font-size: 1.05rem;
+    }
+  }
+
+  // Paso PENDIENTE: usa los estilos base (gris)
+}
+
+// ─── Resumen del pedido (tarjeta glassmorphism) ────────────────────
+
+.resumen-pedido {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.03);
+  margin-bottom: 20px;
+
+  h3 {
+    font-family: $fuente-titulo;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $oscuro-primario;
+    margin: 0 0 16px 0;
+  }
+
+  .lineas-resumen {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .linea-resumen {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .nombre-linea {
+      font-family: $fuente-cuerpo;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: #3a3a3c;
+    }
+
+    .precio-linea {
+      font-family: $fuente-titulo;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: $oscuro-primario;
+    }
+  }
+
+  .total-resumen {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .etiqueta-total {
+      font-family: $fuente-cuerpo;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #6e6e73;
+    }
+
+    .valor-total {
+      font-family: $fuente-titulo;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: $oscuro-primario;
+    }
+  }
+}
+
+// ─── Botón "Nuevo pedido" ──────────────────────────────────────────
+
+.btn-volver-inicio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  margin-top: 8px;
+  background: $oscuro-primario;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-family: $fuente-cuerpo;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: aparicionSuave 0.5s ease-out;
+
+  ion-icon { font-size: 20px; }
+
+  &:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+}

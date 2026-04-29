@@ -15,6 +15,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/comandas/resumen-comanda/resumen-comanda.component').then((m) => m.ResumenComandaComponent),
   },
   {
+    path: 'seguimiento-comanda',
+    loadComponent: () => import('./features/comandas/seguimiento-comanda/seguimiento-comanda.component').then((m) => m.SeguimientoComandaComponent),
+  },
+  {
     path: '',
     redirectTo: 'check-in',
     pathMatch: 'full',

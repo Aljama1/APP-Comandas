@@ -129,13 +129,13 @@ export class ResumenComandaComponent {
 
       const successAlert = await this.alertController.create({
         header: '¡Pedido enviado!',
-        message: 'Tu comanda ya está en cocina. ¡Buen provecho!',
+        message: 'Tu comanda ya está en cocina. Podrás ver su estado en tiempo real.',
         mode: 'ios',
         buttons: [{
-          text: 'Aceptar',
+          text: 'Ver seguimiento',
           handler: () => {
             this.comandaService.vaciarComanda();
-            this.router.navigateByUrl('/check-in');
+            this.router.navigateByUrl('/seguimiento-comanda');
           }
         }]
       });
