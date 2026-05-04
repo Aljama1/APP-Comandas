@@ -1,57 +1,101 @@
-import { Injectable, inject, signal, OnDestroy } from '@angular/core';
-import { Firestore, collection, addDoc, doc, onSnapshot, serverTimestamp, Unsubscribe } from '@angular/fire/firestore';
+import { Injectable, inject, signal, computed, OnDestroy, NgZone, runInInjectionContext, EnvironmentInjector } from '@angular/core';
+import {
+  Firestore,
+  collection, addDoc, query, where, orderBy,
+  onSnapshot, serverTimestamp, Unsubscribe
+} from '@angular/fire/firestore';
 import { Comanda, EstadoComanda } from '../models/comanda.interface';
 
 /**
  * Servicio responsable de la comunicación bidireccional con Firestore.
  *
  * Funciones principales:
- *  1. Enviar la comanda del cliente a la colección 'comandas'.
- *  2. Escuchar en tiempo real los cambios de estado que realiza la cocina
- *     sobre ese documento (patrón Observer mediante `onSnapshot`).
+ *  1. Enviar comandas del cliente a la colección 'comandas'.
+ *  2. Escuchar en tiempo real TODAS las comandas del cliente mediante
+ *     una única query filtrada por `idCliente` + `idMesa`.
  *
- * El estado se expone como un Angular Signal para que cualquier componente
- * pueda reaccionar de forma declarativa sin suscripciones manuales.
+ * Estrategia de escucha (patrón Observer sobre colección filtrada):
+ *   En lugar de abrir un `onSnapshot` por cada documento individual
+ *   (lo que consumiría N listeners), se usa una sola query con filtros
+ *   `where`. Firestore mantiene una única conexión WebSocket y empuja
+ *   todos los cambios de cualquier ronda del cliente. Esto resuelve
+ *   el caso de múltiples rondas activas simultáneas (ej. Ronda 1 en
+ *   PREPARANDO y Ronda 2 en PENDIENTE al mismo tiempo).
+ *
+ * El estado se expone como Angular Signals para que la vista reaccione
+ * de forma declarativa sin suscripciones manuales.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class ComandaFirestoreService implements OnDestroy {
   private firestore = inject(Firestore);
+  private zone = inject(NgZone);
+  private injector = inject(EnvironmentInjector);
 
-  // --- Estado reactivo expuesto a la vista ---
+  // ─── Estado reactivo expuesto a la vista ─────────────────────────
 
-  /** ID del documento en Firestore de la comanda activa (null si no hay ninguna) */
-  public idComandaActiva = signal<string | null>(this.recuperarIdComanda());
-
-  /** Último estado conocido de la comanda activa, actualizado en tiempo real */
-  public estadoComandaActiva = signal<EstadoComanda | null>(null);
-
-  /** Snapshot completo de la comanda para mostrar detalles en el seguimiento */
-  public datosComandaActiva = signal<Comanda | null>(null);
+  /**
+   * Array con TODAS las comandas del cliente en esta sesión,
+   * ordenadas por fecha de creación (ascendente).
+   * Se actualiza en tiempo real mediante la query de Firestore.
+   */
+  public todasLasComandas = signal<Comanda[]>([]);
 
   /** Indica si hay un error de conexión con Firestore */
   public errorEscucha = signal<string | null>(null);
 
-  // Referencia interna para poder cancelar la suscripción al documento
+  // ─── Señales computadas derivadas ────────────────────────────────
+
+  /** Número total de rondas enviadas en esta sesión */
+  public totalRondas = computed(() => this.todasLasComandas().length);
+
+  /** Indica si el cliente tiene al menos una comanda enviada */
+  public tieneComandas = computed(() => this.todasLasComandas().length > 0);
+
+  /** La comanda más reciente (la que se muestra con el stepper principal) */
+  public comandaMasReciente = computed(() => {
+    const todas = this.todasLasComandas();
+    return todas.length > 0 ? todas[todas.length - 1] : null;
+  });
+
+  /** Estado de la comanda más reciente */
+  public estadoComandaActiva = computed(() => {
+    return this.comandaMasReciente()?.estado ?? null;
+  });
+
+  /** Verdadero si TODAS las rondas han sido servidas */
+  public todasServidas = computed(() => {
+    const todas = this.todasLasComandas();
+    return todas.length > 0 && todas.every(c => c.estado === 'SERVIDO');
+  });
+
+  // ─── Estado interno ──────────────────────────────────────────────
+
+  // Referencia para cancelar la suscripción a la query
   private cancelarEscucha: Unsubscribe | null = null;
 
-  // Clave de localStorage para persistir el ID de la comanda entre recargas
-  private readonly STORAGE_KEY_COMANDA_ID = 'trace_comanda_activa_id';
+  // Datos de sesión necesarios para reconstruir la query tras un F5
+  private readonly STORAGE_KEY_SESION = 'trace_sesion_seguimiento';
 
   constructor() {
-    // Si hay una comanda activa guardada de una sesión anterior, reconectamos
-    const idGuardado = this.recuperarIdComanda();
-    if (idGuardado) {
-      this.escucharComanda(idGuardado);
+    // Si hay datos de sesión guardados, reconectamos la escucha
+    const sesion = this.recuperarSesion();
+    if (sesion) {
+      this.escucharComandasDelCliente(sesion.idCliente, sesion.idMesa);
     }
   }
 
   // ─── Escritura: Enviar comanda a Firestore ───────────────────────
 
   /**
-   * Persiste la comanda en la colección 'comandas' de Firestore.
-   * Tras guardarla, activa automáticamente la escucha en tiempo real.
+   * Persiste una nueva comanda en la colección 'comandas' de Firestore.
+   * Cada invocación crea un documento independiente, permitiendo que
+   * una mesa envíe tantas rondas de pedidos como necesite.
+   *
+   * Si es la primera comanda de la sesión, activa la escucha por query.
+   * Si ya hay una escucha activa, la nueva comanda aparece automáticamente
+   * en el array `todasLasComandas` gracias al listener de la query.
    */
   async enviarComanda(comanda: Comanda): Promise<string> {
     try {
@@ -67,12 +111,15 @@ export class ComandaFirestoreService implements OnDestroy {
 
       console.log('Comanda guardada en Firestore con ID:', docRef.id);
 
-      // Persistimos el ID para sobrevivir a recargas del navegador
-      this.guardarIdComanda(docRef.id);
-      this.idComandaActiva.set(docRef.id);
+      // Persistimos los datos de sesión para sobrevivir a recargas (F5)
+      this.guardarSesion(comanda.idCliente, comanda.idMesa);
 
-      // Iniciamos la escucha en tiempo real sobre el documento recién creado
-      this.escucharComanda(docRef.id);
+      // Si aún no hay escucha activa, la activamos.
+      // Si ya existe, la nueva comanda aparecerá sola en el array
+      // porque la query filtra por idCliente + idMesa.
+      if (!this.cancelarEscucha) {
+        this.escucharComandasDelCliente(comanda.idCliente, comanda.idMesa);
+      }
 
       return docRef.id;
 
@@ -82,47 +129,59 @@ export class ComandaFirestoreService implements OnDestroy {
     }
   }
 
-  // ─── Lectura: Escucha en tiempo real (onSnapshot) ────────────────
+  // ─── Lectura: Escucha en tiempo real (Query + onSnapshot) ────────
 
   /**
-   * Se suscribe a los cambios del documento `comandas/{id}` en Firestore.
+   * Se suscribe a TODAS las comandas del cliente para esta mesa.
    *
-   * Cada vez que la cocina actualice el campo `estado` del documento,
-   * este callback se dispara y actualiza los Signals locales, lo que
-   * provoca que la vista del cliente se repinte instantáneamente.
+   * Usa una query filtrada: `idCliente == X AND idMesa == Y`,
+   * ordenada por `fechaCreacion` ascendente. Así, con UNA sola
+   * suscripción, recibimos actualizaciones de todas las rondas.
+   *
+   * NOTA: Firestore pedirá crear un índice compuesto la primera vez
+   * que se ejecute esta query. Firebase genera un enlace directo
+   * en la consola del navegador para crearlo con un clic.
    */
-  public escucharComanda(idComanda: string): void {
+  public escucharComandasDelCliente(idCliente: string, idMesa: string): void {
     // Cancelamos cualquier escucha previa para evitar fugas de memoria
     this.detenerEscucha();
 
-    const refDocumento = doc(this.firestore, 'comandas', idComanda);
+    const comandasRef = collection(this.firestore, 'comandas');
 
-    this.cancelarEscucha = onSnapshot(
-      refDocumento,
-      // Callback de éxito: se ejecuta cada vez que el documento cambia
-      (snapshot) => {
-        if (snapshot.exists()) {
-          const datos = snapshot.data() as Comanda;
-          this.datosComandaActiva.set({ ...datos, id: snapshot.id });
-          this.estadoComandaActiva.set(datos.estado);
-          this.errorEscucha.set(null);
-        } else {
-          // El documento fue eliminado desde el panel de administración
-          this.estadoComandaActiva.set(null);
-          this.datosComandaActiva.set(null);
-        }
-      },
-      // Callback de error: problemas de red o permisos de Firestore
-      (error) => {
-        console.error('Error en la escucha de Firestore:', error);
-        this.errorEscucha.set('No se pudo conectar con el servidor. Comprueba tu conexión.');
-      }
+    // Construimos la query filtrada por cliente y mesa
+    const consultaFiltrada = query(
+      comandasRef,
+      where('idCliente', '==', idCliente),
+      where('idMesa', '==', idMesa),
+      orderBy('fechaCreacion', 'asc')
     );
+
+    runInInjectionContext(this.injector, () => {
+      this.cancelarEscucha = onSnapshot(
+        consultaFiltrada,
+        (snapshot) => {
+          // Usamos zone.run para asegurar que Angular detecte el cambio en dispositivos móviles
+          this.zone.run(() => {
+            const comandas: Comanda[] = snapshot.docs.map(doc => ({
+              ...(doc.data() as Comanda),
+              id: doc.id
+            }));
+            this.todasLasComandas.set(comandas);
+            this.errorEscucha.set(null);
+          });
+        },
+        (error) => {
+          this.zone.run(() => {
+            console.error('Error en la escucha de Firestore:', error);
+            this.errorEscucha.set('No se pudo conectar con el servidor.');
+          });
+        }
+      );
+    });
   }
 
   /**
-   * Cancela la suscripción activa a Firestore y limpia el estado reactivo.
-   * Se invoca al destruir el servicio o cuando el cliente cierra sesión.
+   * Cancela la suscripción activa a Firestore.
    */
   public detenerEscucha(): void {
     if (this.cancelarEscucha) {
@@ -133,26 +192,29 @@ export class ComandaFirestoreService implements OnDestroy {
 
   /**
    * Limpia completamente el seguimiento: detiene la escucha,
-   * borra el ID persistido y resetea los Signals.
-   * Se usa cuando el pedido se completa o el usuario hace logout.
+   * borra los datos de sesión y resetea todos los Signals.
+   * Se usa cuando el usuario hace logout o cierra la mesa.
    */
   public limpiarSeguimiento(): void {
     this.detenerEscucha();
-    this.idComandaActiva.set(null);
-    this.estadoComandaActiva.set(null);
-    this.datosComandaActiva.set(null);
+    this.todasLasComandas.set([]);
     this.errorEscucha.set(null);
-    localStorage.removeItem(this.STORAGE_KEY_COMANDA_ID);
+    localStorage.removeItem(this.STORAGE_KEY_SESION);
   }
 
-  // ─── Persistencia local del ID de comanda ────────────────────────
+  // ─── Persistencia de datos de sesión ─────────────────────────────
 
-  private guardarIdComanda(id: string): void {
-    localStorage.setItem(this.STORAGE_KEY_COMANDA_ID, id);
+  private guardarSesion(idCliente: string, idMesa: string): void {
+    localStorage.setItem(this.STORAGE_KEY_SESION, JSON.stringify({ idCliente, idMesa }));
   }
 
-  private recuperarIdComanda(): string | null {
-    return localStorage.getItem(this.STORAGE_KEY_COMANDA_ID);
+  private recuperarSesion(): { idCliente: string; idMesa: string } | null {
+    try {
+      const datos = localStorage.getItem(this.STORAGE_KEY_SESION);
+      return datos ? JSON.parse(datos) : null;
+    } catch {
+      return null;
+    }
   }
 
   // ─── Limpieza al destruir el servicio ────────────────────────────

@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { LineaComanda } from '../models/comanda.interface';
-import { Producto } from '../models/producto.interface';
+import { Producto, CategoriaProducto, MAPA_DESTINO_CATEGORIA, DestinoReceptor } from '../models/producto.model';
 
 @Injectable({
   providedIn: 'root'
@@ -37,13 +37,17 @@ export class ComandaService {
         linea.subtotal = linea.cantidad * linea.precioUnitario;
         return lineasActualizadas;
       } else {
-        // Creamos una nueva línea
+        // Determinamos el destino automáticamente según la categoría del producto.
+        // Si la categoría no está en el mapa (caso improbable), asumimos COCINA.
+        const destino: DestinoReceptor = MAPA_DESTINO_CATEGORIA[producto.categoria as CategoriaProducto] ?? 'COCINA';
+
         const nuevaLinea: LineaComanda = {
           idProducto: producto.id,
           nombreProducto: producto.nombre,
           cantidad: cantidad,
           precioUnitario: producto.precio,
           subtotal: producto.precio * cantidad,
+          destino: destino,
           notasEspeciales: notasEspeciales
         };
         return [...lineas, nuevaLinea];

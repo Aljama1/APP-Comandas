@@ -93,14 +93,32 @@ $color-pendiente: #d1d1d6;    // Gris suave - paso futuro
     ion-icon { font-size: 20px; color: $oscuro-primario; }
   }
 
-  .titulo-cabecera h1 {
-    font-family: $fuente-titulo;
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: $oscuro-primario;
-    margin: 0;
-    letter-spacing: -0.5px;
+  .titulo-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    h1 {
+      font-family: $fuente-titulo;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: $oscuro-primario;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
   }
+}
+
+// Badge indicador de ronda (ej. "Ronda 2")
+.badge-ronda {
+  font-family: $fuente-cuerpo;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: $color-activo;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
 }
 
 // ─── Contenedor Principal ──────────────────────────────────────────
@@ -289,6 +307,12 @@ $color-pendiente: #d1d1d6;    // Gris suave - paso futuro
     justify-content: space-between;
     align-items: center;
 
+    .info-linea {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
     .nombre-linea {
       font-family: $fuente-cuerpo;
       font-size: 0.92rem;
@@ -296,11 +320,31 @@ $color-pendiente: #d1d1d6;    // Gris suave - paso futuro
       color: #3a3a3c;
     }
 
+    // Etiqueta visual que indica si la línea va a Barra o a Cocina
+    .etiqueta-destino {
+      font-family: $fuente-cuerpo;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      width: fit-content;
+
+      &.destino-barra {
+        background: rgba(255, 159, 10, 0.12);
+        color: #c77d05;
+      }
+      &.destino-cocina {
+        background: rgba(255, 69, 58, 0.1);
+        color: #d4362e;
+      }
+    }
+
     .precio-linea {
       font-family: $fuente-titulo;
       font-weight: 700;
       font-size: 0.92rem;
       color: $oscuro-primario;
+      flex-shrink: 0;
     }
   }
 
@@ -325,16 +369,147 @@ $color-pendiente: #d1d1d6;    // Gris suave - paso futuro
   }
 }
 
-// ─── Botón "Nuevo pedido" ──────────────────────────────────────────
+// ─── Encabezados de sección ───────────────────────────────────────
 
-.btn-volver-inicio {
+.encabezado-seccion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 {
+    font-family: $fuente-titulo;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: $oscuro-primario;
+    margin: 0;
+  }
+}
+
+// Etiquetas de estado con colores semánticos
+.etiqueta-estado {
+  font-family: $fuente-cuerpo;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+
+  &.estado-pendiente {
+    background: rgba(255, 204, 0, 0.12);
+    color: #b38f00;
+  }
+  &.estado-preparando {
+    background: rgba(0, 122, 255, 0.1);
+    color: $color-activo;
+  }
+  &.estado-listo {
+    background: rgba(52, 199, 89, 0.1);
+    color: #248a3d;
+  }
+  &.estado-servido {
+    background: rgba(52, 199, 89, 0.15);
+    color: #1b6d30;
+  }
+}
+
+// ─── Sección de rondas anteriores ─────────────────────────────────
+
+.seccion-rondas-anteriores {
+  margin-top: 28px;
+  animation: aparicionSuave 0.5s ease-out;
+}
+
+.titulo-seccion-anteriores {
+  font-family: $fuente-titulo;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: $oscuro-primario;
+  margin: 0 0 14px 0;
+}
+
+.tarjeta-ronda-anterior {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  margin-bottom: 10px;
+
+  .cabecera-ronda-anterior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .numero-ronda {
+    font-family: $fuente-titulo;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: $oscuro-primario;
+  }
+
+  .mini-resumen {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .mini-linea {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .mini-nombre {
+      font-family: $fuente-cuerpo;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #6e6e73;
+    }
+
+    .mini-destino {
+      font-size: 0.75rem;
+    }
+  }
+
+  .pie-ronda-anterior {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 8px;
+
+    .total-ronda-anterior {
+      font-family: $fuente-titulo;
+      font-size: 1rem;
+      font-weight: 800;
+      color: $oscuro-primario;
+    }
+  }
+}
+
+// ─── Acciones post-servicio ───────────────────────────────────────
+
+.acciones-post-servicio {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  animation: aparicionSuave 0.5s ease-out;
+}
+
+// Botón principal: pedir otra ronda (fondo oscuro, destacado)
+.btn-nueva-ronda {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
   padding: 16px;
-  margin-top: 8px;
   background: $oscuro-primario;
   color: white;
   border: none;
@@ -345,7 +520,6 @@ $color-pendiente: #d1d1d6;    // Gris suave - paso futuro
   cursor: pointer;
   box-shadow: 0 10px 20px rgba(0,0,0,0.15);
   transition: transform 0.2s, box-shadow 0.2s;
-  animation: aparicionSuave 0.5s ease-out;
 
   ion-icon { font-size: 20px; }
 
@@ -354,3 +528,30 @@ $color-pendiente: #d1d1d6;    // Gris suave - paso futuro
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   }
 }
+
+// Botón secundario: cerrar sesión (borde, sin fondo)
+.btn-cerrar-sesion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 1.5px solid #d1d1d6;
+  border-radius: 16px;
+  font-family: $fuente-cuerpo;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #6e6e73;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  ion-icon { font-size: 18px; }
+
+  &:active {
+    transform: scale(0.97);
+    background: rgba(0,0,0,0.03);
+  }
+}
+

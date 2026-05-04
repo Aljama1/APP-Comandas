@@ -1,0 +1,322 @@
+<ion-header class="ion-no-border cabecera-oscura">
+  <ion-toolbar>
+    <ion-title>Panel de Gestión</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()" class="btn-logout">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-segment [value]="tabActual" (ionChange)="cambiarPestana($event)" class="segmento-premium">
+      <ion-segment-button value="pendientes">
+        <ion-label>
+          Nuevos
+          @if (adminComandaService.pedidosPendientes().length > 0) {
+            <ion-badge color="warning">
+              {{ adminComandaService.pedidosPendientes().length }}
+            </ion-badge>
+          }
+        </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="enCurso">
+        <ion-label>
+          En Curso
+          @if (adminComandaService.pedidosEnCurso().length > 0) {
+            <ion-badge color="primary">
+              {{ adminComandaService.pedidosEnCurso().length }}
+            </ion-badge>
+          }
+        </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="historial">
+        <ion-label>
+          Historial
+        </ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+
+  <!-- Filtro de Rol y Búsqueda -->
+  <ion-toolbar class="toolbar-filtros">
+    <ion-searchbar
+      placeholder="Buscar N° de Mesa"
+      type="number"
+      animated="true"
+      (ionInput)="actualizarFiltro($event)">
+    </ion-searchbar>
+  </ion-toolbar>
+
+  <ion-toolbar class="toolbar-filtros-secundario">
+    <ion-item lines="none" class="toggle-vista">
+      <ion-icon name="beer-outline" slot="start"></ion-icon>
+      <ion-label>Vista exclusiva de Barra</ion-label>
+      <ion-toggle [(ngModel)]="vistaBarra" color="warning"></ion-toggle>
+    </ion-item>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="fondo-admin">
+  <div class="contenedor-principal">
+
+    <!-- PESTAÑA: PENDIENTES -->
+    @if (tabActual === 'pendientes') {
+      @if (pedidosPendientesFiltrados().length === 0) {
+        <div class="estado-vacio">
+          <div class="circulo-animado warning"></div>
+          <p>No hay pedidos pendientes</p>
+          @if (filtroMesa()) {
+            <span>Ningún pedido coincide con la mesa {{filtroMesa()}}</span>
+          }
+          @if (!filtroMesa()) {
+            <span>La sala está tranquila.</span>
+          }
+        </div>
+      }
+      @if (pedidosPendientesFiltrados().length > 0) {
+        <div class="grid-pedidos">
+          @for (comanda of pedidosPendientesFiltrados(); track comanda) {
+            <div class="tarjeta-pedido" [ngClass]="{'tarjeta-urgente': esUrgente(comanda.fechaCreacion)}">
+              <!-- CABECERA -->
+              <div class="tarjeta-cabecera">
+                <div class="info-mesa">
+                  <span class="mesa-badge">Mesa {{ comanda.idMesa }}</span>
+                  <span class="cliente-nombre">{{ comanda.nombreCliente }}</span>
+                </div>
+                <div class="info-tiempo">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span>{{ comanda.fechaCreacion | date:'HH:mm' }}</span>
+                </div>
+              </div>
+              <!-- CUERPO -->
+              <div class="tarjeta-cuerpo">
+                <ul class="lista-articulos">
+                  <!-- BEBIDAS: Siempre se muestran en detalle -->
+                  @if (getLineasBarra(comanda).length > 0) {
+                    @for (linea of getLineasBarra(comanda); track linea) {
+                      <li class="item-barra">
+                        <div class="cant-nombre">
+                          <span class="cantidad">{{ linea.cantidad }}x</span>
+                          <span class="nombre">{{ linea.nombreProducto }}</span>
+                        </div>
+                        @if (linea.notasEspeciales) {
+                          <p class="notas-cocina">* Nota: {{ linea.notasEspeciales }}</p>
+                        }
+                      </li>
+                    }
+                  }
+                  <!-- COMIDA: Depende del toggle -->
+                  @if (getLineasCocina(comanda).length > 0) {
+                    <!-- Modo Barra (Resumido) -->
+                    @if (vistaBarra) {
+                      <li class="item-cocina resumido">
+                        <div class="cant-nombre">
+                          <ion-icon name="restaurant-outline"></ion-icon>
+                          <span class="nombre">{{ getLineasCocina(comanda).length }} platos para Cocina</span>
+                        </div>
+                      </li>
+                    }
+                    <!-- Modo General (Detallado) -->
+                    @if (!vistaBarra) {
+                      @for (linea of getLineasCocina(comanda); track linea) {
+                        <li class="item-cocina">
+                          <div class="cant-nombre">
+                            <span class="cantidad">{{ linea.cantidad }}x</span>
+                            <span class="nombre">{{ linea.nombreProducto }}</span>
+                          </div>
+                          @if (linea.notasEspeciales) {
+                            <p class="notas-cocina">* Nota: {{ linea.notasEspeciales }}</p>
+                          }
+                        </li>
+                      }
+                    }
+                  }
+                </ul>
+              </div>
+              <!-- PIE -->
+              <div class="tarjeta-pie">
+                <ion-button expand="block" class="btn-accion btn-aceptar"
+                  (click)="cambiarEstadoComanda(comanda.id, 'PREPARANDO')">
+                  Aceptar Pedido
+                  <ion-icon name="checkmark-circle-outline" slot="end"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- PESTAÑA: EN CURSO -->
+    @if (tabActual === 'enCurso') {
+      @if (pedidosEnCursoFiltrados().length === 0) {
+        <div class="estado-vacio">
+          <div class="circulo-animado primary"></div>
+          <p>Nada en curso</p>
+          @if (filtroMesa()) {
+            <span>Ningún pedido en curso coincide con la mesa {{filtroMesa()}}</span>
+          }
+          @if (!filtroMesa()) {
+            <span>No hay comandas en preparación ni listas.</span>
+          }
+        </div>
+      }
+      @if (pedidosEnCursoFiltrados().length > 0) {
+        <div class="grid-pedidos">
+          @for (comanda of pedidosEnCursoFiltrados(); track comanda) {
+            <div class="tarjeta-pedido" [ngClass]="{'tarjeta-urgente': esUrgente(comanda.fechaCreacion) && comanda.estado === 'PREPARANDO'}">
+              <div class="tarjeta-cabecera">
+                <div class="info-mesa">
+                  <span class="mesa-badge">Mesa {{ comanda.idMesa }}</span>
+                  <span class="cliente-nombre">{{ comanda.nombreCliente }}</span>
+                </div>
+                <div class="estado-tiempo-container">
+                  <ion-badge class="badge-estado" [color]="comanda.estado === 'PREPARANDO' ? 'primary' : 'success'">
+                    {{ comanda.estado }}
+                  </ion-badge>
+                  <div class="info-tiempo">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>{{ comanda.fechaCreacion | date:'HH:mm' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="tarjeta-cuerpo">
+                <ul class="lista-articulos">
+                  <!-- BEBIDAS -->
+                  @if (getLineasBarra(comanda).length > 0) {
+                    @for (linea of getLineasBarra(comanda); track linea) {
+                      <li class="item-barra">
+                        <div class="cant-nombre">
+                          <span class="cantidad">{{ linea.cantidad }}x</span>
+                          <span class="nombre">{{ linea.nombreProducto }}</span>
+                        </div>
+                        @if (linea.notasEspeciales) {
+                          <p class="notas-cocina">* Nota: {{ linea.notasEspeciales }}</p>
+                        }
+                      </li>
+                    }
+                  }
+                  <!-- COMIDA -->
+                  @if (getLineasCocina(comanda).length > 0) {
+                    @if (vistaBarra) {
+                      <li class="item-cocina resumido">
+                        <div class="cant-nombre">
+                          <ion-icon name="restaurant-outline"></ion-icon>
+                          <span class="nombre">{{ getLineasCocina(comanda).length }} platos en Cocina</span>
+                        </div>
+                      </li>
+                    }
+                    @if (!vistaBarra) {
+                      @for (linea of getLineasCocina(comanda); track linea) {
+                        <li class="item-cocina">
+                          <div class="cant-nombre">
+                            <span class="cantidad">{{ linea.cantidad }}x</span>
+                            <span class="nombre">{{ linea.nombreProducto }}</span>
+                          </div>
+                          @if (linea.notasEspeciales) {
+                            <p class="notas-cocina">* Nota: {{ linea.notasEspeciales }}</p>
+                          }
+                        </li>
+                      }
+                    }
+                  }
+                </ul>
+              </div>
+              <div class="tarjeta-pie">
+                @if (comanda.estado === 'PREPARANDO') {
+                  <ion-button expand="block" class="btn-accion btn-listo"
+                    (click)="cambiarEstadoComanda(comanda.id, 'LISTO')">
+                    Marcar como Listo
+                    <ion-icon name="flame-outline" slot="end"></ion-icon>
+                  </ion-button>
+                }
+                @if (comanda.estado === 'LISTO') {
+                  <ion-button expand="block" class="btn-accion btn-servir"
+                    (click)="cambiarEstadoComanda(comanda.id, 'SERVIDO')">
+                    Entregar en Mesa
+                    <ion-icon name="checkmark-done-outline" slot="end"></ion-icon>
+                  </ion-button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- PESTAÑA: HISTORIAL -->
+    @if (tabActual === 'historial') {
+      @if (pedidosHistorialFiltrados().length === 0) {
+        <div class="estado-vacio">
+          <div class="circulo-animado success"></div>
+          <p>Historial vacío</p>
+          @if (filtroMesa()) {
+            <span>Ningún pedido servido coincide con la mesa {{filtroMesa()}}</span>
+          }
+          @if (!filtroMesa()) {
+            <span>No hay comandas finalizadas aún.</span>
+          }
+        </div>
+      }
+      @if (pedidosHistorialFiltrados().length > 0) {
+        <div class="grid-pedidos">
+          @for (comanda of pedidosHistorialFiltrados(); track comanda) {
+            <div class="tarjeta-pedido tarjeta-historial">
+              <div class="tarjeta-cabecera">
+                <div class="info-mesa">
+                  <span class="mesa-badge">Mesa {{ comanda.idMesa }}</span>
+                  <span class="cliente-nombre">{{ comanda.nombreCliente }}</span>
+                </div>
+                <div class="estado-tiempo-container">
+                  <ion-badge color="success" class="badge-estado">SERVIDO</ion-badge>
+                  <div class="info-tiempo">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>{{ comanda.fechaCreacion | date:'HH:mm' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="tarjeta-cuerpo">
+                <ul class="lista-articulos">
+                  <!-- BEBIDAS -->
+                  @if (getLineasBarra(comanda).length > 0) {
+                    @for (linea of getLineasBarra(comanda); track linea) {
+                      <li class="item-barra">
+                        <div class="cant-nombre">
+                          <span class="cantidad">{{ linea.cantidad }}x</span>
+                          <span class="nombre">{{ linea.nombreProducto }}</span>
+                        </div>
+                      </li>
+                    }
+                  }
+                  <!-- COMIDA -->
+                  @if (getLineasCocina(comanda).length > 0) {
+                    @if (vistaBarra) {
+                      <li class="item-cocina resumido">
+                        <div class="cant-nombre">
+                          <ion-icon name="restaurant-outline"></ion-icon>
+                          <span class="nombre">{{ getLineasCocina(comanda).length }} platos</span>
+                        </div>
+                      </li>
+                    }
+                    @if (!vistaBarra) {
+                      @for (linea of getLineasCocina(comanda); track linea) {
+                        <li class="item-cocina">
+                          <div class="cant-nombre">
+                            <span class="cantidad">{{ linea.cantidad }}x</span>
+                            <span class="nombre">{{ linea.nombreProducto }}</span>
+                          </div>
+                        </li>
+                      }
+                    }
+                  }
+                </ul>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </div>
+</ion-content>

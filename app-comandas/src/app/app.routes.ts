@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/admin.guard';
 
 // Definición de las rutas principales de nuestra aplicación de Comandas
 export const routes: Routes = [
@@ -18,6 +19,19 @@ export const routes: Routes = [
     path: 'seguimiento-comanda',
     loadComponent: () => import('./features/comandas/seguimiento-comanda/seguimiento-comanda.component').then((m) => m.SeguimientoComandaComponent),
   },
+
+  // --- RUTAS B2B (Staff) ---
+  {
+    path: 'admin/login',
+    loadComponent: () => import('./features/admin/login-admin/login-admin.component').then((m) => m.LoginAdminComponent),
+  },
+  // La ruta del panel protegida por el Guardián
+  {
+    path: 'admin/panel-pedidos',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/panel-pedidos/panel-pedidos.component').then((m) => m.PanelPedidosComponent),
+  },
+
   {
     path: '',
     redirectTo: 'check-in',

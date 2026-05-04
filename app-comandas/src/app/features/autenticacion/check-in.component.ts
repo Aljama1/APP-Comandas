@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule } from '@ionic/angular';
 
 import { FormsModule } from '@angular/forms';
@@ -26,7 +26,7 @@ import {
 @Component({
   selector: 'app-check-in',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule],
+  imports: [IonicModule, FormsModule],
   templateUrl: './check-in.component.html',
   styleUrls: ['./check-in.component.scss']
 })

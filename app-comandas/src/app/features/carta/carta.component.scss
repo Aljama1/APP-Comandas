@@ -105,7 +105,7 @@ html, body {
       gap: 10px;
       align-items: center;
 
-      .btn-carrito, .btn-salir {
+      .btn-carrito, .btn-salir, .btn-pedidos {
         position: relative;
         background: white;
         border: 1px solid rgba(0,0,0,0.05);
@@ -139,6 +139,24 @@ html, body {
           position: absolute;
           top: -4px; right: -4px;
           background: #ff3b30;
+          color: white;
+          font-size: 0.6rem;
+          font-weight: 700;
+          min-width: 18px;
+          height: 18px;
+          border-radius: 9px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid white;
+        }
+      }
+
+      .btn-pedidos {
+        .insignia-carrito {
+          position: absolute;
+          top: -4px; right: -4px;
+          background: #34c759; // Verde para indicar activo
           color: white;
           font-size: 0.6rem;
           font-weight: 700;

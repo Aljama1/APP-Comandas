@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ComandaFirestoreService } from '../../../core/services/comanda-firestore.service';
 import { ComandaService } from '../../../core/services/comanda.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
-import { EstadoComanda } from '../../../core/models/comanda.interface';
+import { EstadoComanda, Comanda } from '../../../core/models/comanda.interface';
 import { addIcons } from 'ionicons';
 import {
   timeOutline,
@@ -15,16 +15,26 @@ import {
   homeOutline,
   refreshOutline,
   alertCircleOutline,
-  receiptOutline
+  receiptOutline,
+  addCircleOutline,
+  chevronDownOutline,
+  chevronUpOutline
 } from 'ionicons/icons';
 
 /**
  * Componente de Seguimiento de Comanda en Tiempo Real.
  *
- * Muestra al comensal el progreso de su pedido mediante un rastreador
- * visual (stepper) que refleja los cambios que la cocina realiza en
- * Firestore. No necesita polling: la vista se actualiza sola gracias
- * a la combinación de `onSnapshot` (Firestore) + `signal` (Angular).
+ * Muestra al comensal el progreso de TODAS sus rondas de pedidos,
+ * cada una con su propio indicador de estado. La ronda más reciente
+ * se muestra con el stepper completo; las anteriores se muestran
+ * como tarjetas compactas con indicador de estado.
+ *
+ * Todas las rondas se actualizan en tiempo real gracias a una única
+ * query de Firestore (patrón Observer sobre colección filtrada).
+ *
+ * Acciones disponibles:
+ *   - Pedir otra ronda (vuelve a la carta sin cerrar sesión).
+ *   - Cerrar sesión (solo cuando todas las rondas están servidas).
  */
 @Component({
   selector: 'app-seguimiento-comanda',
@@ -40,8 +50,6 @@ export class SeguimientoComandaComponent {
   private router = inject(Router);
 
   // ─── Definición ordenada de los pasos del flujo de cocina ────────
-  // Cada paso tiene un icono, etiqueta y descripción para el usuario.
-  // El orden del array define el orden visual del stepper.
   readonly pasosEstado: { estado: EstadoComanda; icono: string; etiqueta: string; descripcion: string }[] = [
     {
       estado: 'PENDIENTE',
@@ -69,21 +77,39 @@ export class SeguimientoComandaComponent {
     }
   ];
 
-  // ─── Signals derivados para la vista (solo lectura) ──────────────
+  // ─── Signals del servicio expuestos a la vista ───────────────────
 
-  /** Estado actual proveniente de Firestore (reactivo) */
+  /** Todas las comandas en tiempo real */
+  public todasLasComandas = this.firestoreService.todasLasComandas;
+
+  /** La comanda más reciente (la del stepper principal) */
+  public comandaMasReciente = this.firestoreService.comandaMasReciente;
+
+  /** Estado de la comanda más reciente */
   public estadoActual = this.firestoreService.estadoComandaActiva;
 
-  /** Datos completos de la comanda (para mostrar el resumen) */
-  public datosComanda = this.firestoreService.datosComandaActiva;
+  /** Número total de rondas */
+  public totalRondas = this.firestoreService.totalRondas;
 
-  /** Mensaje de error de conexión, si existe */
+  /** Error de conexión */
   public error = this.firestoreService.errorEscucha;
 
+  /** Verdadero si TODAS las rondas están servidas */
+  public todasServidas = this.firestoreService.todasServidas;
+
+  // ─── Signals computados para la vista ────────────────────────────
+
   /**
-   * Índice numérico del paso actual en el stepper.
-   * Se usa en la plantilla para pintar pasos completados vs pendientes.
-   * Si el estado no se encuentra (ej. null), devuelve -1.
+   * Rondas anteriores (todas excepto la más reciente).
+   * Se muestran como tarjetas compactas debajo del stepper principal.
+   */
+  public rondasAnteriores = computed(() => {
+    const todas = this.todasLasComandas();
+    return todas.length > 1 ? todas.slice(0, -1) : [];
+  });
+
+  /**
+   * Índice del paso actual en el stepper (para la comanda más reciente).
    */
   public indicePasoActual = computed(() => {
     const estado = this.estadoActual();
@@ -91,9 +117,7 @@ export class SeguimientoComandaComponent {
     return this.pasosEstado.findIndex(p => p.estado === estado);
   });
 
-  /**
-   * Nombre del cliente para personalizar el mensaje de bienvenida.
-   */
+  /** Nombre del cliente */
   public nombreCliente = computed(() => {
     return this.usuarioService.perfil()?.nombre ?? 'Cliente';
   });
@@ -102,18 +126,40 @@ export class SeguimientoComandaComponent {
     addIcons({
       timeOutline, flameOutline, checkmarkCircleOutline,
       restaurantOutline, homeOutline, refreshOutline,
-      alertCircleOutline, receiptOutline
+      alertCircleOutline, receiptOutline, addCircleOutline,
+      chevronDownOutline, chevronUpOutline
     });
 
-    // Si no hay comanda activa, redirigir a la carta
-    if (!this.firestoreService.idComandaActiva()) {
+    // Si no hay comanda activa ni sesión guardada, redirigir a la carta
+    if (!this.firestoreService.tieneComandas() && !this.firestoreService.comandaMasReciente()) {
       this.router.navigateByUrl('/carta');
     }
   }
 
   /**
-   * Cierra el seguimiento, limpia el estado y vuelve al inicio.
-   * Solo se ofrece cuando la comanda ya ha sido SERVIDA.
+   * Devuelve el índice del paso para un estado dado.
+   * Se usa en la plantilla para pintar el estado de las rondas anteriores.
+   */
+  obtenerIndicePaso(estado: EstadoComanda): number {
+    return this.pasosEstado.findIndex(p => p.estado === estado);
+  }
+
+  /**
+   * Devuelve una etiqueta legible para un estado.
+   */
+  obtenerEtiquetaEstado(estado: EstadoComanda): string {
+    return this.pasosEstado.find(p => p.estado === estado)?.etiqueta ?? estado;
+  }
+
+  /**
+   * Permite al cliente pedir otra ronda sin cerrar sesión.
+   */
+  nuevaRonda(): void {
+    this.router.navigateByUrl('/carta');
+  }
+
+  /**
+   * Cierra completamente la sesión.
    */
   volverAlInicio(): void {
     this.firestoreService.limpiarSeguimiento();

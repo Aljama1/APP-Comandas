@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { CartaService } from '../../core/services/carta.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { ComandaService } from '../../core/services/comanda.service';
+import { ComandaFirestoreService } from '../../core/services/comanda-firestore.service';
 import { ResumenFlotanteComponent } from '../../shared/components/resumen-flotante/resumen-flotante.component';
 import { addIcons } from 'ionicons';
 import { 
@@ -16,7 +17,8 @@ import {
   cartOutline,
   searchOutline,
   logOutOutline,
-  checkmarkOutline
+  checkmarkOutline,
+  receiptOutline
 } from 'ionicons/icons';
 
 /** Mapa de etiquetas legibles para cada categoría del menú */
@@ -42,6 +44,7 @@ export class CartaComponent {
   private cartaService = inject(CartaService);
   private usuarioService = inject(UsuarioService);
   public comandaService = inject(ComandaService);
+  public firestoreService = inject(ComandaFirestoreService);
   private router = inject(Router);
   private alertController = inject(AlertController);
 
@@ -106,7 +109,8 @@ export class CartaComponent {
       cartOutline,
       searchOutline,
       logOutOutline,
-      checkmarkOutline
+      checkmarkOutline,
+      receiptOutline
     });
   }
 
@@ -127,6 +131,10 @@ export class CartaComponent {
 
   irALaComanda() {
     this.router.navigateByUrl('/resumen-comanda');
+  }
+
+  irAMisPedidos() {
+    this.router.navigateByUrl('/seguimiento-comanda');
   }
 
   async confirmarCierreSesion() {

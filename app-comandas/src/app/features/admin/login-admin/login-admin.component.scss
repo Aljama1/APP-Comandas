@@ -1,0 +1,102 @@
+.fondo-admin {
+  --background: #121212; // Un tono oscuro y elegante para distinguir la zona B2B
+}
+
+.contenedor-centrado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+}
+
+.panel-login {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 40px 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+
+  .cabecera-logo {
+    text-align: center;
+    margin-bottom: 40px;
+
+    .icono-circular {
+      background: linear-gradient(135deg, #FF9500, #FF5E3A);
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 8px 16px rgba(255, 94, 58, 0.3);
+
+      ion-icon {
+        color: white;
+        font-size: 32px;
+      }
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 8px;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      margin: 0;
+    }
+  }
+
+  .formulario-login {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .input-item {
+      --background: rgba(255, 255, 255, 0.05);
+      --border-radius: 12px;
+      --padding-start: 16px;
+      margin: 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+
+      ion-icon {
+        color: rgba(255, 255, 255, 0.5);
+        margin-right: 12px;
+      }
+
+      ion-input {
+        --color: #ffffff;
+        --placeholder-color: rgba(255, 255, 255, 0.4);
+        font-size: 16px;
+      }
+
+      &.item-has-focus {
+        border-color: #FF9500;
+        ion-icon {
+          color: #FF9500;
+        }
+      }
+    }
+
+    .btn-acceso {
+      --background: linear-gradient(135deg, #FF9500, #FF5E3A);
+      --border-radius: 12px;
+      --box-shadow: 0 8px 16px rgba(255, 94, 58, 0.3);
+      margin-top: 16px;
+      font-weight: 600;
+      font-size: 16px;
+      height: 52px;
+      text-transform: none;
+    }
+  }
+}

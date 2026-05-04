@@ -1,0 +1,49 @@
+<ion-content class="fondo-admin">
+  <div class="contenedor-centrado">
+    <div class="panel-login">
+      <!-- Encabezado / Logo -->
+      <div class="cabecera-logo">
+        <div class="icono-circular">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+        </div>
+        <h1>Trace Admin</h1>
+        <p>Panel de Gestión de Barra y Caja</p>
+      </div>
+
+      <!-- Formulario -->
+      <form (ngSubmit)="acceder()" class="formulario-login">
+        <ion-item class="input-item" lines="none">
+          <ion-icon name="mail-outline" slot="start"></ion-icon>
+          <ion-input
+            type="email"
+            placeholder="Correo del restaurante"
+            [(ngModel)]="email"
+            name="email"
+            required
+          ></ion-input>
+        </ion-item>
+
+        <ion-item class="input-item" lines="none">
+          <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+          <ion-input
+            type="password"
+            placeholder="Contraseña"
+            [(ngModel)]="password"
+            name="password"
+            required
+          ></ion-input>
+        </ion-item>
+
+        <ion-button
+          expand="block"
+          type="submit"
+          class="btn-acceso"
+          [disabled]="!email || !password"
+        >
+          <ion-icon name="log-in-outline" slot="start"></ion-icon>
+          Acceder al Sistema
+        </ion-button>
+      </form>
+    </div>
+  </div>
+</ion-content>

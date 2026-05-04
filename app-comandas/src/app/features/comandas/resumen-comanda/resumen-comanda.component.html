@@ -15,79 +15,84 @@
   </div>
 
   <div class="contenedor-principal">
-    
+
     <!-- Estado vacío -->
-    <div class="estado-vacio" *ngIf="comandaService.lineasComanda().length === 0">
-      <div class="orbe-cristal" aria-hidden="true">
-        <ion-icon name="reader-outline"></ion-icon>
+    @if (comandaService.lineasComanda().length === 0) {
+      <div class="estado-vacio">
+        <div class="orbe-cristal" aria-hidden="true">
+          <ion-icon name="reader-outline"></ion-icon>
+        </div>
+        <h3>Sin Selecciones</h3>
+        <p>Aún no has añadido ningún plato a la comanda.</p>
+        <button class="btn-seguir-pidiendo" (click)="volver()" aria-label="Ir a la carta para añadir platos">
+          <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+          <span>Explorar la carta</span>
+        </button>
       </div>
-      <h3>Sin Selecciones</h3>
-      <p>Aún no has añadido ningún plato a la comanda.</p>
-      <button class="btn-seguir-pidiendo" (click)="volver()" aria-label="Ir a la carta para añadir platos">
-        <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
-        <span>Explorar la carta</span>
-      </button>
-    </div>
+    }
 
     <!-- Lista de elementos -->
-    <div class="lista-items" *ngIf="comandaService.lineasComanda().length > 0" role="list" aria-label="Productos en tu comanda">
-      
-      <article class="tarjeta-item panel-cristal" *ngFor="let linea of comandaService.lineasComanda()" role="listitem">
-        <div class="cabecera-item">
-          <h3>{{ linea.nombreProducto }}</h3>
-          <span class="precio" [attr.aria-label]="'Subtotal: ' + (linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es')">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
-        </div>
+    @if (comandaService.lineasComanda().length > 0) {
+      <div class="lista-items" role="list" aria-label="Productos en tu comanda">
+        @for (linea of comandaService.lineasComanda(); track linea) {
+          <article class="tarjeta-item panel-cristal" role="listitem">
+            <div class="cabecera-item">
+              <h3>{{ linea.nombreProducto }}</h3>
+              <span class="precio" [attr.aria-label]="'Subtotal: ' + (linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es')">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+            </div>
+            @if (linea.notasEspeciales) {
+              <div class="item-notas" role="note">
+                <p><strong>Nota a cocina:</strong> "{{ linea.notasEspeciales }}"</p>
+              </div>
+            }
+            <div class="pie-item">
+              <button class="btn-accion btn-notas"
+                [class.tiene-notas]="linea.notasEspeciales"
+                (click)="abrirNotas(linea)"
+                [attr.aria-label]="linea.notasEspeciales ? 'Editar nota de cocina para ' + linea.nombreProducto : 'Añadir nota de cocina para ' + linea.nombreProducto">
+                <ion-icon name="chatbubble-ellipses-outline" aria-hidden="true"></ion-icon>
+                <span>{{ linea.notasEspeciales ? 'Editar nota' : 'Añadir nota' }}</span>
+              </button>
+              <div class="control-cantidad" role="group" [attr.aria-label]="'Cantidad de ' + linea.nombreProducto">
+                <button class="btn-paso"
+                  [class.eliminar]="linea.cantidad === 1"
+                  (click)="actualizarCantidad(linea, 'decrementar')"
+                  [attr.aria-label]="linea.cantidad === 1 ? 'Eliminar ' + linea.nombreProducto : 'Reducir cantidad de ' + linea.nombreProducto">
+                  <ion-icon [name]="linea.cantidad === 1 ? 'trash-outline' : 'remove-outline'" aria-hidden="true"></ion-icon>
+                </button>
+                <span class="cantidad" aria-live="polite">{{ linea.cantidad }}</span>
+                <button class="btn-paso"
+                  (click)="actualizarCantidad(linea, 'incrementar')"
+                  [attr.aria-label]="'Aumentar cantidad de ' + linea.nombreProducto">
+                  <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+        <!-- Botón secundario: Seguir pidiendo -->
+        <button class="btn-seguir-pidiendo" (click)="volver()" aria-label="Volver a la carta para seguir añadiendo platos">
+          <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+          <span>Seguir pidiendo</span>
+        </button>
+      </div>
+    }
 
-        <div class="item-notas" *ngIf="linea.notasEspeciales" role="note">
-          <p><strong>Nota a cocina:</strong> "{{ linea.notasEspeciales }}"</p>
-        </div>
-
-        <div class="pie-item">
-          <button class="btn-accion btn-notas" 
-                  [class.tiene-notas]="linea.notasEspeciales"
-                  (click)="abrirNotas(linea)"
-                  [attr.aria-label]="linea.notasEspeciales ? 'Editar nota de cocina para ' + linea.nombreProducto : 'Añadir nota de cocina para ' + linea.nombreProducto">
-            <ion-icon name="chatbubble-ellipses-outline" aria-hidden="true"></ion-icon>
-            <span>{{ linea.notasEspeciales ? 'Editar nota' : 'Añadir nota' }}</span>
-          </button>
-
-          <div class="control-cantidad" role="group" [attr.aria-label]="'Cantidad de ' + linea.nombreProducto">
-            <button class="btn-paso" 
-                    [class.eliminar]="linea.cantidad === 1" 
-                    (click)="actualizarCantidad(linea, 'decrementar')"
-                    [attr.aria-label]="linea.cantidad === 1 ? 'Eliminar ' + linea.nombreProducto : 'Reducir cantidad de ' + linea.nombreProducto">
-              <ion-icon [name]="linea.cantidad === 1 ? 'trash-outline' : 'remove-outline'" aria-hidden="true"></ion-icon>
-            </button>
-            <span class="cantidad" aria-live="polite">{{ linea.cantidad }}</span>
-            <button class="btn-paso" 
-                    (click)="actualizarCantidad(linea, 'incrementar')"
-                    [attr.aria-label]="'Aumentar cantidad de ' + linea.nombreProducto">
-              <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
-            </button>
-          </div>
-        </div>
-      </article>
-
-      <!-- Botón secundario: Seguir pidiendo -->
-      <button class="btn-seguir-pidiendo" (click)="volver()" aria-label="Volver a la carta para seguir añadiendo platos">
-        <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
-        <span>Seguir pidiendo</span>
-      </button>
-    </div>
-    
     <!-- Espacio invisible para no solapar el footer -->
     <div style="height: 120px;" aria-hidden="true"></div>
   </div>
 </ion-content>
 
 <!-- Pie flotante inferior -->
-<div class="footer-pago animar-deslizar-arriba" *ngIf="comandaService.lineasComanda().length > 0" role="region" aria-label="Resumen del pedido">
-  <div class="desglose">
-    <span class="etiqueta">Total a pagar ({{ comandaService.totalArticulos() }} ítems)</span>
-    <span class="total" aria-live="polite">{{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+@if (comandaService.lineasComanda().length > 0) {
+  <div class="footer-pago animar-deslizar-arriba" role="region" aria-label="Resumen del pedido">
+    <div class="desglose">
+      <span class="etiqueta">Total a pagar ({{ comandaService.totalArticulos() }} ítems)</span>
+      <span class="total" aria-live="polite">{{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+    </div>
+    <button class="btn-confirmar" (click)="confirmarPedido()" aria-label="Confirmar y enviar el pedido">
+      <span>Confirmar y Enviar</span>
+      <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+    </button>
   </div>
-  <button class="btn-confirmar" (click)="confirmarPedido()" aria-label="Confirmar y enviar el pedido">
-    <span>Confirmar y Enviar</span>
-    <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
-  </button>
-</div>
+}

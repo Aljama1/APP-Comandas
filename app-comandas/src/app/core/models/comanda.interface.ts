@@ -1,3 +1,5 @@
+import { DestinoReceptor } from './producto.model';
+
 export type EstadoComanda = 'PENDIENTE' | 'PREPARANDO' | 'LISTO' | 'SERVIDO' | 'PAGADO';
 
 export interface LineaComanda {
@@ -6,6 +8,7 @@ export interface LineaComanda {
   cantidad: number;            // Cantidad solicitada
   precioUnitario: number;      // Precio bloqueado en el momento de pedir
   subtotal: number;            // cantidad * precioUnitario
+  destino: DestinoReceptor;    // A dónde se despacha esta línea: BARRA (bebidas) o COCINA (comidas)
   notasEspeciales?: string;    // Peticiones especiales del cliente (Ej: 'Sin salsa y muy hecho')
 }
 
@@ -20,3 +23,4 @@ export interface Comanda {
   fechaCreacion: number;       // Timestamp (Date.now())
   fechaActualizacion: number;  // Timestamp
 }
+

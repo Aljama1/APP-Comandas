@@ -11,6 +11,9 @@
     </div>
     <div class="titulo-cabecera">
       <h1>Seguimiento</h1>
+      @if (totalRondas() > 0) {
+        <span class="badge-ronda">{{ totalRondas() }} {{ totalRondas() === 1 ? 'ronda' : 'rondas' }}</span>
+      }
     </div>
   </div>
 
@@ -18,74 +21,141 @@
 
     <!-- Mensaje de bienvenida personalizado -->
     <div class="mensaje-bienvenida">
-      <p>{{ nombreCliente() }}, tu pedido está en marcha 🍽️</p>
+      <p>{{ nombreCliente() }}, aquí tienes el estado de tus pedidos 🍽️</p>
     </div>
 
     <!-- Error de conexión -->
-    <div class="aviso-error" *ngIf="error()" role="alert">
-      <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
-      <span>{{ error() }}</span>
-    </div>
+    @if (error()) {
+      <div class="aviso-error" role="alert">
+        <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+        <span>{{ error() }}</span>
+      </div>
+    }
 
-    <!-- ══════════════════════════════════════════════════
-         RASTREADOR VISUAL (Stepper de estados)
-         Cada paso se pinta según su posición relativa al
-         estado actual de la comanda en Firestore.
-         ══════════════════════════════════════════════════ -->
-    <div class="rastreador" role="list" aria-label="Progreso de tu comanda">
-
-      <div
-        class="paso-rastreador"
-        *ngFor="let paso of pasosEstado; let i = index"
-        [class.completado]="i < indicePasoActual()"
-        [class.activo]="i === indicePasoActual()"
-        [class.pendiente]="i > indicePasoActual()"
-        role="listitem"
-        [attr.aria-current]="i === indicePasoActual() ? 'step' : null"
-      >
-        <!-- Indicador circular del paso -->
-        <div class="indicador-paso">
-          <div class="circulo-paso">
-            <ion-icon [name]="paso.icono" aria-hidden="true"></ion-icon>
+    <!-- ══════════════════════════════════════════════════════════════
+    RONDA MÁS RECIENTE — Stepper completo
+    ══════════════════════════════════════════════════════════════ -->
+    @if (comandaMasReciente()) {
+      <div class="seccion-ronda-activa">
+        <div class="encabezado-seccion">
+          <h2>Ronda {{ totalRondas() }}</h2>
+          <span class="etiqueta-estado" [class]="'estado-' + comandaMasReciente()!.estado.toLowerCase()">
+            {{ obtenerEtiquetaEstado(comandaMasReciente()!.estado) }}
+          </span>
+        </div>
+        <!-- Stepper visual -->
+        <div class="rastreador" role="list" aria-label="Progreso de tu comanda">
+          @for (paso of pasosEstado; track paso; let i = $index) {
+            <div
+              class="paso-rastreador"
+              [class.completado]="i < indicePasoActual()"
+              [class.activo]="i === indicePasoActual()"
+              [class.pendiente]="i > indicePasoActual()"
+              role="listitem"
+              [attr.aria-current]="i === indicePasoActual() ? 'step' : null"
+              >
+              <div class="indicador-paso">
+                <div class="circulo-paso">
+                  <ion-icon [name]="paso.icono" aria-hidden="true"></ion-icon>
+                </div>
+                @if (i < pasosEstado.length - 1) {
+                  <div class="linea-conectora" aria-hidden="true"></div>
+                }
+              </div>
+              <div class="contenido-paso">
+                <h3>{{ paso.etiqueta }}</h3>
+                @if (i === indicePasoActual()) {
+                  <p>{{ paso.descripcion }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        <!-- Detalle del pedido -->
+        <div class="resumen-pedido panel-cristal">
+          <h3>Detalle del pedido</h3>
+          <div class="lineas-resumen" role="list">
+            @for (linea of comandaMasReciente()!.lineasComanda; track linea) {
+              <div class="linea-resumen" role="listitem">
+                <div class="info-linea">
+                  <span class="nombre-linea">{{ linea.cantidad }}x {{ linea.nombreProducto }}</span>
+                  <span class="etiqueta-destino" [class.destino-barra]="linea.destino === 'BARRA'" [class.destino-cocina]="linea.destino === 'COCINA'">
+                    {{ linea.destino === 'BARRA' ? '🍺 Barra' : '🔥 Cocina' }}
+                  </span>
+                </div>
+                <span class="precio-linea">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+              </div>
+            }
           </div>
-          <!-- Línea conectora (no se muestra en el último paso) -->
-          <div class="linea-conectora" *ngIf="i < pasosEstado.length - 1" aria-hidden="true"></div>
-        </div>
-
-        <!-- Contenido textual del paso -->
-        <div class="contenido-paso">
-          <h3>{{ paso.etiqueta }}</h3>
-          <p *ngIf="i === indicePasoActual()">{{ paso.descripcion }}</p>
+          <div class="total-resumen">
+            <span class="etiqueta-total">Total</span>
+            <span class="valor-total" aria-live="polite">{{ comandaMasReciente()!.precioTotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+          </div>
         </div>
       </div>
+    }
 
+    <!-- ══════════════════════════════════════════════════════════════
+    RONDAS ANTERIORES — Tarjetas compactas
+    Cada ronda anterior se muestra con su estado actual, número
+    de artículos y total. Se actualizan en tiempo real.
+    ══════════════════════════════════════════════════════════════ -->
+    @if (rondasAnteriores().length > 0) {
+      <div class="seccion-rondas-anteriores">
+        <h2 class="titulo-seccion-anteriores">Rondas anteriores</h2>
+        @for (ronda of rondasAnteriores(); track ronda; let i = $index) {
+          <div class="tarjeta-ronda-anterior panel-cristal">
+            <div class="cabecera-ronda-anterior">
+              <span class="numero-ronda">Ronda {{ i + 1 }}</span>
+              <span class="etiqueta-estado" [class]="'estado-' + ronda.estado.toLowerCase()">
+                {{ obtenerEtiquetaEstado(ronda.estado) }}
+              </span>
+            </div>
+            <!-- Mini resumen de la ronda -->
+            <div class="mini-resumen">
+              @for (linea of ronda.lineasComanda; track linea) {
+                <div class="mini-linea">
+                  <span class="mini-nombre">{{ linea.cantidad }}x {{ linea.nombreProducto }}</span>
+                  <span class="mini-destino" [class.destino-barra]="linea.destino === 'BARRA'" [class.destino-cocina]="linea.destino === 'COCINA'">
+                    {{ linea.destino === 'BARRA' ? '🍺' : '🔥' }}
+                  </span>
+                </div>
+              }
+            </div>
+            <div class="pie-ronda-anterior">
+              <span class="total-ronda-anterior">{{ ronda.precioTotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════════════════════════
+    ACCIONES
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="acciones-post-servicio">
+      <!-- Pedir otra ronda: siempre disponible -->
+      <button
+        class="btn-nueva-ronda"
+        (click)="nuevaRonda()"
+        aria-label="Pedir otra ronda de productos"
+        >
+        <ion-icon name="add-circle-outline" aria-hidden="true"></ion-icon>
+        <span>Pedir otra ronda</span>
+      </button>
+
+      <!-- Cerrar sesión: solo cuando TODAS las rondas están servidas -->
+      @if (todasServidas()) {
+        <button
+          class="btn-cerrar-sesion"
+          (click)="volverAlInicio()"
+          aria-label="Cerrar sesión y volver al inicio"
+          >
+          <ion-icon name="home-outline" aria-hidden="true"></ion-icon>
+          <span>Cerrar sesión</span>
+        </button>
+      }
     </div>
-
-    <!-- Resumen del pedido (datos de Firestore) -->
-    <div class="resumen-pedido panel-cristal" *ngIf="datosComanda()">
-      <h3>Detalle del pedido</h3>
-      <div class="lineas-resumen" role="list">
-        <div class="linea-resumen" *ngFor="let linea of datosComanda()!.lineasComanda" role="listitem">
-          <span class="nombre-linea">{{ linea.cantidad }}x {{ linea.nombreProducto }}</span>
-          <span class="precio-linea">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
-        </div>
-      </div>
-      <div class="total-resumen">
-        <span class="etiqueta-total">Total</span>
-        <span class="valor-total" aria-live="polite">{{ datosComanda()!.precioTotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
-      </div>
-    </div>
-
-    <!-- Botón para volver al inicio (solo cuando la comanda está SERVIDA) -->
-    <button
-      class="btn-volver-inicio"
-      *ngIf="estadoActual() === 'SERVIDO'"
-      (click)="volverAlInicio()"
-      aria-label="Volver al inicio y realizar un nuevo pedido"
-    >
-      <ion-icon name="home-outline" aria-hidden="true"></ion-icon>
-      <span>Nuevo pedido</span>
-    </button>
 
   </div>
 </ion-content>

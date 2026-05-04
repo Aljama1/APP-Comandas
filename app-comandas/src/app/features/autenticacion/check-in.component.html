@@ -3,10 +3,10 @@
     <div class="forma-malla forma-1"></div>
     <div class="forma-malla forma-2"></div>
   </div>
-  
+
   <div class="contenedor-registro">
     <div class="panel-cristal">
-      
+
       <div class="seccion-cabecera">
         <div class="marca-logo">
           <ion-icon name="restaurant-outline"></ion-icon>
@@ -23,15 +23,17 @@
 
         <div class="envoltorio-campo mt-4" [class.qr-bloqueado]="mesaDesdeQR">
           <ion-icon [name]="mesaDesdeQR ? 'lock-closed-outline' : 'scan-outline'" class="icono-campo"></ion-icon>
-          <input type="number" 
-                 placeholder="ID de la Mesa" 
-                 [(ngModel)]="mesaId" 
-                 class="campo-elegante" 
-                 [readonly]="mesaDesdeQR">
-          <span *ngIf="mesaDesdeQR" class="insignia-qr">
-            <ion-icon name="qr-code-outline"></ion-icon>
-            Mesa asignada
-          </span>
+          <input type="number"
+            placeholder="ID de la Mesa"
+            [(ngModel)]="mesaId"
+            class="campo-elegante"
+            [readonly]="mesaDesdeQR">
+          @if (mesaDesdeQR) {
+            <span class="insignia-qr">
+              <ion-icon name="qr-code-outline"></ion-icon>
+              Mesa asignada
+            </span>
+          }
         </div>
       </div>
 
@@ -41,18 +43,24 @@
           <p class="titulo-seccion">Perfil Médico</p>
         </div>
         <p class="subtitulo-seccion">Selecciona tus alergias para filtrar la carta con total seguridad.</p>
-        
+
         <div class="cuadricula-alergenos">
-          <div *ngFor="let item of alergenos" 
-               class="elemento-alergeno" 
-               [class.activo]="item.activo"
-               (click)="toggleAlergeno(item.id)">
-            <div class="contenedor-icono">
-              <ion-icon *ngIf="!item.esSvg" [name]="item.icono"></ion-icon>
-              <ion-icon *ngIf="item.esSvg" [src]="item.icono"></ion-icon>
+          @for (item of alergenos; track item) {
+            <div
+              class="elemento-alergeno"
+              [class.activo]="item.activo"
+              (click)="toggleAlergeno(item.id)">
+              <div class="contenedor-icono">
+                @if (!item.esSvg) {
+                  <ion-icon [name]="item.icono"></ion-icon>
+                }
+                @if (item.esSvg) {
+                  <ion-icon [src]="item.icono"></ion-icon>
+                }
+              </div>
+              <span>{{ item.nombre }}</span>
             </div>
-            <span>{{ item.nombre }}</span>
-          </div>
+          }
         </div>
       </div>
 
