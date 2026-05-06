@@ -1,356 +1,449 @@
-@keyframes aparicionSuave {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800;900&display=swap');
+
+// ── Design tokens ──────────────────────────────────────────────────
+$font-display: 'Outfit', -apple-system, sans-serif;
+$font-body: 'Inter', -apple-system, sans-serif;
+
+$accent: #ff6b35;
+$accent-dim: rgba(255, 107, 53, 0.12);
+$error: #ff3b30;
+$success: #34c759;
+
+// ── Animaciones ────────────────────────────────────────────────────
+@keyframes orb-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(30px, -40px) scale(1.1); }
+}
+@keyframes orb-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(-40px, 30px) scale(1.08); }
+}
+@keyframes orb-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(20px, 20px) scale(1.05); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+@keyframes error-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.85); }
 }
 
-@keyframes fondoFlotante {
-  0% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-20px) scale(1.05); }
-  100% { transform: translateY(0) scale(1); }
+// ── Ion Content ────────────────────────────────────────────────────
+.checkin-content {
+  --background: #f5f0eb;
+  font-family: $font-body;
 }
 
-@keyframes latido {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 59, 48, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
-}
-
-.contenido-elegante {
-  --background: #f7f9fc;
-}
-
-.fondo-malla {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+// ── Fondo ──────────────────────────────────────────────────────────
+.checkin-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   overflow: hidden;
-  z-index: -1;
-  background-color: #f7f9fc;
+  background: #f5f0eb;
+}
 
-  .forma-malla {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.6;
-    animation: fondoFlotante 15s ease-in-out infinite;
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
 
-    &.forma-1 {
-      top: -10%;
-      left: -20%;
-      width: 300px;
-      height: 300px;
-      background: rgba(43, 88, 255, 0.15);
-    }
-
-    &.forma-2 {
-      bottom: -10%;
-      right: -20%;
-      width: 400px;
-      height: 400px;
-      background: rgba(255, 43, 115, 0.1);
-      animation-delay: -5s;
-    }
+  &--1 {
+    width: 400px; height: 400px;
+    top: -120px; left: -100px;
+    background: radial-gradient(circle, rgba(255, 107, 53, 0.5), rgba(255, 200, 100, 0.2));
+    animation: orb-float-1 14s ease-in-out infinite;
+  }
+  &--2 {
+    width: 350px; height: 350px;
+    bottom: -80px; right: -80px;
+    background: radial-gradient(circle, rgba(43, 88, 255, 0.25), rgba(0, 210, 255, 0.1));
+    animation: orb-float-2 18s ease-in-out infinite;
+  }
+  &--3 {
+    width: 250px; height: 250px;
+    top: 45%; left: 60%;
+    background: radial-gradient(circle, rgba(255, 59, 48, 0.15), transparent);
+    animation: orb-float-3 22s ease-in-out infinite;
   }
 }
 
-.contenedor-registro {
+// ── Botón tema (esquina superior) ──────────────────────────────────
+.btn-theme-top {
+  position: fixed;
+  top: max(20px, env(safe-area-inset-top, 20px));
+  right: 20px;
+  z-index: 100;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  ion-icon { font-size: 20px; color: #555; }
+
+  &:active { transform: scale(0.9); }
+}
+
+// ── Contenedor principal ───────────────────────────────────────────
+.checkin-container {
+  position: relative;
+  z-index: 1;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  padding: max(env(safe-area-inset-top, 20px), 60px) 24px max(env(safe-area-inset-bottom, 20px), 32px);
+  gap: 32px;
+}
+
+// ── HERO ───────────────────────────────────────────────────────────
+.checkin-hero {
+  text-align: center;
+  animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.logo-badge {
+  width: 72px; height: 72px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+
+  ion-icon { font-size: 36px; color: #fff; }
+}
+
+.headline {
+  font-family: $font-display;
+  font-size: clamp(3rem, 10vw, 4.5rem);
+  font-weight: 900;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  letter-spacing: -2px;
+  line-height: 1;
+
+  &--dot { color: $accent; }
+}
+
+.subheadline {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.5);
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// ── FORMULARIO ─────────────────────────────────────────────────────
+.checkin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fade-up 0.7s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &--error .field-wrapper {
+    border-color: $error;
+    animation: shake 0.4s ease;
+  }
+
+  &--locked .field-wrapper {
+    background: rgba(0, 122, 255, 0.05);
+    border-color: rgba(0, 122, 255, 0.25);
+  }
+}
+
+.field-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.45);
+  padding-left: 4px;
+}
+
+.field-wrapper {
+  position: relative;
+  display: flex;
   align-items: center;
-  min-height: 100%;
-  padding: 24px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  backdrop-filter: blur(8px);
 
-  .panel-cristal {
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 32px;
-    padding: 20px 20px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
-    
-    .seccion-cabecera {
-      text-align: center;
-      margin-bottom: 20px;
-      animation: aparicionSuave 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  &:focus-within {
+    border-color: #1a1a1a;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+  }
+}
 
-      .marca-logo {
-        width: 52px;
-        height: 52px;
-        margin: 0 auto 12px;
-        background: linear-gradient(135deg, #111111 0%, #333333 100%);
-        border-radius: 16px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+.field-icon {
+  position: absolute;
+  left: 16px;
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  flex-shrink: 0;
+}
 
-        ion-icon {
-          font-size: 26px;
-          color: #ffffff;
-        }
-      }
-      
-      h1 {
-        font-size: 1.8rem;
-        font-weight: 300;
-        color: #111111;
-        margin-bottom: 8px;
-        letter-spacing: -0.5px;
-    
-        strong {
-          font-weight: 700;
-          letter-spacing: -1px;
-        }
-      }
-    
-      p {
-        font-size: 1rem;
-        color: #6e6e73; 
-        font-weight: 400;
-      }
-    }
+.field-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 15px 16px 15px 48px;
+  font-size: 1rem;
+  font-family: $font-body;
+  font-weight: 500;
+  color: #1a1a1a;
+  -webkit-appearance: none;
 
-    .aparicion { animation: aparicionSuave 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
-    .aparicion-retardo-1 { animation: aparicionSuave 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
-    .aparicion-retardo-2 { animation: aparicionSuave 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+  &::placeholder { color: rgba(0, 0, 0, 0.3); font-weight: 400; }
 
-    .seccion-formulario {
-      margin-bottom: 20px;
+  &[readonly] { color: #007aff; cursor: default; }
 
-      .mt-4 { margin-top: 16px; }
+  // Remove number spinners
+  &[type=number] {
+    -moz-appearance: textfield;
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button { -webkit-appearance: none; }
+  }
+}
 
-      .envoltorio-campo {
-        position: relative;
-        display: flex;
-        align-items: center;
+.field-badge-qr {
+  position: absolute;
+  right: 12px;
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(0, 122, 255, 0.1);
+  color: #007aff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+  letter-spacing: 0.3px;
+}
 
-        .icono-campo {
-          position: absolute;
-          left: 16px;
-          font-size: 20px;
-          color: #8e8e93;
-          z-index: 10;
-        }
+.field-error {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $error;
+  padding-left: 4px;
+  animation: error-in 0.25s ease;
+  margin: 0;
 
-        .campo-elegante {
-          width: 100%;
-          background: rgba(255, 255, 255, 0.8);
-          border: 1.5px solid rgba(0, 0, 0, 0.05);
-          border-radius: 20px;
-          padding: 14px 16px 14px 44px;
-          font-size: 1rem;
-          color: #111111;
-          font-weight: 500;
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          outline: none;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  ion-icon { font-size: 14px; flex-shrink: 0; }
+}
 
-          &::placeholder {
-            color: #a1a1a6;
-            font-weight: 400;
-          }
+// ── ALÉRGENOS ──────────────────────────────────────────────────────
+.alergenos-section {
+  animation: fade-up 0.7s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 
-          &:focus {
-            background-color: #ffffff;
-            border-color: #111111;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
-            
-            & + .icono-campo {
-              color: #111111;
-            }
-          }
-        }
+.alergenos-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 6px;
+}
 
-        // Estado bloqueado por QR
-        &.qr-bloqueado {
-          .icono-campo {
-            color: #007aff;
-          }
+.alergenos-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: $error;
+  flex-shrink: 0;
+  animation: dot-pulse 2s ease-in-out infinite;
+}
 
-          .campo-elegante {
-            background: rgba(0, 122, 255, 0.06);
-            border-color: rgba(0, 122, 255, 0.2);
-            color: #007aff;
-            font-weight: 600;
-            cursor: default;
-          }
-        }
+.alergenos-title {
+  font-family: $font-body;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.45);
+  margin: 0;
+}
 
-        .insignia-qr {
-          position: absolute;
-          right: 12px;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          background: rgba(0, 122, 255, 0.1);
-          color: #007aff;
-          font-size: 0.7rem;
-          font-weight: 600;
-          padding: 4px 10px;
-          border-radius: 12px;
-          letter-spacing: 0.3px;
+.alergenos-desc {
+  font-size: 0.87rem;
+  color: rgba(0, 0, 0, 0.5);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+  padding-left: 18px;
+}
 
-          ion-icon {
-            font-size: 14px;
-          }
-        }
-      }
-    }
+.alergenos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
 
-    .seccion-alergenos {
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 24px;
-      padding: 14px 16px;
-      border: 1px solid rgba(255, 255, 255, 0.5);
+.alergeno-chip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: 16px;
+  border: 1.5px solid transparent;
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(8px);
 
-      .cabecera-seccion {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
+  &:active { transform: scale(0.93); }
 
-        .punto-latido {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #ff3b30;
-          margin-right: 10px;
-          animation: latido 2s infinite;
-        }
+  &--activo {
+    background: rgba(255, 59, 48, 0.07);
+    border-color: rgba(255, 59, 48, 0.35);
 
-        .titulo-seccion {
-          font-weight: 700;
-          color: #111111;
-          font-size: 0.9rem;
-          margin: 0;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-        }
-      }
+    .alergeno-icon ion-icon { color: $error; }
+    .alergeno-label { color: $error; font-weight: 700; }
+  }
+}
 
-      .subtitulo-seccion {
-        font-size: 0.85rem;
-        color: #6e6e73;
-        margin-bottom: 10px;
-        line-height: 1.4;
-      }
+.alergeno-icon {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.04);
+  transition: background 0.2s;
 
-      .cuadricula-alergenos {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
+  ion-icon { font-size: 22px; color: rgba(0, 0, 0, 0.45); }
+}
 
-        .elemento-alergeno {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 10px 6px;
-          background-color: rgba(255, 255, 255, 0.9);
-          border: 1.5px solid transparent;
-          border-radius: 20px;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+.alergeno-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.5);
+  transition: color 0.2s;
+}
 
-          &:active {
-            transform: scale(0.92);
-          }
+.alergeno-check {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: $error;
+  display: flex; align-items: center; justify-content: center;
 
-          .contenedor-icono {
-            width: 38px;
-            height: 38px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            background: #f5f5f7;
-            transition: all 0.3s ease;
+  ion-icon { font-size: 12px; color: white; }
+}
 
-            ion-icon {
-              font-size: 20px;
-              color: #8e8e93;
-            }
-          }
+// ── CTA ────────────────────────────────────────────────────────────
+.checkin-cta {
+  animation: fade-up 0.7s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 
-          span {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #6e6e73;
-            transition: all 0.3s ease;
-          }
+.btn-acceder {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 17px 24px;
+  border: none;
+  border-radius: 18px;
+  background: #1a1a1a;
+  color: white;
+  font-family: $font-body;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-          &.activo {
-            border-color: rgba(255, 59, 48, 0.3);
-            background-color: #fff0f0;
-            box-shadow: 0 8px 16px rgba(255, 59, 48, 0.12);
+  ion-icon { font-size: 20px; }
 
-            .contenedor-icono {
-              background: #ff3b30;
-              
-              ion-icon {
-                color: #ffffff;
-                transform: scale(1.1);
-              }
-            }
+  &:active {
+    transform: scale(0.97);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+}
 
-            span {
-              color: #ff3b30;
-              font-weight: 700;
-            }
-          }
-        }
-      }
-    }
+// ── DARK MODE ──────────────────────────────────────────────────────
+:host-context(body.dark) {
 
-    .seccion-accion {
-      margin-top: 20px;
+  .checkin-content { --background: #0c0e13; }
 
-      .btn-primario-elegante {
-        width: 100%;
-        height: 56px;
-        background: linear-gradient(135deg, #111111 0%, #333333 100%);
-        color: #ffffff;
-        border: none;
-        border-radius: 24px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 12px;
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        cursor: pointer;
+  .checkin-bg {
+    background: #0c0e13;
+    .bg-orb--1 { background: radial-gradient(circle, rgba(255, 107, 53, 0.3), rgba(255, 50, 0, 0.1)); }
+    .bg-orb--2 { background: radial-gradient(circle, rgba(0, 122, 255, 0.2), rgba(0, 210, 255, 0.05)); }
+  }
 
-        ion-icon {
-          font-size: 22px;
-          transition: transform 0.3s ease;
-        }
+  .btn-theme-top {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    ion-icon { color: #fff; }
+  }
 
-        &:hover {
-          box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
-          transform: translateY(-2px);
-          
-          ion-icon {
-            transform: translateX(4px);
-          }
-        }
+  .headline { color: #fff; }
+  .subheadline { color: rgba(255, 255, 255, 0.5); }
 
-        &:active {
-          transform: scale(0.96) translateY(0);
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-      }
+  .field-label { color: rgba(255, 255, 255, 0.4); }
+
+  .field-wrapper {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    &:focus-within { border-color: rgba(255, 255, 255, 0.5); }
+  }
+
+  .field-input {
+    color: #fff;
+    &::placeholder { color: rgba(255, 255, 255, 0.3); }
+    &[readonly] { color: #64b5f6; }
+  }
+
+  .field-icon { color: rgba(255, 255, 255, 0.35); }
+
+  .alergenos-title { color: rgba(255, 255, 255, 0.4); }
+  .alergenos-desc  { color: rgba(255, 255, 255, 0.45); }
+
+  .alergeno-chip {
+    background: rgba(255, 255, 255, 0.05);
+    &--activo {
+      background: rgba(255, 59, 48, 0.1);
+      border-color: rgba(255, 59, 48, 0.3);
     }
   }
+
+  .alergeno-icon {
+    background: rgba(255, 255, 255, 0.06);
+    ion-icon { color: rgba(255, 255, 255, 0.5); }
+  }
+
+  .alergeno-label { color: rgba(255, 255, 255, 0.5); }
+
+  .btn-acceder {
+    background: #fff;
+    color: #000;
+    box-shadow: 0 12px 32px rgba(255, 255, 255, 0.1);
+  }
+
+  .logo-badge { background: linear-gradient(135deg, #fff, #ddd); ion-icon { color: #000; } }
 }

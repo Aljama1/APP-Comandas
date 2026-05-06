@@ -1,0 +1,51 @@
+<div class="user-config-trigger" id="click-trigger">
+  <div class="avatar-wrapper">
+    <ion-icon name="person-circle-outline"></ion-icon>
+    <div class="status-indicator"></div>
+  </div>
+  <div class="user-details hide-mobile">
+    <span class="user-email">{{ (authService.adminUser()?.email || 'Admin').split('@')[0] }}</span>
+  </div>
+  <ion-icon name="settings-outline" class="settings-icon"></ion-icon>
+</div>
+
+<ion-popover trigger="click-trigger" triggerAction="click" class="config-popover">
+  <ng-template>
+    <ion-content class="ion-padding">
+      <div class="popover-header">
+        <span class="full-email">{{ authService.adminUser()?.email }}</span>
+        <span class="role-badge">Administrador</span>
+      </div>
+
+      <div class="config-section">
+        <div class="section-title">Seguridad</div>
+        <ion-item lines="none" class="config-item" (click)="changePassword()">
+          <ion-icon name="key-outline" slot="start"></ion-icon>
+          <ion-label>Cambiar contraseña</ion-label>
+        </ion-item>
+      </div>
+
+      <div class="config-section">
+        <div class="section-title">Preferencias</div>
+        <ion-item lines="none" class="config-item">
+          <ion-icon [name]="settingsService.isDark() ? 'sunny-outline' : 'moon-outline'" slot="start"></ion-icon>
+          <ion-label>Modo oscuro</ion-label>
+          <ion-toggle [checked]="settingsService.isDark()" (ionChange)="settingsService.toggleDark()" slot="end"></ion-toggle>
+        </ion-item>
+        <ion-item lines="none" class="config-item">
+          <ion-icon [name]="settingsService.soundEnabled() ? 'volume-high-outline' : 'volume-mute-outline'" slot="start"></ion-icon>
+          <ion-label>Sonidos</ion-label>
+          <ion-toggle [checked]="settingsService.soundEnabled()" (ionChange)="settingsService.toggleSound()" slot="end"></ion-toggle>
+        </ion-item>
+      </div>
+
+      <div class="popover-footer">
+        <ion-button expand="block" fill="outline" color="danger" (click)="logout()">
+          <ion-icon name="log-out-outline" slot="start"></ion-icon>
+          Cerrar Sesión
+        </ion-button>
+        <div class="app-version">Version 2.4.0 PRO</div>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-popover>

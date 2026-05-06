@@ -31,10 +31,21 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     loadComponent: () => import('./features/admin/panel-pedidos/panel-pedidos.component').then((m) => m.PanelPedidosComponent),
   },
+  {
+    path: 'admin/cocina',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/vista-cocina/vista-cocina.component').then((m) => m.VistaCocinaComponent),
+  },
+  {
+    // Vista exclusiva del Barman — misma lógica que cocina pero filtrando bebidas (BARRA)
+    path: 'admin/barra',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/vista-barra/vista-barra.component').then((m) => m.VistaBarraComponent),
+  },
 
   {
     path: '',
-    redirectTo: 'check-in',
+    loadComponent: () => import('./features/autenticacion/selector-rol/selector-rol.component').then((m) => m.SelectorRolComponent),
     pathMatch: 'full',
   },
 ];

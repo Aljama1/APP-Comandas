@@ -21,12 +21,31 @@
   max-width: 400px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 
+  // Colores base (Naranja por defecto)
+  --color-tema: #FF9500;
+  --color-tema-sec: #FF5E3A;
+  --color-sombra: rgba(255, 94, 58, 0.3);
+
+  // Variación Barra (Azul)
+  &.barra {
+    --color-tema: #0a84ff;
+    --color-tema-sec: #005bb5;
+    --color-sombra: rgba(10, 132, 255, 0.3);
+  }
+
+  // Variación Cocina (Verde)
+  &.cocina {
+    --color-tema: #34c759;
+    --color-tema-sec: #248a3d;
+    --color-sombra: rgba(52, 199, 89, 0.3);
+  }
+
   .cabecera-logo {
     text-align: center;
     margin-bottom: 40px;
 
     .icono-circular {
-      background: linear-gradient(135deg, #FF9500, #FF5E3A);
+      background: linear-gradient(135deg, var(--color-tema), var(--color-tema-sec));
       width: 64px;
       height: 64px;
       border-radius: 50%;
@@ -34,7 +53,7 @@
       align-items: center;
       justify-content: center;
       margin: 0 auto 16px;
-      box-shadow: 0 8px 16px rgba(255, 94, 58, 0.3);
+      box-shadow: 0 8px 16px var(--color-sombra);
 
       ion-icon {
         color: white;
@@ -81,22 +100,62 @@
       }
 
       &.item-has-focus {
-        border-color: #FF9500;
+        border-color: var(--color-tema);
         ion-icon {
-          color: #FF9500;
+          color: var(--color-tema);
         }
       }
     }
 
     .btn-acceso {
-      --background: linear-gradient(135deg, #FF9500, #FF5E3A);
+      --background: linear-gradient(135deg, var(--color-tema), var(--color-tema-sec));
       --border-radius: 12px;
-      --box-shadow: 0 8px 16px rgba(255, 94, 58, 0.3);
+      --box-shadow: 0 8px 16px var(--color-sombra);
       margin-top: 16px;
       font-weight: 600;
       font-size: 16px;
       height: 52px;
       text-transform: none;
+    }
+  }
+}
+
+/* =====================================================
+   LIGHT MODE OVERRIDES
+   ===================================================== */
+:host-context(body:not(.dark)) {
+  .fondo-admin {
+    --background: #f4f5f8;
+  }
+  
+  .panel-login {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    
+    .cabecera-logo {
+      h1 { color: #1a1a1a; }
+      p { color: #666666; }
+    }
+    
+    .formulario-login {
+      .input-item {
+        --background: #f9f9f9;
+        border: 1px solid #d0d0d0;
+        
+        ion-input {
+          --color: #1a1a1a;
+          --placeholder-color: #999999;
+        }
+        
+        ion-icon { color: #888888; }
+        
+        &.item-has-focus {
+          border-color: var(--color-tema);
+          background: #ffffff;
+          ion-icon { color: var(--color-tema); }
+        }
+      }
     }
   }
 }

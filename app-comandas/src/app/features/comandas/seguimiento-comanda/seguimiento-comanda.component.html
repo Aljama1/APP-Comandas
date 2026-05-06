@@ -1,161 +1,121 @@
-<ion-content [fullscreen]="true" class="contenido-elegante">
-  <!-- Fondo Malla (Consistente con el resto de la app) -->
-  <div class="fondo-malla" aria-hidden="true">
-    <div class="forma-malla forma-1"></div>
-    <div class="forma-malla forma-2"></div>
-  </div>
+<ion-content [fullscreen]="true" class="seguimiento-content">
 
-  <div class="cabecera-moderna">
-    <div class="icono-cabecera" aria-hidden="true">
-      <ion-icon name="receipt-outline"></ion-icon>
-    </div>
-    <div class="titulo-cabecera">
-      <h1>Seguimiento</h1>
-      @if (totalRondas() > 0) {
-        <span class="badge-ronda">{{ totalRondas() }} {{ totalRondas() === 1 ? 'ronda' : 'rondas' }}</span>
-      }
-    </div>
-  </div>
+  <!-- Fondo sutil -->
+  <div class="seg-bg" aria-hidden="true"></div>
 
-  <div class="contenedor-principal">
-
-    <!-- Mensaje de bienvenida personalizado -->
-    <div class="mensaje-bienvenida">
-      <p>{{ nombreCliente() }}, aquí tienes el estado de tus pedidos 🍽️</p>
+  <!-- ── HEADER ── -->
+  <header class="seg-header">
+    <button class="btn-back" (click)="volver()" aria-label="Volver a la carta">
+      <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+    </button>
+    <div class="seg-header__title">
+      <h1>Mis Pedidos</h1>
     </div>
+    <div class="seg-header__mesa">
+      Mesa {{ todasLasComandas()[0]?.idMesa ?? '—' }}
+    </div>
+  </header>
+
+  <div class="seg-body">
 
     <!-- Error de conexión -->
     @if (error()) {
-      <div class="aviso-error" role="alert">
+      <div class="error-banner" role="alert">
         <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
         <span>{{ error() }}</span>
       </div>
     }
 
-    <!-- ══════════════════════════════════════════════════════════════
-    RONDA MÁS RECIENTE — Stepper completo
-    ══════════════════════════════════════════════════════════════ -->
-    @if (comandaMasReciente()) {
-      <div class="seccion-ronda-activa">
-        <div class="encabezado-seccion">
-          <h2>Ronda {{ totalRondas() }}</h2>
-          <span class="etiqueta-estado" [class]="'estado-' + comandaMasReciente()!.estado.toLowerCase()">
-            {{ obtenerEtiquetaEstado(comandaMasReciente()!.estado) }}
-          </span>
+    <!-- Sin pedidos -->
+    @if (todasLasComandas().length === 0) {
+      <div class="empty-state">
+        <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
+        <p>No tienes pedidos todavía</p>
+      </div>
+    }
+
+    <!-- ══ RONDAS ══ -->
+    @for (comanda of todasLasComandas(); track comanda.id; let i = $index) {
+      <section class="ronda-section" [attr.aria-label]="'Ronda ' + (i + 1)">
+
+        <!-- Cabecera de ronda -->
+        <div class="ronda-header">
+          <span class="ronda-num">Ronda {{ i + 1 }}</span>
+          <div class="ronda-estado" [class]="getEstadoConfig(comanda.estado).clase">
+            <ion-icon [name]="getEstadoConfig(comanda.estado).icono" aria-hidden="true"></ion-icon>
+            <span>{{ getEstadoConfig(comanda.estado).etiqueta }}</span>
+          </div>
         </div>
-        <!-- Stepper visual -->
-        <div class="rastreador" role="list" aria-label="Progreso de tu comanda">
-          @for (paso of pasosEstado; track paso; let i = $index) {
+
+        <!-- Items de la ronda -->
+        <div class="ronda-items" role="list">
+          @for (linea of comanda.lineasComanda; track linea.idProducto) {
             <div
-              class="paso-rastreador"
-              [class.completado]="i < indicePasoActual()"
-              [class.activo]="i === indicePasoActual()"
-              [class.pendiente]="i > indicePasoActual()"
+              class="item-row"
+              [class.item-row--servido]="esServido(comanda.estado)"
               role="listitem"
-              [attr.aria-current]="i === indicePasoActual() ? 'step' : null"
-              >
-              <div class="indicador-paso">
-                <div class="circulo-paso">
-                  <ion-icon [name]="paso.icono" aria-hidden="true"></ion-icon>
-                </div>
-                @if (i < pasosEstado.length - 1) {
-                  <div class="linea-conectora" aria-hidden="true"></div>
-                }
+            >
+              <!-- Indicador de estado -->
+              <div class="item-status-dot" [class]="getEstadoConfig(comanda.estado).clase" aria-hidden="true">
+                <ion-icon [name]="getEstadoConfig(comanda.estado).icono"></ion-icon>
               </div>
-              <div class="contenido-paso">
-                <h3>{{ paso.etiqueta }}</h3>
-                @if (i === indicePasoActual()) {
-                  <p>{{ paso.descripcion }}</p>
+
+              <!-- Info del item -->
+              <div class="item-info">
+                <span class="item-name" [class.item-name--done]="esServido(comanda.estado)">
+                  <span class="item-qty">{{ linea.cantidad }}×</span>
+                  {{ linea.nombreProducto }}
+                </span>
+                @if (linea.notasEspeciales) {
+                  <span class="item-nota">📝 {{ linea.notasEspeciales }}</span>
                 }
+                <span class="item-destino" [class.destino-barra]="linea.destino === 'BARRA'" [class.destino-cocina]="linea.destino === 'COCINA'">
+                  {{ linea.destino === 'BARRA' ? '🍺 Barra' : '🔥 Cocina' }}
+                </span>
               </div>
+
+              <!-- Precio -->
+              <span class="item-price">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
             </div>
           }
         </div>
-        <!-- Detalle del pedido -->
-        <div class="resumen-pedido panel-cristal">
-          <h3>Detalle del pedido</h3>
-          <div class="lineas-resumen" role="list">
-            @for (linea of comandaMasReciente()!.lineasComanda; track linea) {
-              <div class="linea-resumen" role="listitem">
-                <div class="info-linea">
-                  <span class="nombre-linea">{{ linea.cantidad }}x {{ linea.nombreProducto }}</span>
-                  <span class="etiqueta-destino" [class.destino-barra]="linea.destino === 'BARRA'" [class.destino-cocina]="linea.destino === 'COCINA'">
-                    {{ linea.destino === 'BARRA' ? '🍺 Barra' : '🔥 Cocina' }}
-                  </span>
-                </div>
-                <span class="precio-linea">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
-              </div>
-            }
-          </div>
-          <div class="total-resumen">
-            <span class="etiqueta-total">Total</span>
-            <span class="valor-total" aria-live="polite">{{ comandaMasReciente()!.precioTotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
-          </div>
+
+        <!-- Subtotal ronda -->
+        <div class="ronda-subtotal">
+          <span>Subtotal ronda {{ i + 1 }}</span>
+          <span>{{ comanda.precioTotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+        </div>
+
+      </section>
+    }
+
+    <!-- ══ RESUMEN TOTAL ══ -->
+    @if (todasLasComandas().length > 0) {
+      <div class="total-card">
+        <div class="total-card__row">
+          <span class="total-card__label">Total consumido ({{ totalItems() }} items)</span>
+          <span class="total-card__value">{{ totalAcumulado() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
         </div>
       </div>
     }
 
-    <!-- ══════════════════════════════════════════════════════════════
-    RONDAS ANTERIORES — Tarjetas compactas
-    Cada ronda anterior se muestra con su estado actual, número
-    de artículos y total. Se actualizan en tiempo real.
-    ══════════════════════════════════════════════════════════════ -->
-    @if (rondasAnteriores().length > 0) {
-      <div class="seccion-rondas-anteriores">
-        <h2 class="titulo-seccion-anteriores">Rondas anteriores</h2>
-        @for (ronda of rondasAnteriores(); track ronda; let i = $index) {
-          <div class="tarjeta-ronda-anterior panel-cristal">
-            <div class="cabecera-ronda-anterior">
-              <span class="numero-ronda">Ronda {{ i + 1 }}</span>
-              <span class="etiqueta-estado" [class]="'estado-' + ronda.estado.toLowerCase()">
-                {{ obtenerEtiquetaEstado(ronda.estado) }}
-              </span>
-            </div>
-            <!-- Mini resumen de la ronda -->
-            <div class="mini-resumen">
-              @for (linea of ronda.lineasComanda; track linea) {
-                <div class="mini-linea">
-                  <span class="mini-nombre">{{ linea.cantidad }}x {{ linea.nombreProducto }}</span>
-                  <span class="mini-destino" [class.destino-barra]="linea.destino === 'BARRA'" [class.destino-cocina]="linea.destino === 'COCINA'">
-                    {{ linea.destino === 'BARRA' ? '🍺' : '🔥' }}
-                  </span>
-                </div>
-              }
-            </div>
-            <div class="pie-ronda-anterior">
-              <span class="total-ronda-anterior">{{ ronda.precioTotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
-            </div>
-          </div>
-        }
-      </div>
-    }
-
-    <!-- ══════════════════════════════════════════════════════════════
-    ACCIONES
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="acciones-post-servicio">
-      <!-- Pedir otra ronda: siempre disponible -->
-      <button
-        class="btn-nueva-ronda"
-        (click)="nuevaRonda()"
-        aria-label="Pedir otra ronda de productos"
-        >
+    <!-- ══ ACCIONES ══ -->
+    <div class="seg-actions">
+      <button class="btn-nueva-ronda" (click)="nuevaRonda()" aria-label="Pedir otra ronda">
         <ion-icon name="add-circle-outline" aria-hidden="true"></ion-icon>
         <span>Pedir otra ronda</span>
       </button>
 
-      <!-- Cerrar sesión: solo cuando TODAS las rondas están servidas -->
       @if (todasServidas()) {
-        <button
-          class="btn-cerrar-sesion"
-          (click)="volverAlInicio()"
-          aria-label="Cerrar sesión y volver al inicio"
-          >
+        <button class="btn-cerrar" (click)="cerrarSesion()" aria-label="Cerrar sesión y volver al inicio">
           <ion-icon name="home-outline" aria-hidden="true"></ion-icon>
           <span>Cerrar sesión</span>
         </button>
       }
     </div>
 
+    <!-- Espacio inferior seguro -->
+    <div style="height: 40px;" aria-hidden="true"></div>
   </div>
+
 </ion-content>

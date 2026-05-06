@@ -20,10 +20,10 @@ export const adminGuard: CanActivateFn = async (route, state) => {
       return true;
     }
 
-    // Si no cumple, redirigimos al login de staff
-    return router.parseUrl('/admin/login');
+    // Si no cumple, redirigimos al login de staff guardando la ruta a la que quería ir
+    return router.createUrlTree(['/admin/login'], { queryParams: { returnUrl: state.url } });
   } catch (error) {
     console.error('Error en adminGuard:', error);
-    return router.parseUrl('/admin/login');
+    return router.createUrlTree(['/admin/login'], { queryParams: { returnUrl: state.url } });
   }
 };

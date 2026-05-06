@@ -1,0 +1,65 @@
+<ion-content class="landing-fondo">
+  <div class="circulo-blur-1"></div>
+  <div class="circulo-blur-2"></div>
+
+  <div class="landing-container">
+    <header class="landing-header">
+      <h1 class="logo-trace">Trace<span>.</span></h1>
+      <p class="subtitulo">Gestión Inteligente de Comandas y Alérgenos</p>
+    </header>
+
+    <main class="landing-opciones">
+      <!-- Opción Comensal -->
+      <a routerLink="/check-in" class="tarjeta-rol tarjeta-comensal">
+        <div class="icono-wrapper">
+          <ion-icon name="restaurant-outline"></ion-icon>
+        </div>
+        <div class="contenido-rol">
+          <h2>Soy Comensal</h2>
+          <p>Explora la carta y realiza tu pedido de forma segura.</p>
+        </div>
+        <ion-icon name="log-in-outline" class="flecha-entrar"></ion-icon>
+      </a>
+
+      <!-- Opción Encargado de Sala -->
+      <a routerLink="/admin/panel-pedidos" class="tarjeta-rol tarjeta-staff">
+        <div class="icono-wrapper">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+        </div>
+        <div class="contenido-rol">
+          <h2>Encargado de Sala</h2>
+          <p>Acepta comandas y gestiona el estado de la sala.</p>
+        </div>
+        <ion-icon name="log-in-outline" class="flecha-entrar"></ion-icon>
+      </a>
+
+      <!-- Opción Barman -->
+      <a routerLink="/admin/barra" class="tarjeta-rol tarjeta-barra">
+        <div class="icono-wrapper">
+          <ion-icon name="beer-outline"></ion-icon>
+        </div>
+        <div class="contenido-rol">
+          <h2>Barman</h2>
+          <p>Bebidas por mesa con checklist en tiempo real.</p>
+        </div>
+        <ion-icon name="log-in-outline" class="flecha-entrar"></ion-icon>
+      </a>
+
+      <!-- Opción Cocina -->
+      <a routerLink="/admin/cocina" class="tarjeta-rol tarjeta-cocina">
+        <div class="icono-wrapper">
+          <ion-icon name="flame-outline"></ion-icon>
+        </div>
+        <div class="contenido-rol">
+          <h2>Cocina en vivo</h2>
+          <p>Panel de producción y tickets en tiempo real.</p>
+        </div>
+        <ion-icon name="log-in-outline" class="flecha-entrar"></ion-icon>
+      </a>
+    </main>
+
+    <footer class="landing-footer">
+
+    </footer>
+  </div>
+</ion-content>

@@ -1,77 +1,130 @@
-<ion-content [fullscreen]="true" class="contenido-elegante">
-  <div class="fondo-malla">
-    <div class="forma-malla forma-1"></div>
-    <div class="forma-malla forma-2"></div>
+<ion-content [fullscreen]="true" class="checkin-content">
+
+  <!-- Fondo con gradiente animado -->
+  <div class="checkin-bg" aria-hidden="true">
+    <div class="bg-orb bg-orb--1"></div>
+    <div class="bg-orb bg-orb--2"></div>
+    <div class="bg-orb bg-orb--3"></div>
   </div>
 
-  <div class="contenedor-registro">
-    <div class="panel-cristal">
+  <!-- Botón dark mode (esquina superior derecha) -->
+  <button class="btn-theme-top" (click)="settings.toggleDark()" [attr.aria-label]="settings.isDark() ? 'Activar modo claro' : 'Activar modo oscuro'">
+    <ion-icon [name]="settings.isDark() ? 'sunny-outline' : 'moon-outline'"></ion-icon>
+  </button>
 
-      <div class="seccion-cabecera">
-        <div class="marca-logo">
-          <ion-icon name="restaurant-outline"></ion-icon>
+  <!-- Contenido principal -->
+  <div class="checkin-container">
+
+    <!-- HERO: Logo + Headline -->
+    <header class="checkin-hero" aria-label="Bienvenida">
+      <div class="logo-badge">
+        <ion-icon name="restaurant-outline" aria-hidden="true"></ion-icon>
+      </div>
+      <h1 class="headline">
+        Trace<span class="headline--dot">.</span>
+      </h1>
+      <p class="subheadline">Tu experiencia gastronómica personalizada</p>
+    </header>
+
+    <!-- FORMULARIO -->
+    <section class="checkin-form" aria-label="Formulario de acceso">
+
+      <!-- Campo Nombre -->
+      <div class="field-group" [class.field-group--error]="errorNombre()">
+        <label class="field-label" for="input-nombre">Tu nombre</label>
+        <div class="field-wrapper">
+          <ion-icon name="person-outline" class="field-icon" aria-hidden="true"></ion-icon>
+          <input
+            id="input-nombre"
+            type="text"
+            class="field-input"
+            placeholder="¿Cómo te llamas?"
+            [(ngModel)]="nombre"
+            (ngModelChange)="onNombreChange()"
+            autocomplete="given-name"
+            autocapitalize="words"
+          >
         </div>
-        <h1>Bienvenido a <strong>Trace</strong></h1>
-        <p>Tu seguridad alimentaria es lo primero.</p>
+        @if (errorNombre()) {
+          <p class="field-error" role="alert" aria-live="polite">
+            <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+            {{ errorNombre() }}
+          </p>
+        }
       </div>
 
-      <div class="seccion-formulario aparicion">
-        <div class="envoltorio-campo">
-          <ion-icon name="person-outline" class="icono-campo"></ion-icon>
-          <input type="text" placeholder="¿Cómo te llamas?" [(ngModel)]="nombre" class="campo-elegante">
-        </div>
-
-        <div class="envoltorio-campo mt-4" [class.qr-bloqueado]="mesaDesdeQR">
-          <ion-icon [name]="mesaDesdeQR ? 'lock-closed-outline' : 'scan-outline'" class="icono-campo"></ion-icon>
-          <input type="number"
-            placeholder="ID de la Mesa"
+      <!-- Campo Mesa -->
+      <div class="field-group" [class.field-group--error]="errorMesa()" [class.field-group--locked]="mesaDesdeQR">
+        <label class="field-label" for="input-mesa">Número de mesa</label>
+        <div class="field-wrapper">
+          <ion-icon [name]="mesaDesdeQR ? 'lock-closed-outline' : 'scan-outline'" class="field-icon" aria-hidden="true"></ion-icon>
+          <input
+            id="input-mesa"
+            type="number"
+            class="field-input"
+            placeholder="Mesa"
             [(ngModel)]="mesaId"
-            class="campo-elegante"
-            [readonly]="mesaDesdeQR">
+            (ngModelChange)="onMesaChange()"
+            [readonly]="mesaDesdeQR"
+            inputmode="numeric"
+          >
           @if (mesaDesdeQR) {
-            <span class="insignia-qr">
-              <ion-icon name="qr-code-outline"></ion-icon>
-              Mesa asignada
+            <span class="field-badge-qr" aria-label="Mesa asignada automáticamente por QR">
+              <ion-icon name="qr-code-outline" aria-hidden="true"></ion-icon>
+              QR
             </span>
           }
         </div>
+        @if (errorMesa()) {
+          <p class="field-error" role="alert" aria-live="polite">
+            <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+            {{ errorMesa() }}
+          </p>
+        }
       </div>
 
-      <div class="seccion-alergenos aparicion-retardo-1">
-        <div class="cabecera-seccion">
-          <div class="punto-latido"></div>
-          <p class="titulo-seccion">Perfil Médico</p>
-        </div>
-        <p class="subtitulo-seccion">Selecciona tus alergias para filtrar la carta con total seguridad.</p>
+    </section>
 
-        <div class="cuadricula-alergenos">
-          @for (item of alergenos; track item) {
-            <div
-              class="elemento-alergeno"
-              [class.activo]="item.activo"
-              (click)="toggleAlergeno(item.id)">
-              <div class="contenedor-icono">
-                @if (!item.esSvg) {
-                  <ion-icon [name]="item.icono"></ion-icon>
-                }
-                @if (item.esSvg) {
-                  <ion-icon [src]="item.icono"></ion-icon>
-                }
-              </div>
-              <span>{{ item.nombre }}</span>
+    <!-- ALÉRGENOS -->
+    <section class="alergenos-section" aria-label="Selección de alérgenos">
+      <div class="alergenos-header">
+        <div class="alergenos-dot" aria-hidden="true"></div>
+        <h2 class="alergenos-title">Perfil de seguridad alimentaria</h2>
+      </div>
+      <p class="alergenos-desc">Selecciona tus alergias para filtrar la carta automáticamente.</p>
+
+      <div class="alergenos-grid" role="group" aria-label="Alérgenos">
+        @for (item of alergenos; track item.id) {
+          <button
+            class="alergeno-chip"
+            [class.alergeno-chip--activo]="item.activo"
+            (click)="toggleAlergeno(item.id)"
+            [attr.aria-pressed]="item.activo"
+            [attr.aria-label]="(item.activo ? 'Desactivar' : 'Activar') + ' alérgeno: ' + item.nombre"
+          >
+            <div class="alergeno-icon">
+              @if (!item.esSvg) { <ion-icon [name]="item.icono" aria-hidden="true"></ion-icon> }
+              @if (item.esSvg)  { <ion-icon [src]="item.icono"  aria-hidden="true"></ion-icon> }
             </div>
-          }
-        </div>
+            <span class="alergeno-label">{{ item.nombre }}</span>
+            @if (item.activo) {
+              <div class="alergeno-check" aria-hidden="true">
+                <ion-icon name="checkmark-outline"></ion-icon>
+              </div>
+            }
+          </button>
+        }
       </div>
+    </section>
 
-      <div class="seccion-accion aparicion-retardo-2">
-        <button class="btn-primario-elegante" (click)="acceder()">
-          <span>Comenzar Experiencia</span>
-          <ion-icon name="arrow-forward-outline"></ion-icon>
-        </button>
-      </div>
-
+    <!-- CTA -->
+    <div class="checkin-cta">
+      <button class="btn-acceder" (click)="acceder()" aria-label="Comenzar experiencia en Trace">
+        <span>Comenzar Experiencia</span>
+        <ion-icon name="arrow-forward-outline" aria-hidden="true"></ion-icon>
+      </button>
     </div>
+
   </div>
 
 </ion-content>

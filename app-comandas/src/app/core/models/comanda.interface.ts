@@ -1,6 +1,6 @@
 import { DestinoReceptor } from './producto.model';
 
-export type EstadoComanda = 'PENDIENTE' | 'PREPARANDO' | 'LISTO' | 'SERVIDO' | 'PAGADO';
+export type EstadoComanda = 'PENDIENTE' | 'PREPARANDO' | 'LISTO' | 'SERVIDO' | 'PAGADO' | 'CANCELADO';
 
 export interface LineaComanda {
   idProducto: string;          // Referencia al ID del producto
@@ -10,6 +10,7 @@ export interface LineaComanda {
   subtotal: number;            // cantidad * precioUnitario
   destino: DestinoReceptor;    // A dónde se despacha esta línea: BARRA (bebidas) o COCINA (comidas)
   notasEspeciales?: string;    // Peticiones especiales del cliente (Ej: 'Sin salsa y muy hecho')
+  preparado?: boolean;         // Control individual para ir tachando platos en la cocina
 }
 
 export interface Comanda {
@@ -17,6 +18,7 @@ export interface Comanda {
   idMesa: string;              // ID de la mesa desde la que el cliente solicitó
   idCliente: string;           // UID del cliente (Firebase Auth)
   nombreCliente: string;       // Nombre para facilitar lectura en cocina
+  alergenosUsuario?: string[]; // (Opcional) Alérgenos que padece el cliente para alerta en cocina
   lineasComanda: LineaComanda[]; // Matriz con los platos solicitados
   estado: EstadoComanda;       // Estado de flujo de vida de la comanda en cocina
   precioTotal: number;         // Sumatorio total

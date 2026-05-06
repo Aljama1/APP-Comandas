@@ -1,26 +1,17 @@
-import { Component, inject } from '@angular/core';
-
+import { Component, inject, signal } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
-
 import { FormsModule } from '@angular/forms';
-
 import { Router, ActivatedRoute } from '@angular/router';
 import { Auth, signInAnonymously } from '@angular/fire/auth';
 import { UsuarioService } from '../../core/services/usuario.service';
+import { UserSettingsService } from '../../core/services/user-settings.service';
 import { PerfilUsuario } from '../../core/models/perfil-usuario.model';
 import { addIcons } from 'ionicons';
 import {
-  nutritionOutline,
-  waterOutline,
-  leafOutline,
-  eggOutline,
-  fishOutline,
-  restaurantOutline,
-  personOutline,
-  scanOutline,
-  arrowForwardOutline,
-  lockClosedOutline,
-  qrCodeOutline
+  nutritionOutline, waterOutline, leafOutline, eggOutline, fishOutline,
+  restaurantOutline, personOutline, scanOutline, arrowForwardOutline,
+  lockClosedOutline, qrCodeOutline, moonOutline, sunnyOutline,
+  checkmarkOutline, closeOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -35,23 +26,26 @@ export class CheckInComponent {
   mesaId: number | null = null;
   mesaDesdeQR: boolean = false;
 
+  // Errores de validación inline (sin alert() nativo)
+  errorNombre = signal<string>('');
+  errorMesa = signal<string>('');
+
   // Lista de alérgenos del TFG (siguiendo normativa europea)
   alergenos = [
-    { id: 'gluten', nombre: 'Gluten', icono: '/assets/icon/gluten.svg', activo: false, esSvg: true },
-    { id: 'lactosa', nombre: 'Lactosa', icono: '/assets/icon/lactosa.svg', activo: false, esSvg: true },
-    { id: 'frutos-secos', nombre: 'F. Secos', icono: '/assets/icon/frutos-secos.svg', activo: false, esSvg: true },
-    { id: 'huevo', nombre: 'Huevo', icono: 'egg-outline', activo: false, esSvg: false },
-    { id: 'pescado', nombre: 'Pescado', icono: 'fish-outline', activo: false, esSvg: false },
-    { id: 'marisco', nombre: 'Marisco', icono: 'restaurant-outline', activo: false, esSvg: false }
+    { id: 'gluten',       nombre: 'Gluten',    icono: '/assets/icon/gluten.svg',        activo: false, esSvg: true  },
+    { id: 'lactosa',      nombre: 'Lactosa',   icono: '/assets/icon/lactosa.svg',       activo: false, esSvg: true  },
+    { id: 'frutos-secos', nombre: 'F. Secos',  icono: '/assets/icon/frutos-secos.svg',  activo: false, esSvg: true  },
+    { id: 'huevo',        nombre: 'Huevo',     icono: 'egg-outline',                    activo: false, esSvg: false },
+    { id: 'pescado',      nombre: 'Pescado',   icono: 'fish-outline',                   activo: false, esSvg: false },
+    { id: 'marisco',      nombre: 'Marisco',   icono: 'restaurant-outline',             activo: false, esSvg: false }
   ];
 
-  // Inyección de servicios
   private usuarioService = inject(UsuarioService);
+  public settings = inject(UserSettingsService);
   private auth = inject(Auth);
   private route = inject(ActivatedRoute);
 
   constructor(private router: Router) {
-    // Registro de iconos
     addIcons({
       'egg-outline': eggOutline,
       'fish-outline': fishOutline,
@@ -60,17 +54,19 @@ export class CheckInComponent {
       'scan-outline': scanOutline,
       'arrow-forward-outline': arrowForwardOutline,
       'lock-closed-outline': lockClosedOutline,
-      'qr-code-outline': qrCodeOutline
+      'qr-code-outline': qrCodeOutline,
+      'moon-outline': moonOutline,
+      'sunny-outline': sunnyOutline,
+      'checkmark-outline': checkmarkOutline,
+      'close-outline': closeOutline,
     });
 
-    // Leer parámetro de mesa desde la URL (QR)
     const mesa = this.route.snapshot.queryParamMap.get('mesa');
     if (mesa) {
       this.mesaId = Number(mesa);
       this.mesaDesdeQR = true;
     }
 
-    // Si ya existe una sesión guardada, saltar directamente a la carta
     if (this.usuarioService.estaAutenticado()) {
       this.router.navigate(['/carta']);
     }
@@ -78,41 +74,53 @@ export class CheckInComponent {
 
   toggleAlergeno(id: string) {
     const alergeno = this.alergenos.find(a => a.id === id);
-    if (alergeno) {
-      alergeno.activo = !alergeno.activo;
-    }
+    if (alergeno) alergeno.activo = !alergeno.activo;
+  }
+
+  /** Limpia el error del campo nombre al escribir */
+  onNombreChange() {
+    if (this.nombre.trim()) this.errorNombre.set('');
+  }
+
+  /** Limpia el error del campo mesa al escribir */
+  onMesaChange() {
+    if (this.mesaId) this.errorMesa.set('');
   }
 
   async acceder() {
-    if (!this.nombre || !this.mesaId) {
-      alert('Por favor, indica tu nombre y el número de mesa para continuar.');
-      return;
+    // Validación inline
+    let valid = true;
+    if (!this.nombre.trim()) {
+      this.errorNombre.set('Por favor, indica tu nombre.');
+      valid = false;
+    } else {
+      this.errorNombre.set('');
     }
+    if (!this.mesaId) {
+      this.errorMesa.set('Por favor, indica el número de mesa.');
+      valid = false;
+    } else {
+      this.errorMesa.set('');
+    }
+    if (!valid) return;
 
     try {
-      // 1. Autenticación Anónima en Firebase
       const credential = await signInAnonymously(this.auth);
       const uid = credential.user.uid;
 
-      // 2. Creamos el objeto de perfil con el UID incluido
       const nuevoPerfil: PerfilUsuario = {
-        uid: uid,
+        uid,
         nombre: this.nombre,
-        mesaId: this.mesaId,
+        mesaId: this.mesaId!,
         alergenos: this.alergenos.filter(a => a.activo).map(a => a.id)
       };
 
-      // 3. Guardamos en el estado global (Signal)
       this.usuarioService.establecerPerfil(nuevoPerfil);
-
-      console.log('Check-in exitoso. UID:', uid);
-
-      // 4. Navegamos a la carta
       this.router.navigate(['/carta']);
 
     } catch (error) {
       console.error('Error en el check-in:', error);
-      alert('Hubo un problema al conectar con el servidor. Por favor, inténtalo de nuevo.');
+      this.errorNombre.set('Error de conexión. Inténtalo de nuevo.');
     }
   }
 }

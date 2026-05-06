@@ -2,8 +2,10 @@
 
 Este documento registra los hitos y pasos clave en el desarrollo del proyecto.
 
-## Visión del Proyecto (B2C)
-Aplicación Híbrida orientada al **Cliente Final (Comensal)** para la autogestión de comandas en restaurantes, con un enfoque crítico en la **Accesibilidad Alimentaria y Filtro de Alérgenos**. El sistema cuenta con un panel administrativo (Web) para el restaurante, y una interfaz móvil amigable donde el cliente escanea su mesa y el catálogo se adapta a su perfil médico.
+## Visión del Proyecto (B2C + B2B)
+Aplicación Híbrida con dos verticales:
+- **B2C (Cliente Final):** Autogestión de comandas en restaurantes con enfoque en la accesibilidad alimentaria y filtro de alérgenos. El comensal escanea el QR de su mesa, configura su perfil médico, consulta una carta filtrada y envía su pedido con seguimiento en tiempo real.
+- **B2B (Staff del Restaurante):** Panel de administración para que los trabajadores reciban, acepten y despachen pedidos, con separación inteligente entre **Barra** (bebidas) y **Cocina** (comidas).
 
 ---
 
@@ -76,7 +78,7 @@ Aplicación Híbrida orientada al **Cliente Final (Comensal)** para la autogesti
     - **Internacionalización (Locale)**: Registro del locale español (`registerLocaleData(localeEs)`) en `main.ts` para el correcto funcionamiento del `CurrencyPipe` con formato `'es'` en toda la aplicación.
     - **Funcionalidad de Cierre de Sesión**: Implementación de un botón de logout en la cabecera de la Carta con confirmación mediante `AlertController` (rol destructivo). Al confirmar, se vacía el perfil del usuario y el carrito, redirigiendo a `/check-in`.
 
-### Fase 4: Sincronización en Tiempo Real con Cocina (En curso)
+### Fase 4: Sincronización en Tiempo Real con la Nube (Completado)
 
 #### Día 8: Conexión de la Comanda a la Nube (Firestore) (Completado)
 - **Hito**: Integración del ecosistema Firebase para dotar a la aplicación de persistencia real y gestión de identidades.
@@ -105,5 +107,76 @@ Aplicación Híbrida orientada al **Cliente Final (Comensal)** para la autogesti
     - **Persistencia de Sesión (localStorage)**: Refactorización del `UsuarioService` y `ComandaService` para sincronizar el estado reactivo (Signals) con `localStorage`. Al inicializar cada servicio, se intenta recuperar el perfil y el carrito del almacenamiento local. Cada mutación (`establecerPerfil`, `agregarLinea`, `vaciarComanda`, etc.) persiste automáticamente el estado actualizado. Esto garantiza que un refresco accidental del navegador (F5) no destruya la sesión del comensal ni su carrito de productos.
     - **Redirección Inteligente**: El `CheckInComponent` evalúa en su constructor si ya existe un perfil autenticado en memoria. De ser así, redirige automáticamente a `/carta`, eliminando la fricción de un doble check-in tras una recarga de página.
 
+#### Día 9: Seguimiento de Comanda en Tiempo Real (Completado)
+- **Hito**: Implementación completa del seguimiento en tiempo real de la comanda del cliente, cerrando el ciclo reactivo bidireccional entre el cliente y la nube.
+- **Detalles técnicos**:
+    - **Escucha Bidireccional (`onSnapshot`)**: Evolución del `ComandaFirestoreService` de escritura unidireccional a bidireccional. Se implementó `onSnapshot` para recibir actualizaciones push desde Firestore sin necesidad de polling.
+    - **Signals Reactivos**: Exposición de estado mediante `signal()`: `estadoComandaActiva`, `datosComandaActiva` y `errorEscucha`. La vista se repinta instantáneamente ante cualquier cambio de estado realizado por el staff.
+    - **`SeguimientoComandaComponent`**: Nueva vista `/seguimiento-comanda` con un stepper visual (rastreador) de 4 pasos: Recibida → En Preparación → Lista → Servida. Animaciones de pulso (`latidoSuave`) en el paso activo y transiciones suaves entre estados.
+    - **Persistencia del ID**: El ID de la comanda activa se guarda en `localStorage` para que el seguimiento sobreviva a un refresco de página (F5).
+    - **Flujo de Redirección**: Tras confirmar el envío en `ResumenComandaComponent`, el cliente es redirigido automáticamente a la pantalla de seguimiento.
+
+### Fase 5: Modelo de Destinos y Comandas Múltiples (Completado)
+
+#### Día 10: Ampliación del Modelo de Datos y Arquitectura de Escucha (Completado)
+- **Hito**: Evolución del sistema de datos para reflejar la logística real de un restaurante, con separación inteligente de destinos de producción y soporte completo para múltiples rondas de pedidos por mesa.
+- **Detalles técnicos**:
+    - **Tipo `DestinoReceptor`**: Nuevo type literal `'BARRA' | 'COCINA'` definido en `producto.model.ts`. Determina a qué puesto de trabajo se despacha cada línea del pedido.
+    - **Constante `MAPA_DESTINO_CATEGORIA`**: Mapa centralizado (`Record<CategoriaProducto, DestinoReceptor>`) que vincula automáticamente cada categoría del menú con su destino. Solo `'bebida'` va a `BARRA`; el resto a `COCINA`. Centralizar esta lógica en una constante facilita añadir nuevas categorías sin modificar la lógica de negocio dispersa.
+    - **Campo `destino` en `LineaComanda`**: Cada línea del pedido ahora lleva su etiqueta de despacho. Se asigna automáticamente en `ComandaService.agregarLinea()` consultando el mapa, con fallback a `'COCINA'` si la categoría no está mapeada.
+    - **Arquitectura de Escucha por Query (Cambio Crítico)**: Reescritura completa de `ComandaFirestoreService`. Se reemplazó el enfoque de listener individual (`onSnapshot` sobre un documento) por una **query filtrada única** (`where('idCliente') + where('idMesa') + orderBy('fechaCreacion')`). Una sola conexión WebSocket recibe actualizaciones de TODAS las rondas del cliente simultáneamente, resolviendo el caso de múltiples rondas activas (ej. Ronda 1 en PREPARANDO y Ronda 2 en PENDIENTE).
+    - **Signal `todasLasComandas`**: Nuevo signal central que contiene el array completo de comandas, ordenado por fecha. Todas las señales derivadas (`totalRondas`, `tieneComandas`, `comandaMasReciente`, `estadoComandaActiva`, `todasServidas`) se calculan como `computed()` a partir de este array.
+    - **Persistencia de Sesión por Query**: En lugar de guardar un array de IDs individuales, se persiste un par `{idCliente, idMesa}` en localStorage. Al recargar, se reconstruye la query completa, recuperando automáticamente todas las rondas de la sesión.
+    - **Vista de Seguimiento Multi-Ronda**: El `SeguimientoComandaComponent` ahora muestra: (1) la ronda más reciente con stepper completo, (2) las rondas anteriores como tarjetas compactas con indicador de estado y mini-resumen. Todas se actualizan en tiempo real.
+    - **Etiquetas de Destino Visuales**: Cada línea del resumen muestra su destino con iconos semánticos (🍺 Barra / 🔥 Cocina) y colores diferenciados (naranja para barra, rojo para cocina).
+    - **Etiquetas de Estado Semánticas**: Cada ronda muestra un badge con su estado actual (Pendiente/Preparando/Lista/Servida) con colores diferenciados: amarillo, azul, verde claro y verde oscuro.
+    - **Lógica de Acciones Refinada**: El botón "Pedir otra ronda" está siempre disponible (navega a `/carta` sin cerrar sesión). El botón "Cerrar sesión" solo aparece cuando TODAS las rondas han sido servidas (`todasServidas` computed).
+    - **Índice Compuesto de Firestore**: La query requiere un índice compuesto (`idCliente` + `idMesa` + `fechaCreacion`). Firebase genera automáticamente un enlace directo en la consola del navegador para crearlo con un clic la primera vez que se ejecute.
+
+### Fase 6: Panel de Administración B2B (Staff) y Logística (Completado)
+
+#### Día 11: Infraestructura y Seguridad B2B
+- **Hito:** Establecimiento del portal B2B protegido y separación lógica de roles de usuario.
+- **Detalles técnicos:**
+    - **`AdminAuthService`:** Implementación de autenticación de Firebase (Email/Contraseña) para el staff, garantizando que los usuarios anónimos (clientes) no interfieran.
+    - **`adminGuard`:** Creación de un guardián de rutas funcional en Angular 18 que verifica activamente el estado de autenticación (no anónimo) antes de permitir acceso a `/admin/*`.
+    - **UI Login B2B:** Vista premium (`LoginAdminComponent`) de estética oscura con manejo de errores y `LoadingController`.
+
+#### Día 12: Panel de Pedidos (Barra) y Reactividad Avanzada
+- **Hito:** Desarrollo del "centro de mando" del restaurante, capaz de gestionar el ciclo de vida completo de una comanda de forma reactiva.
+- **Detalles técnicos:**
+    - **Escucha Robusta (`NgZone` y Contextos):** Reestructuración de `AdminComandaService` y `ComandaFirestoreService` para envolver los callbacks de `onSnapshot` en `NgZone.run()`. Esto resuelve los problemas de renderizado fantasma en navegadores móviles cuando Firebase recibe datos en segundo plano, y limpia advertencias de *Injection Context* de AngularFire.
+    - **Visibilidad Multiestado:** El servicio `AdminComandaService` escucha simultáneamente comandas en estado `PENDIENTE`, `PREPARANDO` y `LISTO` usando un operador `in`, reutilizando eficientemente el mismo índice compuesto (`estado` + `fechaCreacion`).
+    - **Signals Computados (Tabs):** División dinámica de la señal maestra en `pedidosPendientes` y `pedidosEnCurso` mediante `computed()`, logrando un sistema de pestañas instantáneo (`<ion-segment>`) que no requiere múltiples consultas a BD.
+    - **Ciclo de Vida Completo:** Implementación de botones de acción progresivos ("Aceptar Pedido" → "Marcar como Listo" → "Entregar en Mesa") que actualizan el `estado` en Firestore, disparando las actualizaciones en los móviles de los comensales.
+
+#### Día 13: Refinamiento de Usabilidad Logística (Workstation UI)
+- **Hito:** Adaptación de la UI a la realidad de las estaciones de trabajo mediante "Separación por Estación".
+- **Detalles técnicos:**
+    - **Filtro de Rol Dinámico:** Implementación de un `ion-toggle` ("Vista exclusiva de Barra") en `PanelPedidosComponent`. Al activarse, las líneas con destino `BARRA` se detallan al máximo, mientras que las de `COCINA` se colapsan en un único resumen visual (ej. *"3 platos para Cocina"*). Evita la saturación cognitiva del barman.
+    - **Filtros Inteligentes Locales:** Incorporación de un `<ion-searchbar>` para buscar por número de mesa. El filtrado se realiza localmente a través de `computed signals` (`pedidosPendientesFiltrados`), ahorrando costes masivos en lecturas de Firestore.
+    - **Alertas de Tiempo Visuales:** Implementación del método `esUrgente()`. Si una comanda (en `PENDIENTE` o `PREPARANDO`) excede los 10 minutos desde su `fechaCreacion`, la interfaz le aplica la clase `.tarjeta-urgente`, añadiendo un borde rojo pulsante y una animación de latido en el ícono del tiempo, exigiendo acción inmediata del equipo.
+
+#### Día 14: Modernización de Arquitectura y Notificaciones Inteligentes
+- **Hito:** Finalización de la Fase 6 con la implementación de historial, avisos sonoros y migración global a la tecnología más reciente de Angular.
+- **Detalles técnicos:**
+    - **Pestaña de Historial:** Expansión del `AdminComandaService` para incluir el estado `SERVIDO`. Creación de una vista dedicada para pedidos finalizados, permitiendo al staff auditar rondas entregadas. El historial se presenta invertido (FIFO inverso) para priorizar las comandas más recientes.
+    - **Notificaciones con Web Audio API:** Integración de un sistema de avisos sonoros nativo. Se desarrolló un sintetizador de audio que utiliza osciladores para generar un sonido de "campanilla de servicio" (🛎️) optimizado en frecuencia (3500Hz). La lógica detecta cambios de tipo `added` en Firestore, evitando falsos positivos durante la carga inicial.
+    - **Migración a Angular Control Flow (@if, @for):** Refactorización integral de todo el proyecto (B2C y B2B) eliminando las directivas estructurales `*ngIf` y `*ngFor` en favor de la nueva sintaxis nativa de Angular 17+. Esta mejora incrementa el rendimiento de renderizado y prepara el código para futuras optimizaciones de "hydration".
+    - **Actualización de Normas de Desarrollo:** Inclusión de una regla estricta en `.antigravityrules` que prohíbe el uso de sintaxis heredada, asegurando la consistencia técnica del proyecto para su defensa ante tribunal.
+
 ---
-*Última actualización: 26 de abril de 2026*
+
+### Fase 7: Vista de Cocina en Tiempo Real (KDS) (Completado)
+
+#### Día 15: Tablero de Producción y Separación de Roles
+- **Hito:** Implementación del Sistema de Visualización de Cocina (KDS) profesional con lógica de agregación y automatización de estados.
+- **Detalles técnicos:**
+    - **Workstation Isolation:** Creación de componentes dedicados (`VistaCocinaComponent` y `VistaBarraComponent`) que filtran la información según el puesto de trabajo, reduciendo el ruido visual para el personal.
+    - **Modo de Producción Agregado:** Desarrollo de algoritmos de agrupación en `AdminComandaService` que suman cantidades de productos idénticos de diferentes mesas, permitiendo a cocina "marchar" varias raciones simultáneamente.
+    - **Auto-Marchar Inteligente:** Implementación de lógica de cierre de ciclo. La comanda muta automáticamente a estado `LISTO` solo cuando todas sus líneas (tanto de barra como de cocina) han sido marcadas como preparadas.
+    - **UX Industrial (Dark Mode):** Integración de un selector de tema global con persistencia en `localStorage`, optimizado para entornos de alta luminosidad (Cocina/Barra) reduciendo la fatiga visual del staff.
+    - **Feedback Acústico:** Uso de Web Audio API para generar señales sonoras puras (campanilla 3500Hz) ante la entrada de nuevos pedidos, garantizando la atención del personal sin depender de la visualización constante de la pantalla.
+
+---
+*Última actualización: Documentación Fase 7 (KDS y Gestión de Roles Persistente)*

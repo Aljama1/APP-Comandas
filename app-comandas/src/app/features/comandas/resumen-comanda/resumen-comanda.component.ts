@@ -18,7 +18,7 @@ import { trashOutline, addOutline, removeOutline, chatbubbleEllipsesOutline, che
 })
 export class ResumenComandaComponent {
   public comandaService = inject(ComandaService);
-  private firestoreService = inject(ComandaFirestoreService);
+  public firestoreService = inject(ComandaFirestoreService);
   private usuarioService = inject(UsuarioService);
   private alertController = inject(AlertController);
   private loadingController = inject(LoadingController);

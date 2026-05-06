@@ -25,9 +25,13 @@ Cada documento representa un pedido enviado desde una mesa.
 | `estado` | enum | PENDIENTE, PREPARANDO, LISTO, SERVIDO, PAGADO |
 | `precioTotal` | number | Importe total de la orden |
 | `fechaCreacion` | timestamp | Momento exacto del pedido (Server Timestamp) |
-| `lineasComanda` | array | Lista de objetos (idProducto, nombre, cantidad, notas) |
+| `lineasComanda` | array | Lista de objetos (idProducto, nombre, cantidad, notas, destino: BARRA/COCINA) |
 
-## 4. Reglas de Seguridad (Modo Desarrollo)
+## 4. Arquitectura de Consultas (Consultas Múltiples)
+A partir de la Fase 5, para dar soporte al modelo de "Rondas Múltiples" por mesa, el sistema ha abandonado la escucha de un único documento para utilizar una query activa:
+- **Consulta**: Se buscan todos los documentos donde coincidan `idCliente` e `idMesa`, ordenados por `fechaCreacion`.
+- **Índice Compuesto**: Firebase requiere un índice compuesto (`idCliente` ASC, `idMesa` ASC, `fechaCreacion` ASC) para ejecutar la suscripción en tiempo real (`onSnapshot`) de estas consultas complejas de manera eficiente.
+## 5. Reglas de Seguridad (Modo Desarrollo)
 Actualmente el proyecto opera en **"Modo de prueba"**, lo que permite lectura y escritura abierta para agilizar el desarrollo de los prototipos iniciales. Antes de la entrega final, se restringirán las reglas para que:
 - Solo los administradores lean todas las comandas.
 - Los clientes solo puedan escribir sus propias comandas.

@@ -1,0 +1,224 @@
+:host {
+  display: inline-block;
+}
+
+.user-config-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 50px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.avatar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  color: var(--ion-color-primary);
+
+  .status-indicator {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 10px;
+    height: 10px;
+    background: var(--ion-color-success);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 5px var(--ion-color-success);
+  }
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+
+  .user-email {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #444; /* Dark gray for light mode */
+    text-transform: capitalize;
+  }
+}
+
+.settings-icon {
+  font-size: 1.1rem;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* DARK MODE ADJUSTMENTS */
+:host-context(body.dark) {
+  .user-config-trigger {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  .status-indicator {
+    border-color: #1a1a1a;
+  }
+
+  .user-email {
+    color: #ffffff !important;
+  }
+
+  .settings-icon {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+
+
+/* POPOVER STYLES */
+.config-popover {
+  --width: 280px;
+  --background: #fff;
+  
+  &::part(content) {
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.popover-header {
+  padding: 10px 0 20px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .full-email {
+    font-size: 0.8rem;
+    color: #222;
+    font-weight: 500;
+  }
+
+  .role-badge {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ion-color-primary);
+    font-weight: 700;
+  }
+}
+
+.config-section {
+  margin-bottom: 20px;
+
+  .section-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(0, 0, 0, 0.4);
+    margin-bottom: 8px;
+    padding-left: 5px;
+  }
+}
+
+.config-item {
+  --padding-start: 8px;
+  --inner-padding-end: 8px;
+  --background: transparent;
+  --min-height: 44px;
+  border-radius: 8px;
+  margin-bottom: 2px;
+  transition: background 0.2s;
+
+  &:hover {
+    --background: rgba(0, 0, 0, 0.03);
+  }
+
+  ion-icon {
+    color: var(--ion-color-primary);
+    font-size: 1.2rem;
+    margin-right: 12px;
+  }
+
+  ion-label {
+    font-size: 0.9rem;
+    color: #444;
+  }
+}
+
+/* DARK MODE POPOVER ADJUSTMENTS */
+body.dark {
+  .config-popover {
+    --background: rgba(20, 20, 25, 0.95);
+    --backdrop-filter: blur(10px);
+    
+    &::part(content) {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  .popover-header {
+    border-color: rgba(255, 255, 255, 0.08);
+    .full-email { color: #fff; }
+  }
+
+  .section-title { color: rgba(255, 255, 255, 0.3); }
+
+  .config-item {
+    &:hover { --background: rgba(255, 255, 255, 0.04); }
+    ion-label { color: #eee; }
+  }
+}
+
+
+.popover-footer {
+  margin-top: 10px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+
+  ion-button {
+    --border-radius: 10px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .app-version {
+    text-align: center;
+    font-size: 0.65rem;
+    color: rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.5px;
+  }
+}
+
+/* DARK MODE POPOVER FOOTER */
+body.dark {
+  .popover-footer {
+    border-color: rgba(255, 255, 255, 0.08);
+    .app-version { color: rgba(255, 255, 255, 0.2); }
+  }
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .hide-mobile {
+    display: none;
+  }
+}

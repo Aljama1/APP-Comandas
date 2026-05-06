@@ -1,557 +1,386 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800;900&display=swap');
 
-// ─── Variables de diseño (consistentes con el resto de la app) ─────
-$fuente-titulo: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-$fuente-cuerpo: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-$oscuro-primario: #111111;
-$color-fondo: #f7f9fc;
+$font-display: 'Outfit', -apple-system, sans-serif;
+$font-body: 'Inter', -apple-system, sans-serif;
 
-// Colores semánticos para los estados del rastreador
-$color-completado: #34c759;   // Verde Apple - paso ya superado
-$color-activo: #007aff;       // Azul iOS - paso en curso
-$color-pendiente: #d1d1d6;    // Gris suave - paso futuro
+$pending:  #ff9500;
+$cooking:  #007aff;
+$ready:    #34c759;
+$served:   #8e8e93;
+$danger:   #ff3b30;
 
-// ─── Animaciones ───────────────────────────────────────────────────
-
-@keyframes fondoFlotante {
-  0%   { transform: translateY(0) scale(1); }
-  50%  { transform: translateY(-20px) scale(1.05); }
-  100% { transform: translateY(0) scale(1); }
-}
-
-@keyframes aparicionSuave {
-  from { opacity: 0; transform: translateY(12px); }
+// ── Animaciones ────────────────────────────────────────────────────
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// Animación sutil de pulso para el paso activo
-@keyframes latidoSuave {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.3); }
-  50%      { box-shadow: 0 0 0 10px rgba(0, 122, 255, 0); }
+// ── Ion Content ────────────────────────────────────────────────────
+.seguimiento-content {
+  --background: #f7f8fa;
+  font-family: $font-body;
 }
 
-// ─── Layout base ───────────────────────────────────────────────────
-
-.contenido-elegante {
-  --background: #{$color-fondo};
+.seg-bg {
+  position: fixed;
+  inset: 0;
+  background: #f7f8fa;
+  z-index: 0;
+  pointer-events: none;
 }
 
-// Fondo Malla
-.fondo-malla {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  overflow: hidden;
-  z-index: -1;
-  background-color: $color-fondo;
-
-  .forma-malla {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.6;
-    animation: fondoFlotante 15s ease-in-out infinite;
-
-    &.forma-1 {
-      top: -5%; left: -10%;
-      width: 350px; height: 350px;
-      background: rgba(43, 88, 255, 0.12);
-    }
-    &.forma-2 {
-      bottom: 10%; right: -10%;
-      width: 400px; height: 400px;
-      background: rgba(255, 43, 115, 0.08);
-      animation-delay: -5s;
-    }
-  }
-}
-
-// ─── Cabecera ──────────────────────────────────────────────────────
-
-.cabecera-moderna {
+// ══════════════════════════════════════════════════════════
+// HEADER
+// ══════════════════════════════════════════════════════════
+.seg-header {
   position: sticky;
   top: 0;
-  z-index: 100;
-  padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  z-index: 50;
   display: flex;
   align-items: center;
   gap: 12px;
-
-  .icono-cabecera {
-    width: 40px; height: 40px;
-    background: white;
-    border: 1px solid rgba(0,0,0,0.05);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-
-    ion-icon { font-size: 20px; color: $oscuro-primario; }
-  }
-
-  .titulo-cabecera {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    h1 {
-      font-family: $fuente-titulo;
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: $oscuro-primario;
-      margin: 0;
-      letter-spacing: -0.5px;
-    }
-  }
-}
-
-// Badge indicador de ronda (ej. "Ronda 2")
-.badge-ronda {
-  font-family: $fuente-cuerpo;
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: $color-activo;
-  color: white;
-  padding: 3px 10px;
-  border-radius: 20px;
-  letter-spacing: 0.3px;
-}
-
-// ─── Contenedor Principal ──────────────────────────────────────────
-
-.contenedor-principal {
-  padding: 20px;
-  animation: aparicionSuave 0.5s ease-out;
-}
-
-// Mensaje de bienvenida
-.mensaje-bienvenida {
-  text-align: center;
-  margin-bottom: 28px;
-
-  p {
-    font-family: $fuente-cuerpo;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #6e6e73;
-    margin: 0;
-  }
-}
-
-// ─── Aviso de error ────────────────────────────────────────────────
-
-.aviso-error {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255, 59, 48, 0.08);
-  border: 1px solid rgba(255, 59, 48, 0.2);
-  border-radius: 14px;
-  padding: 14px 16px;
-  margin-bottom: 20px;
-
-  ion-icon {
-    font-size: 22px;
-    color: #ff3b30;
-    flex-shrink: 0;
-  }
-
-  span {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #cc2d25;
-    line-height: 1.4;
-  }
-}
-
-// ─── RASTREADOR (Stepper Visual) ───────────────────────────────────
-
-.rastreador {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  margin-bottom: 28px;
-}
-
-.paso-rastreador {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-
-  // ── Indicador circular + línea ──
-  .indicador-paso {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-shrink: 0;
-
-    .circulo-paso {
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      border: 2px solid $color-pendiente;
-      background: white;
-
-      ion-icon {
-        font-size: 20px;
-        color: $color-pendiente;
-        transition: color 0.4s;
-      }
-    }
-
-    .linea-conectora {
-      width: 3px;
-      height: 36px;
-      background: $color-pendiente;
-      border-radius: 2px;
-      margin: 4px 0;
-      transition: background 0.4s;
-    }
-  }
-
-  // ── Textos del paso ──
-  .contenido-paso {
-    padding-top: 8px;
-    min-height: 44px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    h3 {
-      font-family: $fuente-titulo;
-      font-size: 1rem;
-      font-weight: 700;
-      color: $color-pendiente;
-      margin: 0;
-      transition: color 0.4s;
-    }
-
-    p {
-      font-family: $fuente-cuerpo;
-      font-size: 0.85rem;
-      color: #8e8e93;
-      margin: 4px 0 0 0;
-      line-height: 1.4;
-      animation: aparicionSuave 0.4s ease-out;
-    }
-  }
-
-  // ── Modificadores de estado ──
-
-  // Paso COMPLETADO: círculo verde, línea verde
-  &.completado {
-    .circulo-paso {
-      background: $color-completado;
-      border-color: $color-completado;
-      ion-icon { color: white; }
-    }
-    .linea-conectora { background: $color-completado; }
-    .contenido-paso h3 { color: $oscuro-primario; }
-  }
-
-  // Paso ACTIVO: círculo azul con pulso, texto oscuro
-  &.activo {
-    .circulo-paso {
-      background: $color-activo;
-      border-color: $color-activo;
-      animation: latidoSuave 2s ease-in-out infinite;
-      ion-icon { color: white; }
-    }
-    .contenido-paso h3 {
-      color: $oscuro-primario;
-      font-size: 1.05rem;
-    }
-  }
-
-  // Paso PENDIENTE: usa los estilos base (gris)
-}
-
-// ─── Resumen del pedido (tarjeta glassmorphism) ────────────────────
-
-.resumen-pedido {
-  background: rgba(255, 255, 255, 0.85);
+  padding: max(env(safe-area-inset-top, 0px), 12px) 16px 12px;
+  background: rgba(247, 248, 250, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.03);
-  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 
-  h3 {
-    font-family: $fuente-titulo;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: $oscuro-primario;
-    margin: 0 0 16px 0;
-  }
-
-  .lineas-resumen {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-  }
-
-  .linea-resumen {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .info-linea {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .nombre-linea {
-      font-family: $fuente-cuerpo;
-      font-size: 0.92rem;
-      font-weight: 500;
-      color: #3a3a3c;
-    }
-
-    // Etiqueta visual que indica si la línea va a Barra o a Cocina
-    .etiqueta-destino {
-      font-family: $fuente-cuerpo;
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 6px;
-      width: fit-content;
-
-      &.destino-barra {
-        background: rgba(255, 159, 10, 0.12);
-        color: #c77d05;
-      }
-      &.destino-cocina {
-        background: rgba(255, 69, 58, 0.1);
-        color: #d4362e;
-      }
-    }
-
-    .precio-linea {
-      font-family: $fuente-titulo;
-      font-weight: 700;
-      font-size: 0.92rem;
-      color: $oscuro-primario;
-      flex-shrink: 0;
-    }
-  }
-
-  .total-resumen {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .etiqueta-total {
-      font-family: $fuente-cuerpo;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #6e6e73;
-    }
-
-    .valor-total {
-      font-family: $fuente-titulo;
-      font-size: 1.4rem;
+  &__title {
+    flex: 1;
+    h1 {
+      font-family: $font-display;
+      font-size: 1.15rem;
       font-weight: 800;
-      color: $oscuro-primario;
+      color: #1a1a1a;
+      margin: 0;
     }
+  }
+
+  &__mesa {
+    background: #1a1a1a;
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
 }
 
-// ─── Encabezados de sección ───────────────────────────────────────
+.btn-back {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s;
 
-.encabezado-seccion {
+  ion-icon { font-size: 20px; color: #1a1a1a; }
+  &:active { transform: scale(0.9); }
+}
+
+// ══════════════════════════════════════════════════════════
+// CUERPO
+// ══════════════════════════════════════════════════════════
+.seg-body {
+  position: relative;
+  z-index: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fade-in 0.4s ease both;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 59, 48, 0.08);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  color: $danger;
+  ion-icon { font-size: 18px; flex-shrink: 0; }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  color: rgba(0, 0, 0, 0.35);
+  gap: 12px;
+  ion-icon { font-size: 48px; }
+  p { font-size: 1rem; margin: 0; }
+}
+
+// ══════════════════════════════════════════════════════════
+// RONDAS
+// ══════════════════════════════════════════════════════════
+.ronda-section {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.ronda-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-
-  h2 {
-    font-family: $fuente-titulo;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: $oscuro-primario;
-    margin: 0;
-  }
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-// Etiquetas de estado con colores semánticos
-.etiqueta-estado {
-  font-family: $fuente-cuerpo;
-  font-size: 0.72rem;
-  font-weight: 700;
+.ronda-num {
+  font-family: $font-display;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: rgba(0, 0, 0, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ronda-estado {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   padding: 4px 10px;
   border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-
-  &.estado-pendiente {
-    background: rgba(255, 204, 0, 0.12);
-    color: #b38f00;
-  }
-  &.estado-preparando {
-    background: rgba(0, 122, 255, 0.1);
-    color: $color-activo;
-  }
-  &.estado-listo {
-    background: rgba(52, 199, 89, 0.1);
-    color: #248a3d;
-  }
-  &.estado-servido {
-    background: rgba(52, 199, 89, 0.15);
-    color: #1b6d30;
-  }
-}
-
-// ─── Sección de rondas anteriores ─────────────────────────────────
-
-.seccion-rondas-anteriores {
-  margin-top: 28px;
-  animation: aparicionSuave 0.5s ease-out;
-}
-
-.titulo-seccion-anteriores {
-  font-family: $fuente-titulo;
-  font-size: 1.1rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: $oscuro-primario;
-  margin: 0 0 14px 0;
+
+  ion-icon { font-size: 14px; }
+
+  &.estado--pendiente  { background: rgba(255, 149, 0, 0.1);  color: darken($pending, 5%); }
+  &.estado--preparando { background: rgba(0, 122, 255, 0.1);  color: $cooking; }
+  &.estado--listo      { background: rgba(52, 199, 89, 0.12); color: darken($ready, 10%); }
+  &.estado--servido    { background: rgba(142, 142, 147, 0.1); color: $served; }
+  &.estado--cancelado  { background: rgba(255, 59, 48, 0.08);  color: $danger; }
 }
 
-.tarjeta-ronda-anterior {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
-  padding: 14px 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  margin-bottom: 10px;
+// ── Items ──────────────────────────────────────────────────────────
+.ronda-items {
+  padding: 4px 0;
+}
 
-  .cabecera-ronda-anterior {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
+.item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 
-  .numero-ronda {
-    font-family: $fuente-titulo;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: $oscuro-primario;
-  }
+  &:last-child { border-bottom: none; }
 
-  .mini-resumen {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-  }
-
-  .mini-linea {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .mini-nombre {
-      font-family: $fuente-cuerpo;
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: #6e6e73;
-    }
-
-    .mini-destino {
-      font-size: 0.75rem;
-    }
-  }
-
-  .pie-ronda-anterior {
-    display: flex;
-    justify-content: flex-end;
-    padding-top: 8px;
-
-    .total-ronda-anterior {
-      font-family: $fuente-titulo;
-      font-size: 1rem;
-      font-weight: 800;
-      color: $oscuro-primario;
-    }
+  &--servido {
+    .item-name { color: rgba(0, 0, 0, 0.35); }
+    .item-name--done { text-decoration: line-through; }
+    .item-status-dot { opacity: 0.5; }
   }
 }
 
-// ─── Acciones post-servicio ───────────────────────────────────────
+.item-status-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
 
-.acciones-post-servicio {
+  ion-icon { font-size: 16px; }
+
+  &.estado--pendiente  { background: rgba(255, 149, 0, 0.12);  color: $pending; }
+  &.estado--preparando { background: rgba(0, 122, 255, 0.12);  color: $cooking; }
+  &.estado--listo      { background: rgba(52, 199, 89, 0.15);  color: $ready; }
+  &.estado--servido    { background: rgba(142, 142, 147, 0.1); color: $served; }
+  &.estado--cancelado  { background: rgba(255, 59, 48, 0.1);   color: $danger; }
+}
+
+.item-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 24px;
-  animation: aparicionSuave 0.5s ease-out;
+  gap: 3px;
+  min-width: 0;
 }
 
-// Botón principal: pedir otra ronda (fondo oscuro, destacado)
+.item-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.3;
+
+  &--done { color: rgba(0, 0, 0, 0.35); }
+}
+
+.item-qty {
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.item-nota {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.45);
+  font-style: italic;
+}
+
+.item-destino {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+  width: fit-content;
+
+  &.destino-barra  { background: rgba(0, 122, 255, 0.08);  color: $cooking; }
+  &.destino-cocina { background: rgba(255, 107, 53, 0.1);  color: #e06030; }
+}
+
+.item-price {
+  font-family: $font-display;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+// Subtotal por ronda
+.ronda-subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 18px;
+  background: rgba(0, 0, 0, 0.02);
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+// ══════════════════════════════════════════════════════════
+// TOTAL CARD
+// ══════════════════════════════════════════════════════════
+.total-card {
+  background: #1a1a1a;
+  border-radius: 20px;
+  padding: 18px 20px;
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  &__value {
+    font-family: $font-display;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: white;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// ACCIONES
+// ══════════════════════════════════════════════════════════
+.seg-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .btn-nueva-ronda {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 16px;
-  background: $oscuro-primario;
-  color: white;
+  padding: 15px;
   border: none;
   border-radius: 16px;
-  font-family: $fuente-cuerpo;
-  font-size: 1.05rem;
+  background: #1a1a1a;
+  color: white;
+  font-family: $font-body;
+  font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s;
 
   ion-icon { font-size: 20px; }
-
-  &:active {
-    transform: scale(0.97);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
+  &:active { transform: scale(0.97); }
 }
 
-// Botón secundario: cerrar sesión (borde, sin fondo)
-.btn-cerrar-sesion {
+.btn-cerrar {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
   padding: 14px;
-  background: transparent;
-  border: 1.5px solid #d1d1d6;
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
   border-radius: 16px;
-  font-family: $fuente-cuerpo;
-  font-size: 0.95rem;
+  background: transparent;
+  font-family: $font-body;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #6e6e73;
+  color: rgba(0, 0, 0, 0.5);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.15s;
 
   ion-icon { font-size: 18px; }
-
-  &:active {
-    transform: scale(0.97);
-    background: rgba(0,0,0,0.03);
-  }
+  &:active { transform: scale(0.97); }
 }
 
+// ══════════════════════════════════════════════════════════
+// DARK MODE
+// ══════════════════════════════════════════════════════════
+:host-context(body.dark) {
+  .seguimiento-content { --background: #0c0e13; }
+  .seg-bg { background: #0c0e13; }
+
+  .seg-header {
+    background: rgba(12, 14, 19, 0.95);
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+    &__title h1 { color: #fff; }
+    &__mesa { background: rgba(255, 255, 255, 0.9); color: #000; }
+  }
+
+  .btn-back {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.1);
+    ion-icon { color: #fff; }
+  }
+
+  .ronda-section { background: rgba(255, 255, 255, 0.04); box-shadow: none; }
+  .ronda-header { border-bottom-color: rgba(255, 255, 255, 0.05); }
+  .ronda-num { color: rgba(255, 255, 255, 0.35); }
+  .ronda-subtotal { background: rgba(255, 255, 255, 0.02); border-top-color: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.35); }
+
+  .item-row { border-bottom-color: rgba(255, 255, 255, 0.04); }
+  .item-name { color: #fff; &--done { color: rgba(255, 255, 255, 0.3); } }
+  .item-qty { color: #fff; }
+  .item-nota { color: rgba(255, 255, 255, 0.4); }
+  .item-price { color: #fff; }
+
+  .total-card { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08);
+    &__label { color: rgba(255, 255, 255, 0.45); }
+    &__value { color: #fff; }
+  }
+
+  .btn-nueva-ronda { background: #fff; color: #000; box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05); }
+  .btn-cerrar { border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.5); }
+
+  .empty-state { color: rgba(255, 255, 255, 0.3); }
+}

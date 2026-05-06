@@ -33,5 +33,178 @@
  */
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+@import "@ionic/angular/css/palettes/dark.class.css";
+/* @import "@ionic/angular/css/palettes/dark.system.css"; */
+
+/* ==========================================================================
+   ADMINISTRATIVE DASHBOARD DESIGN SYSTEM
+   ========================================================================== */
+:root {
+  /* LIGHT THEME */
+  --dash-bg: #f0f2f5;
+  --dash-panel: #ffffff;
+  --dash-border: rgba(0, 0, 0, 0.06);
+  --dash-text-main: #1a1a1a;
+  --dash-text-sec: #64748b;
+  --dash-title: #0f172a;
+  --dash-accent-blue: #0061ff;
+  --dash-accent-orange: #f59e0b;
+  --dash-accent-green: #10b981;
+  --dash-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  /* Shared Sass Variables (as CSS for global access if needed) */
+  --neon-blue: #00d2ff;
+  --neon-orange: #ff6b00;
+  --neon-green: #00ff88;
+}
+
+body.dark {
+  /* DARK THEME */
+  --dash-bg: #0b0e14;
+  --dash-panel: #1a1f2b;
+  --dash-border: rgba(255, 255, 255, 0.08);
+  --dash-text-main: #f8fafc;
+  --dash-text-sec: #94a3b8;
+  --dash-title: #ffffff;
+  --dash-accent-blue: #00d2ff;
+  --dash-accent-orange: #ff6b00;
+  --dash-accent-green: #00ff88;
+  --dash-card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Common Sass Variables */
+$neon-blue: #00d2ff;
+$neon-orange: #ff6b00;
+$neon-green: #00ff88;
+
+$neon-blue-dim: rgba(0, 210, 255, 0.15);
+$neon-orange-dim: rgba(255, 107, 0, 0.15);
+$neon-green-dim: rgba(0, 255, 136, 0.15);
+
+.glass-panel {
+  background: var(--dash-panel) !important;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  opacity: 0.98;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 28px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  background: var(--dash-panel);
+  border: 1px solid var(--dash-border);
+  box-shadow: var(--dash-card-shadow);
+  z-index: 100;
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .logo-pulse {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--dash-accent-blue);
+      box-shadow: 0 0 15px var(--dash-accent-blue);
+      animation: pulse-blue 2s infinite;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--dash-title);
+    }
+  }
+
+  .search-container {
+    flex: 1;
+    max-width: 450px;
+    margin: 0 32px;
+
+    .custom-search {
+      --background: rgba(100, 116, 139, 0.08);
+      --color: var(--dash-text-main);
+      --placeholder-color: var(--dash-text-sec);
+      --icon-color: var(--dash-text-sec);
+      --border-radius: 14px;
+      --box-shadow: none;
+      padding: 0;
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+
+    .termometro {
+      display: flex;
+      gap: 12px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: rgba(100, 116, 139, 0.05);
+      border: 1px solid var(--dash-border);
+
+      .term-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: var(--dash-text-sec);
+        transition: all 0.3s ease;
+        ion-icon { font-size: 1.2rem; }
+        &.saturado {
+          color: #ef4444;
+          animation: text-pulse-glow 1s infinite alternate;
+        }
+      }
+    }
+
+    ion-button {
+      --border-radius: 12px;
+      --padding-start: 16px;
+      --padding-end: 16px;
+      height: 40px;
+      font-weight: 700;
+      text-transform: none;
+      font-size: 0.9rem;
+      margin: 0;
+      
+      &.btn-neon-blue {
+        --background: var(--dash-accent-blue);
+        --color: #fff;
+        --box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2);
+      }
+      &.btn-neon-orange {
+        --background: var(--dash-accent-orange);
+        --color: #fff;
+        --box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
+      }
+      &.btn-neon-green {
+        --background: var(--dash-accent-green);
+        --color: #fff;
+        --box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+      }
+    }
+  }
+}
+
+@keyframes pulse-blue {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 210, 255, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 210, 255, 0); }
+}
+
+@keyframes text-pulse-glow {
+  from { opacity: 1; text-shadow: 0 0 5px rgba(239, 68, 68, 0.3); }
+  to { opacity: 0.7; text-shadow: 0 0 12px rgba(239, 68, 68, 0.6); }
+}
+

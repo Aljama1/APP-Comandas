@@ -1,467 +1,810 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800;900&display=swap');
 
-$fuente-titulo: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-$fuente-cuerpo: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-$oscuro-primario: #111111;
-$color-fondo: #f7f9fc;
+$font-display: 'Outfit', -apple-system, sans-serif;
+$font-body: 'Inter', -apple-system, sans-serif;
+$accent: #ff6b35;
+$danger: #ff3b30;
+$success: #34c759;
 
-@keyframes fondoFlotante {
-  0% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-20px) scale(1.05); }
-  100% { transform: translateY(0) scale(1); }
-}
-
-@keyframes deslizarArribaFade {
+// ── Animaciones ────────────────────────────────────────────────────
+@keyframes slide-up {
   from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pill-in {
+  from { opacity: 0; transform: translateY(60px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes sheet-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
 
-html, body {
-  font-family: $fuente-cuerpo;
+// ── Ion Content ────────────────────────────────────────────────────
+.carta-content {
+  --background: #f7f8fa;
+  font-family: $font-body;
 }
 
-.contenido-elegante {
-  --background: #{$color-fondo};
-}
-
-// Fondo Malla
-.fondo-malla {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  overflow: hidden;
-  z-index: -1;
-  background-color: $color-fondo;
-
-  .forma-malla {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.6;
-    animation: fondoFlotante 15s ease-in-out infinite;
-
-    &.forma-1 {
-      top: -5%; left: -10%;
-      width: 350px; height: 350px;
-      background: rgba(43, 88, 255, 0.12);
-    }
-    &.forma-2 {
-      bottom: 10%; right: -10%;
-      width: 400px; height: 400px;
-      background: rgba(255, 43, 115, 0.08);
-      animation-delay: -5s;
-    }
-  }
-}
-
-// Cabecera Moderna Fija Superior
-.cabecera-moderna {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
-
-  .cabecera-superior {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-
-    .chip-saludo {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 6px 12px 6px 6px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      color: #6e6e73;
-      border: 1px solid rgba(0,0,0,0.03);
-
-      ion-icon {
-        font-size: 20px;
-        color: $oscuro-primario;
-      }
-      strong { color: $oscuro-primario; }
-    }
-
-    .chip-mesa {
-      font-family: $fuente-titulo;
-      font-weight: 800;
-      font-size: 0.75rem;
-      background: $oscuro-primario;
-      color: white;
-      padding: 6px 10px;
-      border-radius: 10px;
-      letter-spacing: 0.5px;
-    }
-
-    .acciones-cabecera {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-
-      .btn-carrito, .btn-salir, .btn-pedidos {
-        position: relative;
-        background: white;
-        border: 1px solid rgba(0,0,0,0.05);
-        width: 40px; height: 40px;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-        cursor: pointer;
-        transition: transform 0.2s;
-
-        &:active {
-          transform: scale(0.9);
-        }
-        
-        ion-icon {
-          font-size: 20px;
-          color: $oscuro-primario;
-        }
-      }
-
-      .btn-salir {
-        ion-icon {
-          color: #ff3b30; // Color rojo para destacar acción de salida
-        }
-      }
-
-      .btn-carrito {
-        .insignia-carrito {
-          position: absolute;
-          top: -4px; right: -4px;
-          background: #ff3b30;
-          color: white;
-          font-size: 0.6rem;
-          font-weight: 700;
-          min-width: 18px;
-          height: 18px;
-          border-radius: 9px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 2px solid white;
-        }
-      }
-
-      .btn-pedidos {
-        .insignia-carrito {
-          position: absolute;
-          top: -4px; right: -4px;
-          background: #34c759; // Verde para indicar activo
-          color: white;
-          font-size: 0.6rem;
-          font-weight: 700;
-          min-width: 18px;
-          height: 18px;
-          border-radius: 9px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 2px solid white;
-        }
-      }
-    }
-  }
-
-  .titulo-cabecera {
-    h1 {
-      font-family: $fuente-titulo;
-      font-size: 2rem;
-      font-weight: 800;
-      color: $oscuro-primario;
-      margin: 0 0 10px 0;
-      letter-spacing: -0.5px;
-    }
-  }
-
-  .chip-seguridad {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.8);
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #6e6e73;
-    border: 1px solid rgba(0,0,0,0.04);
-    
-    ion-icon {
-      font-size: 14px;
-    }
-
-    &.peligro-activo {
-      background: #fff0f0;
-      color: #ff3b30;
-      border-color: rgba(255, 59, 48, 0.2);
-    }
-  }
-}
-
-// Contenedor Carta
-.contenedor-carta {
-  padding: 20px;
-}
-
-.lista-productos {
+// ══════════════════════════════════════════════════════════
+// HEADER
+// ══════════════════════════════════════════════════════════
+.carta-header {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-// Tarjeta Producto con Cristal
-.tarjeta-producto {
-  background: rgba(255, 255, 255, 0.75);
+  align-items: center;
+  justify-content: space-between;
+  padding: max(env(safe-area-inset-top, 0px), 12px) 16px 12px;
+  background: rgba(247, 248, 250, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.8);
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.5) inset;
-  animation: deslizarArribaFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-
-  @for $i from 1 through 10 {
-    &:nth-child(#{$i}) {
-      animation-delay: #{$i * 0.1}s;
-    }
-  }
-
-  &.es-peligroso {
-    filter: grayscale(35%);
-    opacity: 0.9;
-    
-    .cuerpo-tarjeta h3 {
-      color: #6e6e73;
-    }
-    
-    .heroe-tarjeta {
-      .etiqueta-precio {
-        display: none; // Ocultar precio si es incompatible
-      }
-    }
-  }
-
-  .heroe-tarjeta {
-    position: relative;
-    height: 190px;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .etiqueta-precio {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(8px);
-      padding: 6px 14px;
-      border-radius: 12px;
-      font-family: $fuente-titulo;
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: $oscuro-primario;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-      z-index: 2;
-    }
-
-    .velo-peligro {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255, 59, 48, 0.85);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      z-index: 3;
-      
-      ion-icon {
-        font-size: 3.5rem;
-        margin-bottom: 8px;
-        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-      }
-      .titulo-peligro {
-        font-family: $fuente-titulo;
-        font-size: 1.1rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-    }
-  }
-
-  .cuerpo-tarjeta {
-    padding: 20px;
-
-    .fila-titulo {
-      margin-bottom: 6px;
-      h3 {
-        font-family: $fuente-titulo;
-        font-size: 1.35rem;
-        font-weight: 700;
-        color: $oscuro-primario;
-        margin: 0;
-        line-height: 1.25;
-      }
-    }
-
-    .descripcion {
-      font-size: 0.85rem;
-      color: #6e6e73;
-      margin: 0 0 20px 0;
-      line-height: 1.5;
-      // Limitar líneas para evitar descripciones kilométricas
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .acciones-tarjeta {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-
-      .grupo-pildoras-alergenos {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        flex: 1;
-        padding-right: 16px;
-
-        .pildora {
-          font-family: $fuente-cuerpo;
-          font-size: 0.7rem;
-          font-weight: 600;
-          padding: 4px 10px;
-          border-radius: 8px;
-          background: rgba(0,0,0,0.04);
-          color: #6e6e73;
-          text-transform: uppercase;
-          letter-spacing: 0.3px;
-
-          &.pildora-peligro {
-            background: #ff3b30;
-            color: white;
-          }
-          &.pildora-seguro {
-            background: rgba(52, 199, 89, 0.1);
-            color: #34c759;
-          }
-        }
-      }
-
-      .btn-anadir-elegante {
-        width: 48px;
-        height: 48px;
-        min-width: 48px;
-        border-radius: 12px; // Bordes redondeados solicitados específicamente
-        background: $oscuro-primario;
-        color: white;
-        border: none;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.15); // Elevación base
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        cursor: pointer;
-
-        ion-icon {
-          font-size: 24px;
-        }
-
-        &:hover:not(:disabled) {
-          transform: translateY(-2px); // Micro-interacción: levanta
-          box-shadow: 0 12px 20px rgba(0,0,0,0.25); // Elevación en hover
-        }
-
-        &:active:not(:disabled) {
-          transform: translateY(0) scale(0.92); // Hunde al activar
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        &:disabled {
-          background: #e5e5ea;
-          color: #aeaeb2;
-          box-shadow: none;
-          pointer-events: none;
-        }
-      }
-    }
-  }
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-// Títulos de sección (Categorías)
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.header-brand {
+  font-family: $font-display;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -1px;
+
+  .brand-dot { color: $accent; }
+}
+
+.btn-salir {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 59, 48, 0.08);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s;
+
+  ion-icon { font-size: 18px; color: $danger; }
+  &:active { transform: scale(0.9); }
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.mesa-badge {
+  background: #1a1a1a;
+  color: white;
+  font-family: $font-display;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.btn-icon {
+  position: relative;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+
+  ion-icon { font-size: 20px; color: #1a1a1a; }
+  &:active { transform: scale(0.9); }
+}
+
+.icon-badge {
+  position: absolute;
+  top: -4px; right: -4px;
+  min-width: 18px; height: 18px;
+  border-radius: 9px;
+  background: $danger;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #f7f8fa;
+  padding: 0 3px;
+
+  &--green { background: $success; }
+}
+
+// ── Alérgenos pill ──────────────────────────────────────────────────
+.alergenos-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255, 59, 48, 0.06);
+  border-bottom: 1px solid rgba(255, 59, 48, 0.1);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: darken($danger, 10%);
+
+  ion-icon { font-size: 16px; flex-shrink: 0; }
+}
+
+// ══════════════════════════════════════════════════════════
+// CUERPO DE LA CARTA (MENÚ TEXTUAL)
+// ══════════════════════════════════════════════════════════
+.carta-body {
+  padding: 8px 0;
+}
+
 .categoria-seccion {
-  margin-bottom: 32px;
+  margin-bottom: 8px;
+}
+
+.categoria-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 20px 10px;
+}
+
+.categoria-emoji {
+  font-size: 1.1rem;
 }
 
 .categoria-titulo {
-  font-family: $fuente-titulo;
-  font-size: 1.3rem;
+  font-family: $font-display;
+  font-size: 1.05rem;
   font-weight: 800;
-  color: $oscuro-primario;
-  margin: 0 0 16px 0;
-  padding-left: 4px;
+  color: #1a1a1a;
+  margin: 0;
   letter-spacing: -0.3px;
+  text-transform: uppercase;
 }
 
-// Feedback visual al añadir al carrito
-.btn-anadir-elegante.feedback-anadido {
-  background: #34c759 !important;
-  transform: scale(1.1) !important;
-  box-shadow: 0 8px 20px rgba(52, 199, 89, 0.35) !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+.categoria-items {
+  background: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-// Estado Vacío
-.estado-vacio {
+.menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  gap: 12px;
+
+  &:last-child { border-bottom: none; }
+  &:active { background: rgba(0, 0, 0, 0.03); }
+
+  &--danger {
+    background: rgba(255, 59, 48, 0.02);
+    .menu-item__name { color: rgba(0, 0, 0, 0.4); }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  &__name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.2;
+  }
+
+  &__desc {
+    font-size: 0.78rem;
+    color: rgba(0, 0, 0, 0.4);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+
+  &__danger-text {
+    font-size: 0.75rem;
+    color: $danger;
+    font-weight: 500;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  &__price {
+    font-family: $font-display;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    white-space: nowrap;
+  }
+
+  &__arrow {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.2);
+  }
+}
+
+.danger-icon {
+  font-size: 16px;
+  color: $danger;
+  flex-shrink: 0;
+}
+
+// ══════════════════════════════════════════════════════════
+// CART PILL
+// ══════════════════════════════════════════════════════════
+.cart-pill {
+  position: fixed;
+  bottom: max(env(safe-area-inset-bottom, 0px), 20px);
+  left: 20px; right: 20px;
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 12px 12px;
+  background: #1a1a1a;
+  border-radius: 20px;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  animation: pill-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) both;
+  transition: transform 0.15s;
+
+  &:active { transform: scale(0.97); }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__count {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: $accent;
+    color: white;
+    font-weight: 800;
+    font-size: 0.95rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  &__label {
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__total {
+    color: white;
+    font-family: $font-display;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  ion-icon { color: rgba(255, 255, 255, 0.6); font-size: 18px; }
+}
+
+// ══════════════════════════════════════════════════════════
+// MODAL OVERLAY BASE
+// ══════════════════════════════════════════════════════════
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: modal-fade-in 0.25s ease;
+}
+
+.modal-sheet {
+  background: white;
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 560px;
+  max-height: 92vh;
+  overflow-y: auto;
+  overflow-x: hidden; // Evitar scroll lateral
+  animation: sheet-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.modal-handle {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(4px);
+  border-radius: 10px;
+  z-index: 10;
+}
+
+// ── Modal producto ──────────────────────────────────────────────────
+.modal-image-wrapper {
+  position: relative;
+  height: 280px;
+  width: 100%;
+  overflow: hidden;
+
+  // Degradado inferior para suavizar transición al texto
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: linear-gradient(to top, white, transparent);
+    z-index: 2;
+  }
+}
+
+.modal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.modal-danger-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 59, 48, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  text-align: center;
-  padding: 40px 20px;
+  justify-content: center;
+  color: white;
+  gap: 12px;
+  z-index: 5;
+
+  ion-icon { 
+    font-size: 3.5rem;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+  }
+  span { 
+    font-weight: 800; 
+    font-size: 1.1rem; 
+    text-align: center; 
+    padding: 0 40px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    line-height: 1.3;
+  }
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s, transform 0.1s;
+
+  ion-icon { font-size: 22px; color: white; }
   
-  .orbe-cristal {
-    width: 64px; height: 64px;
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(8px);
+  &:active { transform: scale(0.9); }
+
+  &--inline {
+    position: static;
+    background: rgba(0, 0, 0, 0.06);
+    ion-icon { color: #333; }
+  }
+}
+
+.modal-content {
+  padding: 20px 24px 32px;
+}
+
+.modal-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.modal-title {
+  font-family: $font-display;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.2;
+  flex: 1;
+}
+
+.modal-price {
+  font-family: $font-display;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  flex-shrink: 0;
+}
+
+.modal-desc {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.55);
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.modal-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.4);
+  margin: 0 0 10px;
+}
+
+.modal-alergenos-section { margin-bottom: 24px; }
+
+.modal-alergenos-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.alergeno-pill {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.5);
+
+  &--danger { background: rgba(255, 59, 48, 0.1); color: $danger; }
+  &--safe   { background: rgba(52, 199, 89, 0.1); color: darken($success, 10%); }
+}
+
+.btn-anadir-modal {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  border: none;
+  border-radius: 16px;
+  background: #1a1a1a;
+  color: white;
+  font-family: $font-body;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+  ion-icon { font-size: 20px; }
+  &:active { transform: scale(0.97); }
+  &:disabled {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.35);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// MODAL SETTINGS
+// ══════════════════════════════════════════════════════════
+.modal-sheet--settings {
+  max-height: 88vh;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 20px);
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.settings-title {
+  font-family: $font-display;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.settings-section {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  &:last-child { border-bottom: none; }
+}
+
+.settings-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.4);
+  margin: 0 0 12px;
+}
+
+.settings-sublabel {
+  font-size: 0.82rem;
+  color: rgba(0, 0, 0, 0.4);
+  margin: -8px 0 14px;
+  line-height: 1.4;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  &--toggle { padding: 4px 0; }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    ion-icon { font-size: 22px; color: rgba(0, 0, 0, 0.5); }
+  }
+
+  &__title {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+  }
+
+  &__sub {
+    display: block;
+    font-size: 0.78rem;
+    color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Toggle switch
+.toggle-btn {
+  width: 52px; height: 30px;
+  border-radius: 15px;
+  border: none;
+  background: rgba(0, 0, 0, 0.12);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.25s;
+  flex-shrink: 0;
+
+  &--on { background: #1a1a1a; }
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+  .toggle-btn--on & { transform: translateX(22px); }
+}
+
+// Allergen chips in settings
+.settings-alergenos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.settings-alergeno-chip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 6px;
+  border-radius: 14px;
+  border: 1.5px solid transparent;
+  background: rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.5);
+
+  .chip-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.04);
+    display: flex; align-items: center; justify-content: center;
+    ion-icon { font-size: 20px; color: rgba(0, 0, 0, 0.4); }
+  }
+
+  .chip-check {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 16px; height: 16px;
     border-radius: 50%;
-    display: flex; justify-content: center; align-items: center;
-    box-shadow: 0 12px 24px rgba(0,0,0,0.06);
-    margin-bottom: 16px;
-    
-    ion-icon {
-      font-size: 28px;
-      color: #a1a1a6;
+    background: $danger;
+    display: flex; align-items: center; justify-content: center;
+    ion-icon { font-size: 11px; color: white; }
+  }
+
+  &--activo {
+    border-color: rgba(255, 59, 48, 0.3);
+    background: rgba(255, 59, 48, 0.06);
+    color: $danger;
+    .chip-icon { background: rgba(255, 59, 48, 0.08); ion-icon { color: $danger; } }
+  }
+
+  &:active { transform: scale(0.93); }
+}
+
+.btn-guardar-settings {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: #1a1a1a;
+  color: white;
+  font-family: $font-body;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+  &:active { transform: scale(0.97); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+// ══════════════════════════════════════════════════════════
+// DARK MODE
+// ══════════════════════════════════════════════════════════
+:host-context(body.dark) {
+  .carta-content { --background: #0c0e13; }
+
+  .carta-header {
+    background: rgba(12, 14, 19, 0.95);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .header-brand { color: #fff; }
+  .btn-salir { background: rgba(255, 59, 48, 0.12); }
+  .mesa-badge { background: #fff; color: #000; }
+  .btn-icon {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.1);
+    ion-icon { color: #fff; }
+  }
+  .icon-badge { border-color: #0c0e13; }
+  .alergenos-pill { background: rgba(255, 59, 48, 0.08); border-bottom-color: rgba(255, 59, 48, 0.08); }
+
+  .categoria-titulo { color: #fff; }
+  .categoria-items { background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.05); }
+
+  .menu-item {
+    border-bottom-color: rgba(255, 255, 255, 0.04);
+    &:active { background: rgba(255, 255, 255, 0.03); }
+    &--danger { background: rgba(255, 59, 48, 0.04); }
+    &__name { color: #fff; }
+    &__desc { color: rgba(255, 255, 255, 0.35); }
+    &__price { color: #fff; }
+    &__arrow { color: rgba(255, 255, 255, 0.2); }
+  }
+
+  .cart-pill { background: rgba(255, 255, 255, 0.95); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    &__label, &__total { color: #1a1a1a; }
+    ion-icon { color: rgba(0, 0, 0, 0.4); }
+    &__count { background: $accent; }
+  }
+
+  // Modals - keep light background for readability
+  .modal-sheet {
+    background: #1a1c22;
+    .modal-handle { background: rgba(255, 255, 255, 0.25); }
+    .modal-image-wrapper::after {
+      background: linear-gradient(to top, #1a1c22, transparent);
     }
   }
 
-  h3 {
-    font-family: $fuente-titulo;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: $oscuro-primario;
-    margin: 0 0 6px 0;
+  .modal-title, .modal-price { color: #fff; }
+  .modal-desc { color: rgba(255, 255, 255, 0.5); }
+  .modal-section-label { color: rgba(255, 255, 255, 0.35); }
+
+  .alergeno-pill {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
+    &--danger { background: rgba(255, 59, 48, 0.12); color: #ff6b6b; }
+    &--safe { background: rgba(52, 199, 89, 0.1); color: #5de381; }
   }
-  p {
-    color: #8e8e93;
-    font-size: 0.9rem;
-    margin: 0;
+
+  .modal-close-btn--inline { background: rgba(255, 255, 255, 0.08); ion-icon { color: #fff; } }
+
+  .btn-anadir-modal {
+    background: #fff;
+    color: #000;
+    &:disabled { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.25); }
   }
+
+  .settings-header { border-bottom-color: rgba(255, 255, 255, 0.06); }
+  .settings-title { color: #fff; }
+  .settings-label { color: rgba(255, 255, 255, 0.35); }
+  .settings-sublabel { color: rgba(255, 255, 255, 0.35); }
+  .settings-section { border-bottom-color: rgba(255, 255, 255, 0.05); }
+  .settings-row__title { color: #fff; }
+  .settings-row__sub  { color: rgba(255, 255, 255, 0.35); }
+  .settings-row__info ion-icon { color: rgba(255, 255, 255, 0.4); }
+
+  .toggle-btn { background: rgba(255, 255, 255, 0.12); &--on { background: #fff; .toggle-thumb { background: #000; } } }
+  .toggle-thumb { background: white; }
+
+  .settings-alergeno-chip {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.45);
+    .chip-icon { background: rgba(255, 255, 255, 0.05); ion-icon { color: rgba(255, 255, 255, 0.4); } }
+    &--activo { background: rgba(255, 59, 48, 0.1); border-color: rgba(255, 59, 48, 0.3); color: #ff6b6b;
+      .chip-icon { background: rgba(255, 59, 48, 0.1); ion-icon { color: #ff6b6b; } }
+    }
+  }
+
+  .btn-guardar-settings { background: #fff; color: #000; }
 }

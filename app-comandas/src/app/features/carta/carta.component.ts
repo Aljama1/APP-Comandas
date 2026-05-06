@@ -1,42 +1,40 @@
 import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { CartaService } from '../../core/services/carta.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { ComandaService } from '../../core/services/comanda.service';
 import { ComandaFirestoreService } from '../../core/services/comanda-firestore.service';
-import { ResumenFlotanteComponent } from '../../shared/components/resumen-flotante/resumen-flotante.component';
+import { UserSettingsService } from '../../core/services/user-settings.service';
+import { Producto } from '../../core/models/producto.model';
 import { addIcons } from 'ionicons';
-import { 
-  shieldCheckmark,
-  shieldOutline,
-  personCircleOutline,
-  warningOutline,
-  addOutline,
-  cartOutline,
-  searchOutline,
-  logOutOutline,
-  checkmarkOutline,
-  receiptOutline
+import {
+  shieldCheckmark, shieldOutline, personCircleOutline, warningOutline,
+  addOutline, cartOutline, logOutOutline, checkmarkOutline, receiptOutline,
+  closeOutline, settingsOutline, moonOutline, sunnyOutline,
+  nutritionOutline, leafOutline, eggOutline, fishOutline, restaurantOutline,
+  chevronForwardOutline, alertCircleOutline
 } from 'ionicons/icons';
 
-/** Mapa de etiquetas legibles para cada categoría del menú */
 const ETIQUETAS_CATEGORIA: Record<string, string> = {
-  'entrante': '🥗 Entrantes',
-  'principal': '🍽️ Principales',
-  'postre': '🍰 Postres',
-  'bebida': '🥤 Bebidas',
-  'especial': '⭐ Especiales'
+  'entrante': 'Entrantes',
+  'principal': 'Principales',
+  'postre': 'Postres',
+  'bebida': 'Bebidas',
+  'especial': 'Especiales'
 };
 
-/** Orden de visualización de las categorías en la carta */
+const EMOJIS_CATEGORIA: Record<string, string> = {
+  'entrante': '🥗', 'principal': '🍽️', 'postre': '🍰', 'bebida': '🥤', 'especial': '⭐'
+};
+
 const ORDEN_CATEGORIAS = ['entrante', 'principal', 'postre', 'bebida', 'especial'];
 
 @Component({
   selector: 'app-carta',
   standalone: true,
-  imports: [CommonModule, IonicModule, ResumenFlotanteComponent],
+  imports: [CommonModule, IonicModule],
   templateUrl: './carta.component.html',
   styleUrls: ['./carta.component.scss']
 })
@@ -45,55 +43,49 @@ export class CartaComponent {
   private usuarioService = inject(UsuarioService);
   public comandaService = inject(ComandaService);
   public firestoreService = inject(ComandaFirestoreService);
+  public settings = inject(UserSettingsService);
   private router = inject(Router);
   private alertController = inject(AlertController);
 
-  // Datos globales del usuario (Signal)
   perfil = this.usuarioService.perfil;
 
-  // Lista de todos los productos (Signal)
-  todosLosProductos = this.cartaService.productos;
+  // Modal de detalle de producto
+  productoSeleccionado = signal<any | null>(null);
+  mostrarModalProducto = signal<boolean>(false);
 
-  // Control del feedback visual al añadir al carrito
+  // Modal de configuración de usuario
+  mostrarSettings = signal<boolean>(false);
+
+  // Copia editable de alérgenos en el modal de settings
+  alergenosEditados = signal<string[]>([]);
+
+  readonly todosLosAlergenos = [
+    { id: 'gluten',       nombre: 'Gluten',    icono: '/assets/icon/gluten.svg',       esSvg: true  },
+    { id: 'lactosa',      nombre: 'Lactosa',   icono: '/assets/icon/lactosa.svg',      esSvg: true  },
+    { id: 'frutos-secos', nombre: 'F. Secos',  icono: '/assets/icon/frutos-secos.svg', esSvg: true  },
+    { id: 'huevo',        nombre: 'Huevo',     icono: 'egg-outline',                   esSvg: false },
+    { id: 'pescado',      nombre: 'Pescado',   icono: 'fish-outline',                  esSvg: false },
+    { id: 'marisco',      nombre: 'Marisco',   icono: 'restaurant-outline',            esSvg: false },
+  ];
+
+  // Feedback visual al añadir
   productoRecienAnadido = signal<string | null>(null);
 
-  /**
-   * EL MOTOR DE FILTRADO (Día 4 completado)
-   * Evalúa el peligro de cada producto cruzando los alérgenos del
-   * producto con el vector de alergias activas del individuo.
-   */
   productosMaquetados = computed(() => {
     const alergiasUsuario = this.perfil()?.alergenos || [];
-    
-    return this.todosLosProductos().map(producto => {
+    return this.cartaService.productos().map(producto => {
       const alergenosPeligrosos = producto.alergenos.filter(al => alergiasUsuario.includes(al));
-      const esSeguro = alergenosPeligrosos.length === 0;
-      
-      return {
-        ...producto,
-        esSeguro,
-        alergenosPeligrosos
-      };
+      return { ...producto, esSeguro: alergenosPeligrosos.length === 0, alergenosPeligrosos };
     });
   });
 
-  /**
-   * AGRUPACIÓN POR CATEGORÍAS
-   * Organiza los productos en secciones ordenadas para facilitar
-   * la navegación visual del comensal en cartas extensas.
-   */
   productosPorCategoria = computed(() => {
     const productos = this.productosMaquetados();
-    const grupos: { clave: string; etiqueta: string; items: typeof productos }[] = [];
-
+    const grupos: { clave: string; etiqueta: string; emoji: string; items: typeof productos }[] = [];
     for (const cat of ORDEN_CATEGORIAS) {
       const items = productos.filter(p => p.categoria === cat);
       if (items.length > 0) {
-        grupos.push({
-          clave: cat,
-          etiqueta: ETIQUETAS_CATEGORIA[cat] || cat,
-          items
-        });
+        grupos.push({ clave: cat, etiqueta: ETIQUETAS_CATEGORIA[cat] || cat, emoji: EMOJIS_CATEGORIA[cat] || '', items });
       }
     }
     return grupos;
@@ -101,55 +93,79 @@ export class CartaComponent {
 
   constructor() {
     addIcons({
-      shieldCheckmark,
-      shieldOutline,
-      personCircleOutline,
-      warningOutline,
-      addOutline,
-      cartOutline,
-      searchOutline,
-      logOutOutline,
-      checkmarkOutline,
-      receiptOutline
+      shieldCheckmark, shieldOutline, personCircleOutline, warningOutline,
+      addOutline, cartOutline, logOutOutline, checkmarkOutline, receiptOutline,
+      closeOutline, settingsOutline, moonOutline, sunnyOutline,
+      nutritionOutline, leafOutline, eggOutline, fishOutline, restaurantOutline,
+      chevronForwardOutline, alertCircleOutline
     });
   }
 
-  /**
-   * Añade un producto al carrito y muestra feedback visual temporal.
-   */
-  agregarAlCarrito(producto: any) {
-    this.comandaService.agregarLinea(producto, 1);
+  // ── Producto Modal ──────────────────────────────────────────────
+  abrirProducto(producto: any): void {
+    this.productoSeleccionado.set(producto);
+    this.mostrarModalProducto.set(true);
+  }
 
-    // Feedback visual: marca el producto como recién añadido durante 800ms
+  cerrarProducto(): void {
+    this.mostrarModalProducto.set(false);
+    setTimeout(() => this.productoSeleccionado.set(null), 300);
+  }
+
+  agregarDesdeModal(producto: any): void {
+    this.comandaService.agregarLinea(producto, 1);
     this.productoRecienAnadido.set(producto.id);
     setTimeout(() => {
-      if (this.productoRecienAnadido() === producto.id) {
-        this.productoRecienAnadido.set(null);
-      }
-    }, 800);
+      if (this.productoRecienAnadido() === producto.id) this.productoRecienAnadido.set(null);
+    }, 1200);
+    this.cerrarProducto();
   }
 
-  irALaComanda() {
-    this.router.navigateByUrl('/resumen-comanda');
+  // ── Settings Modal ──────────────────────────────────────────────
+  abrirSettings(): void {
+    this.alergenosEditados.set([...(this.perfil()?.alergenos || [])]);
+    this.mostrarSettings.set(true);
   }
 
-  irAMisPedidos() {
-    this.router.navigateByUrl('/seguimiento-comanda');
+  cerrarSettings(): void {
+    this.mostrarSettings.set(false);
   }
+
+  toggleAlergenoSettings(id: string): void {
+    const actual = this.alergenosEditados();
+    const idx = actual.indexOf(id);
+    if (idx === -1) {
+      this.alergenosEditados.set([...actual, id]);
+    } else {
+      this.alergenosEditados.set(actual.filter(a => a !== id));
+    }
+  }
+
+  guardarSettings(): void {
+    const perfilActual = this.perfil();
+    if (perfilActual) {
+      this.usuarioService.establecerPerfil({ ...perfilActual, alergenos: this.alergenosEditados() });
+    }
+    this.cerrarSettings();
+  }
+
+  estaActivo(id: string): boolean {
+    return this.alergenosEditados().includes(id);
+  }
+
+  // ── Navegación ──────────────────────────────────────────────────
+  irALaComanda() { this.router.navigateByUrl('/resumen-comanda'); }
+  irAMisPedidos() { this.router.navigateByUrl('/seguimiento-comanda'); }
 
   async confirmarCierreSesion() {
     const alert = await this.alertController.create({
       header: 'Cerrar sesión',
-      message: '¿Estás seguro de que deseas salir? Si tienes una comanda sin enviar, se perderá.',
+      message: '¿Estás seguro de que deseas salir?',
       mode: 'ios',
       buttons: [
+        { text: 'Cancelar', role: 'cancel' },
         {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Salir',
-          role: 'destructive',
+          text: 'Salir', role: 'destructive',
           handler: () => {
             this.usuarioService.limpiarPerfil();
             this.comandaService.vaciarComanda();

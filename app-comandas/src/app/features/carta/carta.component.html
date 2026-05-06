@@ -1,129 +1,269 @@
-<ion-content [fullscreen]="true" class="contenido-elegante">
-  <!-- Fondo Malla (Consistente con la identidad visual) -->
-  <div class="fondo-malla" aria-hidden="true">
-    <div class="forma-malla forma-1"></div>
-    <div class="forma-malla forma-2"></div>
-  </div>
+<ion-content [fullscreen]="true" class="carta-content">
 
-  <!-- Cabecera Flotante Moderna -->
-  <div class="cabecera-moderna">
-    <div class="cabecera-superior">
-      <div class="chip-saludo">
-        <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
-        <span class="texto-usuario">Hola, <strong>{{ perfil()?.nombre }}</strong></span>
+  <!-- ═══════════════════════════════════════
+       HEADER COMPACTO
+  ════════════════════════════════════════ -->
+  <header class="carta-header">
+    <div class="header-left">
+      <button class="btn-salir" (click)="confirmarCierreSesion()" aria-label="Cerrar sesión">
+        <ion-icon name="log-out-outline" aria-hidden="true"></ion-icon>
+      </button>
+      <span class="header-brand">Trace<span class="brand-dot">.</span></span>
+    </div>
+
+    <div class="header-center">
+      <div class="mesa-badge" role="status" aria-label="Mesa asignada">
+        Mesa {{ perfil()?.mesaId }}
       </div>
-      <div class="chip-mesa" role="status" aria-label="Mesa asignada">
-        MESA {{ perfil()?.mesaId }}
-      </div>
-      <div class="acciones-cabecera">
-        <button class="btn-salir"
-          (click)="confirmarCierreSesion()"
-          aria-label="Cerrar sesión">
-          <ion-icon name="log-out-outline" aria-hidden="true"></ion-icon>
+    </div>
+
+    <div class="header-right">
+      @if (firestoreService.tieneComandas()) {
+        <button class="btn-icon" (click)="irAMisPedidos()" aria-label="Ver mis pedidos">
+          <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
+          <span class="icon-badge icon-badge--green">{{ firestoreService.totalRondas() }}</span>
         </button>
-        @if (firestoreService.tieneComandas()) {
-          <button class="btn-pedidos"
-            (click)="irAMisPedidos()"
-            aria-label="Ver mis comandas activas">
-            <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
-            <span class="insignia-carrito" aria-hidden="true">{{ firestoreService.totalRondas() }}</span>
-          </button>
+      }
+      <button class="btn-icon" (click)="irALaComanda()" aria-label="Ver carrito ({{ comandaService.totalArticulos() }} artículos)">
+        <ion-icon name="cart-outline" aria-hidden="true"></ion-icon>
+        @if (comandaService.totalArticulos() > 0) {
+          <span class="icon-badge" aria-hidden="true">{{ comandaService.totalArticulos() }}</span>
         }
-        <button class="btn-carrito"
-          (click)="irALaComanda()"
-          aria-label="Ver carrito de la comanda ({{ comandaService.totalArticulos() }} artículos)">
-          <ion-icon name="cart-outline" aria-hidden="true"></ion-icon>
-          @if (comandaService.totalArticulos() > 0) {
-            <span class="insignia-carrito" aria-hidden="true">{{ comandaService.totalArticulos() }}</span>
-          }
-        </button>
-      </div>
+      </button>
+      <button class="btn-icon" (click)="abrirSettings()" aria-label="Configuración de usuario">
+        <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
+      </button>
     </div>
+  </header>
 
-    <div class="titulo-cabecera">
-      <h1>Nuestra Carta</h1>
+  <!-- Píldora de seguridad alérgenos -->
+  @if (perfil()?.alergenos?.length) {
+    <div class="alergenos-pill" role="status">
+      <ion-icon name="shield-checkmark" aria-hidden="true"></ion-icon>
+      <span>Filtro activo: {{ perfil()?.alergenos?.join(', ') }}</span>
     </div>
+  }
 
-    <!-- Píldora de Seguridad Médica Simplificada -->
-    <div class="chip-seguridad"
-      [class.peligro-activo]="perfil()?.alergenos?.length"
-      role="status"
-      [attr.aria-label]="perfil()?.alergenos?.length ? 'Filtro activo para: ' + perfil()?.alergenos?.join(', ') : 'Sin filtros de alérgenos activos'">
-      <ion-icon [name]="perfil()?.alergenos?.length ? 'shield-checkmark' : 'shield-outline'" aria-hidden="true"></ion-icon>
-      <span>{{ perfil()?.alergenos?.length ? 'Protección activa: ' + perfil()?.alergenos?.join(', ') : 'Carta completa sin filtros' }}</span>
-    </div>
-  </div>
-
-  <!-- Contenedor Principal de Platos (Agrupados por Categoría) -->
-  <div class="contenedor-carta">
-
-    <!-- Iteración por secciones de categoría -->
-    @for (grupo of productosPorCategoria(); track grupo) {
-      <section class="categoria-seccion">
-        <h2 class="categoria-titulo">{{ grupo.etiqueta }}</h2>
-        <div class="lista-productos">
-          <!-- Tarjeta Producto con Cristal -->
-          @for (producto of grupo.items; track producto) {
-            <article class="tarjeta-producto"
-              [class.es-peligroso]="!producto.esSeguro"
-              [attr.aria-label]="producto.nombre + ' - ' + (producto.precio | currency:'EUR')">
-              <div class="heroe-tarjeta">
-                <img [src]="producto.imagenUrl" [alt]="'Fotografía de ' + producto.nombre">
-                <div class="etiqueta-precio" aria-hidden="true">{{ producto.precio | currency:'EUR' }}</div>
-                <!-- Capa de Incompatibilidad Letal -->
-                @if (!producto.esSeguro) {
-                  <div class="velo-peligro" role="alert">
-                    <ion-icon name="warning-outline" aria-hidden="true"></ion-icon>
-                    <span class="titulo-peligro">Incompatible</span>
-                  </div>
+  <!-- ═══════════════════════════════════════
+       MENÚ TEXTUAL POR CATEGORÍA
+  ════════════════════════════════════════ -->
+  <div class="carta-body">
+    @for (grupo of productosPorCategoria(); track grupo.clave) {
+      <section class="categoria-seccion" [attr.aria-label]="grupo.etiqueta">
+        <div class="categoria-header">
+          <span class="categoria-emoji" aria-hidden="true">{{ grupo.emoji }}</span>
+          <h2 class="categoria-titulo">{{ grupo.etiqueta }}</h2>
+        </div>
+        <div class="categoria-items" role="list">
+          @for (producto of grupo.items; track producto.id) {
+            <button
+              class="menu-item"
+              [class.menu-item--danger]="!producto.esSeguro"
+              (click)="abrirProducto(producto)"
+              role="listitem"
+              [attr.aria-label]="producto.nombre + ' · ' + (producto.precio | currency:'EUR') + (producto.esSeguro ? '' : ' · CONTIENE ALÉRGENOS')"
+            >
+              <div class="menu-item__info">
+                <div class="menu-item__name-row">
+                  @if (!producto.esSeguro) {
+                    <ion-icon name="alert-circle-outline" class="danger-icon" aria-label="Contiene tus alérgenos"></ion-icon>
+                  }
+                  <span class="menu-item__name">{{ producto.nombre }}</span>
+                </div>
+                @if (producto.alergenosPeligrosos.length > 0) {
+                  <span class="menu-item__danger-text">Contiene: {{ producto.alergenosPeligrosos.join(', ') }}</span>
+                }
+                @else {
+                  <span class="menu-item__desc">{{ producto.descripcion }}</span>
                 }
               </div>
-              <div class="cuerpo-tarjeta">
-                <div class="fila-titulo">
-                  <h3>{{ producto.nombre }}</h3>
-                </div>
-                <p class="descripcion">{{ producto.descripcion }}</p>
-                <div class="acciones-tarjeta">
-                  <!-- Píldoras de alérgenos minimalistas -->
-                  <div class="grupo-pildoras-alergenos" role="list" aria-label="Alérgenos del plato">
-                    @for (al of producto.alergenos; track al) {
-                      <span class="pildora" role="listitem" [class.pildora-peligro]="producto.alergenosPeligrosos.includes(al)">{{ al }}</span>
-                    }
-                    @if (producto.alergenos.length === 0) {
-                      <span class="pildora pildora-seguro" role="listitem">Sin alérgenos</span>
-                    }
-                  </div>
-                  <!-- Botón Añadir con feedback visual -->
-                  <button class="btn-anadir-elegante"
-                    [disabled]="!producto.esSeguro"
-                    [class.feedback-anadido]="productoRecienAnadido() === producto.id"
-                    (click)="agregarAlCarrito(producto)"
-                    [attr.aria-label]="'Añadir ' + producto.nombre + ' al carrito'">
-                    <ion-icon [name]="productoRecienAnadido() === producto.id ? 'checkmark-outline' : 'add-outline'" aria-hidden="true"></ion-icon>
-                  </button>
-                </div>
+              <div class="menu-item__right">
+                <span class="menu-item__price">{{ producto.precio | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+                <ion-icon name="chevron-forward-outline" class="menu-item__arrow" aria-hidden="true"></ion-icon>
               </div>
-            </article>
+            </button>
           }
         </div>
       </section>
     }
 
-    <!-- Estado Vacío Elegante -->
     @if (productosPorCategoria().length === 0) {
-      <div class="estado-vacio">
-        <div class="orbe-cristal">
-          <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
-        </div>
-        <h3>Sin resultados</h3>
-        <p>No hay platos en el sistema en este momento.</p>
+      <div class="empty-state">
+        <p>Sin productos disponibles en este momento.</p>
       </div>
     }
 
-    <!-- Espacio para que la píldora flotante no tape el último producto -->
-    <div style="height: 90px;" aria-hidden="true"></div>
+    <!-- Espacio para la pill flotante -->
+    <div style="height: 100px;" aria-hidden="true"></div>
   </div>
 
-  <!-- Píldora Flotante Integrada -->
-  <app-resumen-flotante slot="fixed"></app-resumen-flotante>
+  <!-- ═══════════════════════════════════════
+       PÍLDORA FLOTANTE DE CARRITO
+  ════════════════════════════════════════ -->
+  @if (comandaService.totalArticulos() > 0) {
+    <div class="cart-pill" (click)="irALaComanda()" role="button" aria-label="Ver comanda — {{ comandaService.totalArticulos() }} artículos · {{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}">
+      <div class="cart-pill__left">
+        <span class="cart-pill__count">{{ comandaService.totalArticulos() }}</span>
+        <span class="cart-pill__label">Ver Comanda</span>
+      </div>
+      <div class="cart-pill__right">
+        <span class="cart-pill__total">{{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+        <ion-icon name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+      </div>
+    </div>
+  }
+
 </ion-content>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODAL DETALLE DE PRODUCTO
+════════════════════════════════════════════════════════════════ -->
+@if (mostrarModalProducto() && productoSeleccionado()) {
+  <div class="modal-overlay" (click)="cerrarProducto()" role="dialog" aria-modal="true" [attr.aria-label]="'Detalle de ' + productoSeleccionado()!.nombre">
+    <div class="modal-sheet" (click)="$event.stopPropagation()">
+      <!-- Imagen -->
+      <div class="modal-image-wrapper">
+        <div class="modal-handle" aria-hidden="true"></div>
+        <img [src]="productoSeleccionado()!.imagenUrl" [alt]="'Foto de ' + productoSeleccionado()!.nombre" class="modal-image">
+        
+        @if (!productoSeleccionado()!.esSeguro) {
+          <div class="modal-danger-overlay">
+            <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+            <span>Incompatible con tus alérgenos</span>
+          </div>
+        }
+        <button class="modal-close-btn" (click)="cerrarProducto()" aria-label="Cerrar detalle">
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Contenido -->
+      <div class="modal-content">
+        <div class="modal-title-row">
+          <h2 class="modal-title">{{ productoSeleccionado()!.nombre }}</h2>
+          <span class="modal-price">{{ productoSeleccionado()!.precio | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+        </div>
+
+        <p class="modal-desc">{{ productoSeleccionado()!.descripcion }}</p>
+
+        <!-- Alérgenos -->
+        <div class="modal-alergenos-section">
+          <h3 class="modal-section-label">Alérgenos</h3>
+          <div class="modal-alergenos-list">
+            @if (productoSeleccionado()!.alergenos.length === 0) {
+              <span class="alergeno-pill alergeno-pill--safe">✓ Sin alérgenos</span>
+            }
+            @for (al of productoSeleccionado()!.alergenos; track al) {
+              <span
+                class="alergeno-pill"
+                [class.alergeno-pill--danger]="productoSeleccionado()!.alergenosPeligrosos.includes(al)"
+              >
+                {{ al }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Botón añadir -->
+        <button
+          class="btn-anadir-modal"
+          [disabled]="!productoSeleccionado()!.esSeguro"
+          (click)="agregarDesdeModal(productoSeleccionado()!)"
+          [attr.aria-label]="'Añadir ' + productoSeleccionado()!.nombre + ' al pedido'"
+        >
+          @if (!productoSeleccionado()!.esSeguro) {
+            <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+            <span>No disponible para ti</span>
+          } @else {
+            <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
+            <span>Añadir al pedido</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODAL CONFIGURACIÓN DE USUARIO
+════════════════════════════════════════════════════════════════ -->
+@if (mostrarSettings()) {
+  <div class="modal-overlay" (click)="cerrarSettings()" role="dialog" aria-modal="true" aria-label="Configuración de usuario">
+    <div class="modal-sheet modal-sheet--settings" (click)="$event.stopPropagation()">
+      <div class="modal-handle" aria-hidden="true"></div>
+
+      <div class="settings-header">
+        <h2 class="settings-title">Configuración</h2>
+        <button class="modal-close-btn modal-close-btn--inline" (click)="cerrarSettings()" aria-label="Cerrar configuración">
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Perfil -->
+      <div class="settings-section">
+        <p class="settings-label">PERFIL</p>
+        <div class="settings-row">
+          <div class="settings-row__info">
+            <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
+            <div>
+              <span class="settings-row__title">{{ perfil()?.nombre }}</span>
+              <span class="settings-row__sub">Mesa {{ perfil()?.mesaId }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dark mode -->
+      <div class="settings-section">
+        <p class="settings-label">APARIENCIA</p>
+        <div class="settings-row settings-row--toggle">
+          <div class="settings-row__info">
+            <ion-icon [name]="settings.isDark() ? 'moon-outline' : 'sunny-outline'" aria-hidden="true"></ion-icon>
+            <span class="settings-row__title">Modo oscuro</span>
+          </div>
+          <button
+            class="toggle-btn"
+            [class.toggle-btn--on]="settings.isDark()"
+            (click)="settings.toggleDark()"
+            [attr.aria-label]="settings.isDark() ? 'Desactivar modo oscuro' : 'Activar modo oscuro'"
+            [attr.aria-pressed]="settings.isDark()"
+          >
+            <div class="toggle-thumb"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Alérgenos -->
+      <div class="settings-section">
+        <p class="settings-label">MIS ALÉRGENOS</p>
+        <p class="settings-sublabel">Actualiza tus alergias para filtrar la carta correctamente.</p>
+        <div class="settings-alergenos-grid">
+          @for (al of todosLosAlergenos; track al.id) {
+            <button
+              class="settings-alergeno-chip"
+              [class.settings-alergeno-chip--activo]="estaActivo(al.id)"
+              (click)="toggleAlergenoSettings(al.id)"
+              [attr.aria-pressed]="estaActivo(al.id)"
+              [attr.aria-label]="(estaActivo(al.id) ? 'Desactivar' : 'Activar') + ' ' + al.nombre"
+            >
+              <div class="chip-icon">
+                @if (!al.esSvg) { <ion-icon [name]="al.icono" aria-hidden="true"></ion-icon> }
+                @if (al.esSvg)  { <ion-icon [src]="al.icono"  aria-hidden="true"></ion-icon> }
+              </div>
+              <span>{{ al.nombre }}</span>
+              @if (estaActivo(al.id)) {
+                <div class="chip-check" aria-hidden="true">
+                  <ion-icon name="checkmark-outline"></ion-icon>
+                </div>
+              }
+            </button>
+          }
+        </div>
+        <button class="btn-guardar-settings" (click)="guardarSettings()" aria-label="Guardar cambios de configuración">
+          Guardar cambios
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

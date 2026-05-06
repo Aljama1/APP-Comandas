@@ -1,0 +1,170 @@
+<ion-content class="fondo-cocina" [scrollY]="false">
+  <div class="dashboard-container">
+    
+    <!-- ═══════════════════════════════════════════════════
+         TOP BAR (Mismo estilo que Sala)
+    ════════════════════════════════════════════════════ -->
+    <header class="top-bar glass-panel">
+      <div class="brand">
+        <div class="logo-pulse"></div>
+        <h1>Panel de Cocina</h1>
+      </div>
+
+      <div class="search-container">
+        <ion-searchbar placeholder="Filtrar por Mesa..." type="number" animated="true"
+          (ionInput)="actualizarFiltro($event)" class="custom-search">
+        </ion-searchbar>
+      </div>
+
+      <div class="actions">
+        <div class="termometro glass-panel">
+          <span class="term-badge" [class.saturado]="adminComandaService.pedidosBarra().length >= 5" title="Raciones en Barra">
+            <ion-icon name="beer-outline"></ion-icon> {{ statsKPI().platosBarra }}
+          </span>
+          <span class="term-badge" [class.saturado]="adminComandaService.pedidosCocina().length >= 5" title="Raciones en Cocina">
+            <ion-icon name="flame-outline"></ion-icon> {{ statsKPI().platosCocina }}
+          </span>
+        </div>
+
+        <ion-button (click)="irABarra()" class="btn-neon-blue">
+          <ion-icon name="beer-outline" slot="start"></ion-icon>
+          <span class="btn-text">Barra</span>
+        </ion-button>
+        <ion-button (click)="irASala()" class="btn-neon-green">
+          <ion-icon name="grid-outline" slot="start"></ion-icon>
+          <span class="btn-text">Sala</span>
+        </ion-button>
+
+        <app-admin-config-bar></app-admin-config-bar>
+      </div>
+    </header>
+
+    <div class="pantalla-dividida">
+
+    <!-- ==============================================
+         COLUMNA IZQUIERDA: PRODUCCIÓN (CANTADOR)
+         ============================================== -->
+    <div class="columna-produccion">
+      <div class="cabecera-fija">
+        <h2 class="titulo-columna">Platos</h2>
+        <p class="subtitulo">Resumen de raciones a preparar</p>
+      </div>
+
+      <div class="area-scroll">
+        @if (productosAgregadosCocinaFiltrados().length === 0) {
+        <div class="estado-vacio">
+          <ion-icon name="restaurant-outline"></ion-icon>
+          <p>Producción limpia</p>
+        </div>
+        }
+
+        <div class="lista-agrupada">
+          @for (producto of productosAgregadosCocinaFiltrados(); track producto.nombre) {
+          <div class="tarjeta-producto-agrupado">
+            <div class="cabecera-agrupada">
+              <span class="cantidad-gigante">{{ producto.cantidadTotal }}x</span>
+              <h3 class="nombre-plato">{{ producto.nombre }}</h3>
+            </div>
+
+            <div class="info-mesas">
+              M: <strong>{{ producto.mesas.join(', ') }}</strong>
+            </div>
+
+            @if (producto.notas.length > 0) {
+            <div class="alertas-notas">
+              @for (nota of producto.notas; track nota) {
+              <div class="nota-individual">
+                <ion-icon name="warning-outline"></ion-icon>
+                <span>{{ nota }}</span>
+              </div>
+              }
+            </div>
+            }
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         COLUMNA DERECHA: EXPEDICIÓN (TICKETS)
+         ============================================== -->
+    <div class="columna-tickets">
+      <div class="cabecera-fija">
+        <h2 class="titulo-columna">Mesas</h2>
+        <p class="subtitulo">Tacha los platos y la mesa saldrá automáticamente al completar</p>
+      </div>
+
+      <div class="area-scroll">
+        @if (pedidosCocinaFiltrados().length === 0) {
+        <div class="estado-vacio">
+          <ion-icon name="cafe-outline"></ion-icon>
+          <p>No hay tickets pendientes</p>
+        </div>
+        }
+
+        <div class="grid-tickets-masonry">
+          @for (comanda of pedidosCocinaFiltrados(); track comanda.id) {
+          <div class="ticket" [ngClass]="{'urgente': getMinutosTranscurridos(comanda.fechaCreacion) >= 15}">
+
+            <div class="ticket-header">
+              <div class="info-principal">
+                <span class="mesa">MESA {{ comanda.idMesa }}</span>
+                <span class="cliente">{{ comanda.nombreCliente }}</span>
+              </div>
+              <div class="tiempo-espera">
+                <ion-icon name="time-outline"></ion-icon>
+                <span>{{ getMinutosTranscurridos(comanda.fechaCreacion) }} min</span>
+              </div>
+            </div>
+
+            @if (comanda.alergenosUsuario && comanda.alergenosUsuario.length > 0) {
+            <div class="alerta-seguridad">
+              <ion-icon name="warning-outline"></ion-icon>
+              <div class="texto-alerta">
+                <strong>¡ALERGIAS!</strong>
+                <p>{{ comanda.alergenosUsuario.join(', ') | uppercase }}</p>
+              </div>
+            </div>
+            }
+
+            <div class="ticket-body">
+              <ul class="lista-platos-checklist">
+                @for (linea of getLineasCocinaConIndice(comanda); track linea.originalIndex) {
+                <li class="item-checklist" [class.tachado]="linea.preparado"
+                  (click)="alternarPlatoPreparado(comanda.id, linea.originalIndex, !!linea.preparado)">
+                  <div class="checkbox-visual">
+                    <ion-icon name="checkmark-outline" *ngIf="linea.preparado"></ion-icon>
+                  </div>
+                  <div class="contenido-plato">
+                    <div class="linea-superior">
+                      <span class="cantidad">{{ linea.cantidad }}x</span>
+                      <span class="nombre">{{ linea.nombreProducto }}</span>
+                    </div>
+                    @if (linea.notasEspeciales) {
+                    <div class="nota-ticket">
+                      {{ linea.notasEspeciales }}
+                    </div>
+                    }
+                  </div>
+                </li>
+                }
+              </ul>
+            </div>
+
+            <!-- En caso de que haya algún error o se quiera forzar la salida -->
+            <div class="ticket-footer">
+              <ion-button fill="clear" size="small" color="medium" (click)="marcharComandaManual(comanda.id)">
+                Forzar salida manual
+              </ion-button>
+            </div>
+
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+</ion-content>

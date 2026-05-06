@@ -1,0 +1,249 @@
+/* =====================================================
+   DARK MODE TOGGLE — botón flotante en esquina superior derecha
+   ===================================================== */
+.btn-dark-mode {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 30px;
+  padding: 8px 16px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  ion-icon {
+    font-size: 18px;
+    color: #ffffff;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Modo Claro — cuando NO hay clase .dark en el body */
+:host-context(body:not(.dark)) {
+  .landing-fondo {
+    --background: #f0f0f0;
+  }
+
+  .circulo-blur-1 { background: rgba(255, 94, 58, 0.2); }
+  .circulo-blur-2 { background: rgba(10, 132, 255, 0.15); }
+
+  .logo-trace { color: #1a1a1a !important; }
+  .subtitulo { color: rgba(0, 0, 0, 0.55) !important; }
+
+  .tarjeta-rol {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    &:hover { background: rgba(0, 0, 0, 0.08) !important; }
+
+    .contenido-rol h2 { color: #1a1a1a !important; }
+    .contenido-rol p { color: rgba(0, 0, 0, 0.55) !important; }
+  }
+
+  .btn-dark-mode {
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #1a1a1a;
+    ion-icon { color: #1a1a1a; }
+  }
+}
+
+.landing-fondo {
+  --background: #0d0d0d; // Fondo muy oscuro
+  position: relative;
+}
+
+// Círculos desenfocados animados para fondo premium
+.circulo-blur-1, .circulo-blur-2 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 0;
+  opacity: 0.5;
+  animation: flotar 10s infinite alternate ease-in-out;
+}
+
+.circulo-blur-1 {
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 94, 58, 0.4); // Naranja/Rojo Trace
+  top: -100px;
+  left: -100px;
+}
+
+.circulo-blur-2 {
+  width: 400px;
+  height: 400px;
+  background: rgba(10, 132, 255, 0.3); // Azul corporativo
+  bottom: -150px;
+  right: -100px;
+  animation-delay: -5s;
+}
+
+@keyframes flotar {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(50px, 50px) scale(1.2); }
+}
+
+.landing-container {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.landing-header {
+  text-align: center;
+  margin-bottom: 48px;
+
+  .logo-trace {
+    font-size: 56px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 8px;
+    letter-spacing: -2px;
+    font-family: 'Inter', sans-serif;
+
+    span {
+      color: #FF5E3A;
+    }
+  }
+
+  .subtitulo {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
+.landing-opciones {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tarjeta-rol {
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+
+  &:hover, &:active {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .icono-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 32px;
+      color: #ffffff;
+    }
+  }
+
+  &.tarjeta-comensal {
+    .icono-wrapper {
+      background: linear-gradient(135deg, #FF9500, #FF5E3A);
+      box-shadow: 0 8px 20px rgba(255, 94, 58, 0.3);
+    }
+  }
+
+  &.tarjeta-staff {
+    .icono-wrapper {
+      background: linear-gradient(135deg, #0a84ff, #005bb5);
+      box-shadow: 0 8px 20px rgba(10, 132, 255, 0.3);
+    }
+  }
+
+  &.tarjeta-cocina {
+    .icono-wrapper {
+      background: linear-gradient(135deg, #34c759, #248a3d);
+      box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3);
+    }
+  }
+
+  // Tarjeta Barman — azul eléctrico, diferente al azul corporativo del encargado
+  &.tarjeta-barra {
+    .icono-wrapper {
+      background: linear-gradient(135deg, #0a84ff, #005bb5);
+      box-shadow: 0 8px 20px rgba(10, 132, 255, 0.4);
+    }
+  }
+
+  .contenido-rol {
+    flex-grow: 1;
+
+    h2 {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  .flecha-entrar {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 24px;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+
+  &:hover .flecha-entrar {
+    color: #ffffff;
+    transform: translateX(5px);
+  }
+}
+
+.landing-footer {
+  margin-top: auto;
+  padding-top: 40px;
+  p {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 12px;
+    text-align: center;
+  }
+}

@@ -1,23 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { UserSettingsService } from './core/services/user-settings.service';
 
 /**
  * Componente principal de la aplicación.
- * Este componente actúa como el contenedor base para toda la app.
+ * El dark mode se gestiona globalmente a través de UserSettingsService.
  */
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
-  standalone: true, // Marcamos el componente como independiente
-  imports: [IonApp, IonRouterOutlet], // Importamos los componentes de Ionic necesarios
+  standalone: true,
+  imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
-  /**
-   * Constructor del componente principal.
-   * Aquí se pueden inicializar servicios globales como autenticación o idioma.
-   */
+  // Inyectar el servicio para que se inicialice en el arranque y aplique el tema
+  private settings = inject(UserSettingsService);
+
   constructor() {
-    console.log('Aplicación de Gestión de Comandas inicializada correctamente.');
+    console.log('Trace — Gestión de Comandas inicializada.');
   }
 }
+

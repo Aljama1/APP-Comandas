@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true" class="contenido-elegante">
-  <!-- Fondo Malla (Consistente con la carta) -->
+  <!-- Fondo Malla -->
   <div class="fondo-malla" aria-hidden="true">
     <div class="forma-malla forma-1"></div>
     <div class="forma-malla forma-2"></div>
@@ -12,6 +12,9 @@
     <div class="titulo-cabecera" style="margin-left: 12px;">
       <h1>Tu Comanda</h1>
     </div>
+    @if (firestoreService.tieneComandas()) {
+      <span class="ronda-badge">Ronda {{ firestoreService.totalRondas() + 1 }}</span>
+    }
   </div>
 
   <div class="contenedor-principal">

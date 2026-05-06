@@ -1,13 +1,13 @@
 <ion-content class="fondo-admin">
   <div class="contenedor-centrado">
-    <div class="panel-login">
+    <div [class]="'panel-login ' + rolAdmin">
       <!-- Encabezado / Logo -->
       <div class="cabecera-logo">
         <div class="icono-circular">
-          <ion-icon name="lock-closed-outline"></ion-icon>
+          <ion-icon [name]="rolAdmin === 'cocina' ? 'flame-outline' : 'lock-closed-outline'"></ion-icon>
         </div>
         <h1>Trace Admin</h1>
-        <p>Panel de Gestión de Barra y Caja</p>
+        <p>{{ rolAdmin === 'cocina' ? 'Panel de Producción y Cocina' : 'Panel de Gestión de Barra y Caja' }}</p>
       </div>
 
       <!-- Formulario -->
