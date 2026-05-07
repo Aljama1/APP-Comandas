@@ -5,7 +5,7 @@ import { IonicModule, ToastController, LoadingController, AlertController } from
 import { Router } from '@angular/router';
 import { AdminComandaService } from '../../../core/services/admin-comanda.service';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
-import { Comanda, EstadoComanda } from '../../../core/models/comanda.interface';
+import { Comanda, EstadoComanda } from '../../../core/models/comanda.model';
 import { addIcons } from 'ionicons';
 import {
   checkmarkCircleOutline, timeOutline, restaurantOutline, beerOutline, logOutOutline,
@@ -279,5 +279,6 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
 
   irACocina() { this.router.navigate(['/admin/cocina']); }
   irABarra()  { this.router.navigate(['/admin/barra']); }
+  irAGestionProductos() { this.router.navigate(['/admin/productos']); }
   cerrarSesion() { this.adminAuth.logout(); }
 }

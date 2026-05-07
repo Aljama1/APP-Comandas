@@ -42,6 +42,21 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     loadComponent: () => import('./features/admin/vista-barra/vista-barra.component').then((m) => m.VistaBarraComponent),
   },
+  {
+    path: 'admin/productos',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/gestion-productos/lista-productos.component').then((m) => m.ListaProductosComponent),
+  },
+  {
+    path: 'admin/productos/nuevo',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/gestion-productos/formulario-producto.component').then((m) => m.FormularioProductoComponent),
+  },
+  {
+    path: 'admin/productos/:id/editar',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/gestion-productos/formulario-producto.component').then((m) => m.FormularioProductoComponent),
+  },
 
   {
     path: '',

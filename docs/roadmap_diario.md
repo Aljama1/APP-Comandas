@@ -110,14 +110,15 @@ Cada fase se ha diseñado siguiendo criterios académicos, promoviendo la resili
 
 ---
 
-## Fase 8: Gestión de la Carta (Backoffice Dueño) 🔜
+## Fase 8: Gestión de la Carta y Control de Inventario (Backoffice) 🔜
 
-### Día 16: CRUD de Productos en Firestore
-- **Propuesta:** Migrar la carta estática a una colección `productos` y crear un panel para editar precios, nombres y alérgenos.
-- **Artefactos:** `GestionCartaComponent`, formularios reactivos.
+### Día 17: Módulo de Gestión de Productos (CRUD)
+- **Propuesta:** Implementación de un panel administrativo para la gestión integral del catálogo (precios, descripciones, alérgenos y categorías).
+- **Artefactos:** `GestionCartaComponent`, formularios reactivos dinámicos, integración con colección `productos` en Firestore.
 
-### Día 17: Control de Stock (Sold Out)
-- **Propuesta:** Botón para desactivar productos agotados instantáneamente de la carta de los clientes.
+### Día 18: Control de Disponibilidad en Tiempo Real
+- **Propuesta:** Sistema de "Sold Out" instantáneo para desactivar productos agotados, sincronizando la vista de todos los clientes de forma inmediata.
+- **Artefactos:** Atributo `disponible` en Firestore, lógica de filtrado en `CartaService`.
 
 ---
 

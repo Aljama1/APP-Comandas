@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController, ToastController } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { UserSettingsService } from '../../../core/services/user-settings.service';
 import { updatePassword } from '@angular/fire/auth';
@@ -23,6 +24,7 @@ export class AdminConfigBarComponent {
   settingsService = inject(UserSettingsService);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
+  private router = inject(Router);
 
   // Ya no usamos isExpanded, usamos el popover de Ionic
   
@@ -98,5 +100,7 @@ export class AdminConfigBarComponent {
     });
     await toast.present();
   }
+
+  irAGestionProductos() { this.router.navigate(['/admin/productos']); }
 }
 

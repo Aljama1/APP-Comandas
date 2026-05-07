@@ -25,7 +25,7 @@ Cada documento representa un pedido enviado desde una mesa.
 | `estado` | enum | PENDIENTE, PREPARANDO, LISTO, SERVIDO, PAGADO |
 | `precioTotal` | number | Importe total de la orden |
 | `fechaCreacion` | timestamp | Momento exacto del pedido (Server Timestamp) |
-| `lineasComanda` | array | Lista de objetos (idProducto, nombre, cantidad, notas, destino: BARRA/COCINA) |
+| `lineasComanda` | array | Lista de objetos que incluye: `idProducto`, `nombre`, `cantidad`, `notas` y `destino` (`BARRA` | `COCINA`). Este último campo es crítico para el despacho inteligente de pedidos en el KDS. |
 
 ## 4. Arquitectura de Consultas (Consultas Múltiples)
 A partir de la Fase 5, para dar soporte al modelo de "Rondas Múltiples" por mesa, el sistema ha abandonado la escucha de un único documento para utilizar una query activa:

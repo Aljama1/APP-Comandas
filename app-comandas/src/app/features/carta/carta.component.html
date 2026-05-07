@@ -87,9 +87,22 @@
       </section>
     }
 
-    @if (productosPorCategoria().length === 0) {
+    @if (cartaService.cargando()) {
       <div class="empty-state">
-        <p>Sin productos disponibles en este momento.</p>
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Cargando la carta...</p>
+      </div>
+    } @else if (cartaService.error()) {
+      <div class="empty-state empty-state--error">
+        <ion-icon name="warning-outline"></ion-icon>
+        <p>Hubo un problema al cargar la carta.</p>
+        <span class="sub-text">Por favor, avisa al camarero.</span>
+      </div>
+    } @else if (productosPorCategoria().length === 0) {
+      <div class="empty-state">
+        <ion-icon name="restaurant-outline"></ion-icon>
+        <p>La carta no está disponible en este momento.</p>
+        <span class="sub-text">El restaurante aún no ha añadido platos a la carta pública.</span>
       </div>
     }
 
@@ -124,8 +137,13 @@
       <!-- Imagen -->
       <div class="modal-image-wrapper">
         <div class="modal-handle" aria-hidden="true"></div>
-        <img [src]="productoSeleccionado()!.imagenUrl" [alt]="'Foto de ' + productoSeleccionado()!.nombre" class="modal-image">
-        
+        @if (productoSeleccionado()!.urlImagen) {
+          <img [src]="productoSeleccionado()!.urlImagen" [alt]="'Foto de ' + productoSeleccionado()!.nombre" class="modal-image">
+        } @else {
+          <div class="modal-image-placeholder">
+            <ion-icon name="restaurant-outline"></ion-icon>
+          </div>
+        }
         @if (!productoSeleccionado()!.esSeguro) {
           <div class="modal-danger-overlay">
             <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>

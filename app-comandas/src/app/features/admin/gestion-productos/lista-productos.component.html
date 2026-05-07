@@ -1,0 +1,165 @@
+<ion-content class="dashboard-bg">
+  <div class="dashboard-container">
+
+    <!-- ══════════════════════════════════════════════
+         TOP BAR
+    ═══════════════════════════════════════════════ -->
+    <header class="top-bar glass-panel">
+      <div class="brand">
+        <div class="logo-pulse"></div>
+        <h1>Gestión de Carta</h1>
+      </div>
+
+      <!-- Filtros de categoría -->
+      <div class="cat-tabs-container">
+        @for (cat of categorias; track cat.clave) {
+          <button class="cat-tab" [class.active]="filtroActivo() === cat.clave"
+            (click)="filtroActivo.set(cat.clave)">
+            <ion-icon [name]="cat.icono"></ion-icon>
+            <span>{{ cat.etiqueta }}</span>
+          </button>
+        }
+      </div>
+
+      <div class="actions">
+        <ion-button (click)="irAPanel()" class="btn-neon-blue">
+          <ion-icon name="grid-outline" slot="start"></ion-icon>
+          <span class="btn-text">Panel</span>
+        </ion-button>
+        <ion-button (click)="irANuevo()" class="btn-neon-green">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          <span class="btn-text">Nuevo</span>
+        </ion-button>
+        <ion-button (click)="logout()" fill="clear" class="btn-logout">
+          <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════════
+         KPI STRIP
+    ═══════════════════════════════════════════════ -->
+    <div class="kpi-strip">
+      <div class="kpi-card">
+        <ion-icon name="restaurant-outline" class="kpi-icon icon-blue"></ion-icon>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ totalProductos() }}</span>
+          <span class="kpi-label">Total productos</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <ion-icon name="checkmark-circle-outline" class="kpi-icon icon-green"></ion-icon>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ productosActivos() }}</span>
+          <span class="kpi-label">Disponibles</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <ion-icon name="eye-off-outline" class="kpi-icon icon-orange"></ion-icon>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ productosInactivos() }}</span>
+          <span class="kpi-label">Inactivos</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <ion-icon name="pricetag-outline" class="kpi-icon icon-amber"></ion-icon>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ categoriaActual() }}</span>
+          <span class="kpi-label">Categoría activa</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         GRID DE PRODUCTOS
+    ═══════════════════════════════════════════════ -->
+
+    <!-- Loading -->
+    @if (productoService.cargando()) {
+      <div class="estado-vacio">
+        <ion-spinner name="crescent" class="spinner-neon"></ion-spinner>
+        <p>Cargando carta...</p>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (productoService.error()) {
+      <div class="estado-vacio estado-error">
+        <ion-icon name="warning-outline"></ion-icon>
+        <p>{{ productoService.error() }}</p>
+      </div>
+    }
+
+    <!-- Empty -->
+    @if (!productoService.cargando() && !productoService.error() && productosFiltrados().length === 0) {
+      <div class="estado-vacio">
+        <ion-icon name="restaurant-outline"></ion-icon>
+        <p>Sin productos en esta categoría</p>
+        <p class="sub">Pulsa "Nuevo" para añadir el primero.</p>
+      </div>
+    }
+
+    <!-- Grid de tarjetas -->
+    @if (!productoService.cargando() && productosFiltrados().length > 0) {
+      <div class="productos-grid">
+        @for (producto of productosFiltrados(); track producto.id) {
+          <div class="producto-card" [class.inactivo]="!producto.disponible"
+               [class.card-activo]="producto.disponible">
+
+            <!-- Imagen -->
+            <div class="producto-img-wrap">
+              @if (producto.urlImagen) {
+                <img [src]="producto.urlImagen" [alt]="producto.nombre" class="producto-img">
+              } @else {
+                <div class="producto-img-placeholder">
+                  <ion-icon name="image-outline"></ion-icon>
+                </div>
+              }
+              <div class="categoria-ribbon">{{ getLabelCategoria(producto.categoria) }}</div>
+              @if (!producto.disponible) {
+                <div class="badge-inactivo">INACTIVO</div>
+              }
+            </div>
+
+            <!-- Cuerpo -->
+            <div class="producto-body">
+              <div class="producto-header">
+                <span class="producto-nombre">{{ producto.nombre }}</span>
+                <span class="producto-precio">{{ producto.precio | currency:'EUR':'symbol':'1.2-2' }}</span>
+              </div>
+
+              @if (producto.descripcion) {
+                <p class="producto-desc">{{ producto.descripcion }}</p>
+              }
+
+              @if (producto.alergenos && producto.alergenos.length > 0) {
+                <div class="alergenos-row">
+                  <ion-icon name="warning-outline" class="alg-icon"></ion-icon>
+                  @for (al of producto.alergenos; track al) {
+                    <span class="alergeno-chip">{{ al }}</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Acciones -->
+            <div class="producto-acciones">
+              <button class="btn-accion btn-toggle" [class.activo]="producto.disponible"
+                (click)="cambiarDisponibilidad(producto)"
+                [title]="producto.disponible ? 'Desactivar' : 'Activar'">
+                <ion-icon [name]="producto.disponible ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+              </button>
+              <button class="btn-accion btn-editar" (click)="irAEditar(producto.id)" title="Editar">
+                <ion-icon name="create-outline"></ion-icon>
+              </button>
+              <button class="btn-accion btn-eliminar" (click)="eliminarProducto(producto)" title="Eliminar">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+  </div><!-- /dashboard-container -->
+</ion-content>

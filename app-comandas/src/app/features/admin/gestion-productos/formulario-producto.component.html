@@ -1,0 +1,175 @@
+<ion-content class="dashboard-bg">
+  <div class="form-page-container">
+
+    <!-- ══════════════════════════════════════════════
+         TOP BAR
+    ═══════════════════════════════════════════════ -->
+    <header class="top-bar glass-panel">
+      <div class="brand">
+        <button class="btn-back" (click)="irAtras()">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <div class="title-wrap">
+          <div class="logo-pulse"></div>
+          <h1>{{ modoEdicion() ? 'Editar producto' : 'Nuevo producto' }}</h1>
+        </div>
+      </div>
+
+      <div class="actions">
+        <ion-button
+          [disabled]="!esValido() || guardando()"
+          (click)="guardar()"
+          class="btn-neon-green"
+          mode="ios">
+          @if (guardando()) {
+            <ion-spinner name="crescent" slot="start"></ion-spinner>
+            Guardando...
+          } @else {
+            <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+            {{ modoEdicion() ? 'Guardar cambios' : 'Crear producto' }}
+          }
+        </ion-button>
+      </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════════
+         FORMULARIO EN DOS COLUMNAS
+    ═══════════════════════════════════════════════ -->
+    <div class="form-layout">
+
+      <!-- COLUMNA IZQUIERDA: Imagen -->
+      <div class="form-col form-col-imagen">
+        <div class="form-panel glass-panel">
+          <h3 class="panel-title">
+            <ion-icon name="camera-outline" class="neon-text-blue"></ion-icon>
+            Imagen
+          </h3>
+
+          <!-- Preview / Upload -->
+          <div class="imagen-zona">
+            @if (imagenPreview()) {
+              <div class="preview-wrap">
+                <img [src]="imagenPreview()!" class="preview-img" alt="Vista previa">
+                <button class="btn-quitar-img" (click)="quitarImagen()" title="Quitar imagen">
+                  <ion-icon name="close-circle-outline"></ion-icon>
+                </button>
+              </div>
+            } @else {
+              <label class="upload-placeholder">
+                <ion-icon name="cloud-upload-outline"></ion-icon>
+                <span class="upload-label">Subir imagen</span>
+                <span class="upload-hint">JPG, PNG, WEBP</span>
+                <input type="file" accept="image/*" (change)="onImagenSeleccionada($event)" class="file-input">
+              </label>
+            }
+          </div>
+
+          <!-- URL manual -->
+          <div class="url-section">
+            <label class="campo-label small">O pega una URL</label>
+            <ion-input
+              placeholder="https://..."
+              [ngModel]="urlImagen()"
+              (ngModelChange)="urlImagen.set($event)"
+              (ionBlur)="imagenPreview.set(urlImagen() || null)"
+              class="campo-input url-input">
+            </ion-input>
+          </div>
+
+          <!-- Toggle disponible -->
+          <div class="disponible-row">
+            <div class="disponible-info">
+              <span class="disponible-label">Disponible en carta</span>
+              <span class="disponible-hint">Los clientes podrán verlo y pedirlo</span>
+            </div>
+            <ion-toggle
+              [ngModel]="disponible()"
+              (ngModelChange)="disponible.set($event)"
+              class="toggle-disponible">
+            </ion-toggle>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: Datos -->
+      <div class="form-col form-col-datos">
+
+        <!-- Panel: Info básica -->
+        <div class="form-panel glass-panel">
+          <h3 class="panel-title">
+            <ion-icon name="restaurant-outline" class="neon-text-orange"></ion-icon>
+            Información del plato
+          </h3>
+
+          <div class="campo-grupo">
+            <label class="campo-label">Nombre <span class="req">*</span></label>
+            <ion-input
+              placeholder="Ej: Croquetas de jamón ibérico"
+              [ngModel]="nombre()"
+              (ngModelChange)="nombre.set($event)"
+              class="campo-input">
+            </ion-input>
+          </div>
+
+          <div class="campo-grupo">
+            <label class="campo-label">Descripción</label>
+            <ion-textarea
+              placeholder="Describe el plato, sus ingredientes principales..."
+              [ngModel]="descripcion()"
+              (ngModelChange)="descripcion.set($event)"
+              [rows]="3"
+              class="campo-input">
+            </ion-textarea>
+          </div>
+
+          <div class="form-row-2col">
+            <div class="campo-grupo">
+              <label class="campo-label">Precio (€) <span class="req">*</span></label>
+              <ion-input
+                type="number"
+                placeholder="0.00"
+                step="0.01"
+                min="0.01"
+                [ngModel]="precio()"
+                (ngModelChange)="precio.set($event ? +$event : null)"
+                class="campo-input">
+              </ion-input>
+            </div>
+            <div class="campo-grupo">
+              <label class="campo-label">Categoría</label>
+              <ion-select
+                interface="popover"
+                [ngModel]="categoria()"
+                (ngModelChange)="categoria.set($event)"
+                class="campo-select">
+                @for (cat of categorias; track cat.clave) {
+                  <ion-select-option [value]="cat.clave">{{ cat.etiqueta }}</ion-select-option>
+                }
+              </ion-select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel: Alérgenos -->
+        <div class="form-panel glass-panel">
+          <h3 class="panel-title">
+            <ion-icon name="warning-outline" class="neon-text-amber"></ion-icon>
+            Alérgenos
+          </h3>
+          <p class="panel-hint">Selecciona los alérgenos presentes en el plato</p>
+          <div class="alergenos-grid">
+            @for (al of todosLosAlergenos; track al.id) {
+              <button class="alergeno-btn" [class.seleccionado]="tieneAlergeno(al.id)"
+                (click)="toggleAlergeno(al.id)" type="button">
+                <span class="al-icon">{{ al.emoji }}</span>
+                {{ al.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+      </div><!-- /form-col-datos -->
+    </div><!-- /form-layout -->
+
+  </div><!-- /form-page-container -->
+</ion-content>

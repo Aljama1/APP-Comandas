@@ -28,11 +28,16 @@ El "corazón" de la aplicación es la conexión con **Firebase Cloud Firestore**
 | **Capacitor** | Bridge para convertir la web app en una aplicación nativa (iOS/Android). |
 | **TypeScript** | Lenguaje de tipado fuerte para un código más robusto. |
 
-## 5. Conectividad y Red
-A diferencia de los sistemas TPV tradicionales que dependen de una red local (LAN) única, **Trace** utiliza una arquitectura basada en la nube:
-*   **Comunicación Descentralizada:** El sistema no requiere que los clientes y el establecimiento compartan la misma red Wi-Fi.
-*   **Hub Central (Firebase):** Todos los componentes (App Cliente, Panel de Cocina, Panel de Barra) actúan como clientes de Firebase. La sincronización se realiza a través de Internet (4G/5G/Fibra).
-*   **Protocolo de Tiempo Real:** Se utilizan WebSockets (a través del SDK de Firestore) para mantener conexiones persistentes y seguras, permitiendo que una comanda enviada desde una red móvil llegue al bar en milisegundos sin necesidad de configurar *Port Forwarding* en el router del establecimiento.
+## 6. Sistema de Diseño (Design System)
+La aplicación implementa un lenguaje visual unificado diseñado para entornos de alta operatividad:
+*   **Tematización Dinámica:** Uso de variables CSS nativas para el soporte completo de modos claro y oscuro, optimizando la legibilidad en diferentes condiciones de iluminación (ej. Cocinas o terrazas).
+*   **Arquitectura de Estilos:** Empleo de metodologías modernas en SCSS para la creación de componentes con efectos de *Glassmorphism* (cristal esmerilado) y micro-interacciones que mejoran el feedback táctil.
+*   **Tokens de Diseño:** Centralización de colores corporativos y estados operativos (neón operacional) para garantizar la consistencia en todas las interfaces del staff.
+
+## 7. Persistencia y Preferencias de Usuario
+Para mejorar la experiencia de usuario y la resiliencia de la aplicación:
+*   **UserSettingsService:** Capa de abstracción que gestiona el estado de configuración (tema, idioma, preferencias de filtrado) vinculando los *Angular Signals* con el almacenamiento persistente del navegador (`localStorage`).
+*   **Continuidad de Sesión:** El sistema es capaz de restaurar el estado completo de la mesa, el carrito y las preferencias estéticas tras una interrupción de la red o recarga del navegador.
 
 ---
 > [!NOTE]

@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { LineaComanda } from '../models/comanda.interface';
+import { LineaComanda } from '../models/comanda.model';
 import { Producto, CategoriaProducto, MAPA_DESTINO_CATEGORIA, DestinoReceptor } from '../models/producto.model';
 
 @Injectable({

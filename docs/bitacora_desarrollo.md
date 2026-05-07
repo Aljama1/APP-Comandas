@@ -175,8 +175,14 @@ Aplicación Híbrida con dos verticales:
     - **Workstation Isolation:** Creación de componentes dedicados (`VistaCocinaComponent` y `VistaBarraComponent`) que filtran la información según el puesto de trabajo, reduciendo el ruido visual para el personal.
     - **Modo de Producción Agregado:** Desarrollo de algoritmos de agrupación en `AdminComandaService` que suman cantidades de productos idénticos de diferentes mesas, permitiendo a cocina "marchar" varias raciones simultáneamente.
     - **Auto-Marchar Inteligente:** Implementación de lógica de cierre de ciclo. La comanda muta automáticamente a estado `LISTO` solo cuando todas sus líneas (tanto de barra como de cocina) han sido marcadas como preparadas.
-    - **UX Industrial (Dark Mode):** Integración de un selector de tema global con persistencia en `localStorage`, optimizado para entornos de alta luminosidad (Cocina/Barra) reduciendo la fatiga visual del staff.
-    - **Feedback Acústico:** Uso de Web Audio API para generar señales sonoras puras (campanilla 3500Hz) ante la entrada de nuevos pedidos, garantizando la atención del personal sin depender de la visualización constante de la pantalla.
+
+#### Día 16: Arquitectura KDS y Sistema de Diseño Global (Completado)
+- **Hito:** Implementación de la infraestructura de visualización de cocina (KDS) por roles y consolidación de un sistema de diseño institucional con persistencia de estado.
+- **Detalles técnicos:**
+    - **Aislamiento de Workstations:** Desarrollo de los componentes `VistaCocinaComponent` y `VistaBarraComponent`. Se ha implementado un patrón de filtrado reactivo basado en el atributo `destino` de la `LineaComanda`, asegurando que cada estación de trabajo reciba exclusivamente la información pertinente para su flujo operativo, minimizando así la latitud de error en el servicio.
+    - **Design System Centralizado:** Migración de estilos ad-hoc a un sistema de tokens de diseño en `global.scss`. Se han definido variables CSS para la gestión semántica de colores (neón operacional) y estados (urgente, pendiente, completado).
+    - **Persistencia de Preferencias (UserSettingsService):** Creación de una capa de servicio encargada de la serialización y recuperación de preferencias de usuario (ej. modo oscuro) mediante `localStorage`. Esto garantiza una experiencia de usuario consistente tras ciclos de recarga o reinicio de sesión.
+    - **Refactorización Visual de Interfaz Cliente:** Aplicación de técnicas de *Glassmorphism* y micro-interacciones en los componentes de `Carta` y `SeguimientoComanda`. Se ha optimizado la jerarquía visual de los estados de pedido para mejorar la transparencia informativa hacia el comensal.
 
 ---
-*Última actualización: Documentación Fase 7 (KDS y Gestión de Roles Persistente)*
+*Última actualización: 6 de mayo de 2026 - Finalización Fase 7*

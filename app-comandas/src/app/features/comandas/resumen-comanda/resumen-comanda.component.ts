@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ComandaService } from '../../../core/services/comanda.service';
 import { ComandaFirestoreService } from '../../../core/services/comanda-firestore.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
-import { Comanda, LineaComanda } from '../../../core/models/comanda.interface';
+import { Comanda, LineaComanda } from '../../../core/models/comanda.model';
 import { addIcons } from 'ionicons';
 import { trashOutline, addOutline, removeOutline, chatbubbleEllipsesOutline, checkmarkCircleOutline, arrowBackOutline, readerOutline } from 'ionicons/icons';
 

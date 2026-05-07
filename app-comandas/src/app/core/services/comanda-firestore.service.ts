@@ -4,7 +4,7 @@ import {
   collection, addDoc, query, where, orderBy,
   onSnapshot, serverTimestamp, Unsubscribe
 } from '@angular/fire/firestore';
-import { Comanda, EstadoComanda } from '../models/comanda.interface';
+import { Comanda, EstadoComanda } from '../models/comanda.model';
 
 /**
  * Servicio responsable de la comunicación bidireccional con Firestore.

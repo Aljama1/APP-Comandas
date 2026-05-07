@@ -39,7 +39,7 @@ const ORDEN_CATEGORIAS = ['entrante', 'principal', 'postre', 'bebida', 'especial
   styleUrls: ['./carta.component.scss']
 })
 export class CartaComponent {
-  private cartaService = inject(CartaService);
+  public cartaService = inject(CartaService);
   private usuarioService = inject(UsuarioService);
   public comandaService = inject(ComandaService);
   public firestoreService = inject(ComandaFirestoreService);

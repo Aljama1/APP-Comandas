@@ -12,6 +12,7 @@ registerLocaleData(localeEs);
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { getStorage, provideStorage } from '@angular/fire/storage';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
@@ -32,6 +33,7 @@ bootstrapApplication(AppComponent, {
     // Configuración de Firebase
     provideFirebaseApp(() => initializeApp(environment.firebase)), 
     provideAuth(() => getAuth()), 
-    provideFirestore(() => getFirestore()), 
+    provideFirestore(() => getFirestore()),
+    provideStorage(() => getStorage()), 
   ],
 }).catch((err) => console.log(err));

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed, NgZone, runInInjectionContext, EnvironmentInjector } from '@angular/core';
 import { Firestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc } from '@angular/fire/firestore';
-import { Comanda, EstadoComanda } from '../models/comanda.interface';
+import { Comanda, EstadoComanda } from '../models/comanda.model';
 import { UserSettingsService } from './user-settings.service';
 
 @Injectable({
