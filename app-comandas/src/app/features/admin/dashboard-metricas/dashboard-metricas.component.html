@@ -1,0 +1,130 @@
+<ion-content [fullscreen]="true" class="dashboard-bg">
+  <div class="dashboard-container">
+
+    <!-- Header -->
+    <header class="top-bar animar-entrada-abajo">
+      <div class="header-left">
+        <button class="btn-back" (click)="volver()">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <div class="title-group">
+          <h1>Analisis Empresarial</h1>
+          <span class="subtitle">Últimos 7 días de operativa</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn-action" (click)="exportarCierreZ()" [disabled]="metricasService.cargando() || metricasService.error() || metricasService.kpis().totalComandas === 0" title="Exportar Cierre Z">
+          <ion-icon name="print-outline"></ion-icon>
+          <span class="btn-text">Exportar Z</span>
+        </button>
+        <div class="badge-live">
+          <span class="pulse"></span>
+          DATOS
+        </div>
+      </div>
+    </header>
+
+    @if (metricasService.cargando()) {
+    <div class="loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Procesando métricas avanzadas...</p>
+    </div>
+    } @else if (metricasService.error()) {
+    <div class="error-state">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <p>{{ metricasService.error() }}</p>
+    </div>
+    } @else {
+    <!-- KPI Strips -->
+    <div class="kpi-grid animar-entrada-arriba">
+      <div class="kpi-card card-blue">
+        <div class="kpi-icon"><ion-icon name="wallet-outline"></ion-icon></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ metricasService.kpis().totalVentas | currency:'EUR' }}</span>
+          <span class="kpi-label">Ventas Totales</span>
+        </div>
+      </div>
+      <div class="kpi-card card-green">
+        <div class="kpi-icon"><ion-icon name="trending-up-outline"></ion-icon></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ metricasService.kpis().ticketMedio | currency:'EUR' }}</span>
+          <span class="kpi-label">Ticket Medio</span>
+        </div>
+      </div>
+      <div class="kpi-card card-orange">
+        <div class="kpi-icon"><ion-icon name="stats-chart-outline"></ion-icon></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ metricasService.kpis().totalComandas }}</span>
+          <span class="kpi-label">Comandas</span>
+        </div>
+      </div>
+      <div class="kpi-card card-purple">
+        <div class="kpi-icon"><ion-icon name="time-outline"></ion-icon></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ metricasService.kpis().tiempoMedioServicio | number:'1.1-1' }}'</span>
+          <span class="kpi-label">T. Medio Servicio</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-stats-row animar-entrada-arriba" style="animation-delay: 0.1s;">
+      <!-- Ranking de Productos -->
+      <div class="stats-panel ranking-panel">
+        <div class="panel-header">
+          <ion-icon name="medal-outline"></ion-icon>
+          <h2>Ranking de Productos</h2>
+        </div>
+        <div class="ranking-list">
+          @for (prod of metricasService.rankingProductos(); track prod.nombre; let i = $index) {
+          <div class="ranking-item">
+            <div class="rank-number">#{{ i + 1 }}</div>
+            <div class="rank-details">
+              <div class="rank-main">
+                <span class="rank-name">{{ prod.nombre }}</span>
+                <span class="rank-qty">{{ prod.cantidad }} vtas.</span>
+              </div>
+              <div class="rank-progress-bg">
+                <div class="rank-progress-bar"
+                  [style.width.%]="(prod.cantidad / metricasService.rankingProductos()[0].cantidad) * 100"></div>
+              </div>
+              <div class="rank-footer">
+                <span class="rank-revenue">{{ prod.totalRecaudado | currency:'EUR' }} recaudados</span>
+                <span class="rank-percent">{{ getPorcentajeVenta(prod.totalRecaudado) | number:'1.1-1' }}% del
+                  total</span>
+              </div>
+            </div>
+          </div>
+          } @empty {
+          <div class="empty-mini">No hay datos de ventas aún.</div>
+          }
+        </div>
+      </div>
+
+      <!-- Analítica de Tiempo -->
+      <div class="stats-panel info-panel">
+        <div class="panel-header">
+          <ion-icon name="bar-chart-outline"></ion-icon>
+          <h2>Análisis de Operativa</h2>
+        </div>
+        <div class="info-content">
+          <div class="info-card">
+            <h3>Eficiencia de Cocina</h3>
+            <p>Tu tiempo medio de preparación es de <strong>{{ metricasService.kpis().tiempoMedioServicio |
+                number:'1.1-1' }} minutos</strong> por comanda.</p>
+            <div class="efficiency-indicator" [class.fast]="metricasService.kpis().tiempoMedioServicio < 12">
+              {{ metricasService.kpis().tiempoMedioServicio < 12 ? 'Rendimiento Óptimo' : 'Potencial de Mejora' }}
+                </div>
+            </div>
+
+            <div class="info-card">
+              <h3>Análisis de Ticket</h3>
+              <p>Con un ticket medio de <strong>{{ metricasService.kpis().ticketMedio | currency:'EUR' }}</strong>, 
+                los clientes realizan un gasto medio por servicio.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+    </div>
+</ion-content>

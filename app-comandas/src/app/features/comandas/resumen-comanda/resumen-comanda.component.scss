@@ -180,6 +180,23 @@ html, body {
     }
   }
 
+  .item-opciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+
+    .opcion-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.04);
+      color: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+  }
+
   .item-notas {
     background: rgba(255, 219, 88, 0.15);
     border-left: 3px solid #ffcc00;
@@ -389,58 +406,12 @@ html, body {
     .item-notas { background: rgba(255, 219, 88, 0.1); p { color: #ffcc00; } }
     .pie-item .btn-notas { border-color: rgba(255, 255, 255, 0.1); color: #aaa; &.tiene-notas { background: rgba(255, 255, 255, 0.05); color: #fff; } }
     .pie-item .control-cantidad { background: rgba(0, 0, 0, 0.2); border-color: rgba(255, 255, 255, 0.1); .btn-paso, .cantidad { color: #fff; } }
-  }
-
-  .footer-pago {
-    background: rgba(15, 17, 21, 0.9);
-    border-top-color: rgba(255, 255, 255, 0.05);
-    .desglose .etiqueta { color: #aaa; }
-    .desglose .total { color: #fff; }
-    .btn-confirmar { background: #fff; color: #000; }
-  }
-
-  .btn-seguir-pidiendo {
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #fff;
-  }
-}
-
-
-/* =========================================
-   DARK MODE OVERRIDES
-   ========================================= */
-:host-context(body.dark) {
-  .contenido-elegante {
-    --background: #0f1115;
-  }
-
-  .fondo-malla {
-    background-color: #0f1115;
-    .forma-malla.forma-1 { background: rgba(43, 88, 255, 0.1); }
-    .forma-malla.forma-2 { background: rgba(255, 43, 115, 0.05); }
-  }
-
-  .cabecera-moderna {
-    background: rgba(15, 17, 21, 0.8);
-    border-bottom-color: rgba(255, 255, 255, 0.05);
-    .btn-volver { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.1); ion-icon { color: #fff; } }
-    .titulo-cabecera h1 { color: #fff; }
-  }
-
-  .estado-vacio {
-    .orbe-cristal { background: rgba(255, 255, 255, 0.05); ion-icon { color: #666; } }
-    h3 { color: #fff; }
-    p { color: #aaa; }
-  }
-
-  .tarjeta-item {
-    background: rgba(30, 35, 45, 0.6);
-    border-color: rgba(255, 255, 255, 0.05);
-    .cabecera-item h3, .cabecera-item .precio { color: #fff; }
-    .cabecera-item .precio { background: rgba(255, 255, 255, 0.05); }
-    .item-notas { background: rgba(255, 219, 88, 0.1); p { color: #ffcc00; } }
-    .pie-item .btn-notas { border-color: rgba(255, 255, 255, 0.1); color: #aaa; &.tiene-notas { background: rgba(255, 255, 255, 0.05); color: #fff; } }
-    .pie-item .control-cantidad { background: rgba(0, 0, 0, 0.2); border-color: rgba(255, 255, 255, 0.1); .btn-paso, .cantidad { color: #fff; } }
+    
+    .item-opciones .opcion-tag { 
+      background: rgba(255, 255, 255, 0.05); 
+      color: #aaa; 
+      border-color: rgba(255, 255, 255, 0.1); 
+    }
   }
 
   .footer-pago {

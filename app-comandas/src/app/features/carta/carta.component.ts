@@ -1,13 +1,19 @@
 import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController, ModalController } from '@ionic/angular';
+import { IonicModule, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { CartaService } from '../../core/services/carta.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { ComandaService } from '../../core/services/comanda.service';
 import { ComandaFirestoreService } from '../../core/services/comanda-firestore.service';
 import { UserSettingsService } from '../../core/services/user-settings.service';
-import { Producto } from '../../core/models/producto.model';
+import { AudioService } from '../../core/services/audio.service';
+import { Producto, VarianteProducto, OpcionModificador, Alergeno } from '../../core/models/producto.model';
+
+export interface ProductoMaquetado extends Producto {
+  esSeguro: boolean;
+  alergenosPeligrosos: Alergeno[];
+}
 import { addIcons } from 'ionicons';
 import {
   shieldCheckmark, shieldOutline, personCircleOutline, warningOutline,
@@ -44,14 +50,19 @@ export class CartaComponent {
   public comandaService = inject(ComandaService);
   public firestoreService = inject(ComandaFirestoreService);
   public settings = inject(UserSettingsService);
+  private audioService = inject(AudioService);
   private router = inject(Router);
   private alertController = inject(AlertController);
 
   perfil = this.usuarioService.perfil;
 
   // Modal de detalle de producto
-  productoSeleccionado = signal<any | null>(null);
+  productoSeleccionado = signal<ProductoMaquetado | null>(null);
   mostrarModalProducto = signal<boolean>(false);
+
+  // Selección actual en el modal
+  varianteSeleccionada = signal<VarianteProducto | null>(null);
+  modificadoresSeleccionados = signal<OpcionModificador[]>([]);
 
   // Modal de configuración de usuario
   mostrarSettings = signal<boolean>(false);
@@ -71,11 +82,20 @@ export class CartaComponent {
   // Feedback visual al añadir
   productoRecienAnadido = signal<string | null>(null);
 
-  productosMaquetados = computed(() => {
-    const alergiasUsuario = this.perfil()?.alergenos || [];
+  productosMaquetados = computed<ProductoMaquetado[]>(() => {
+    const alergiasUsuarioIds = this.perfil()?.alergenos || []; // ids como 'gluten', 'lactosa'
+    
     return this.cartaService.productos().map(producto => {
-      const alergenosPeligrosos = producto.alergenos.filter(al => alergiasUsuario.includes(al));
-      return { ...producto, esSeguro: alergenosPeligrosos.length === 0, alergenosPeligrosos };
+      // Normalizamos la comparación: producto.alergenos tiene 'Gluten', alergiasUsuarioIds tiene 'gluten'
+      const alergenosPeligrosos = producto.alergenos.filter(al => 
+        alergiasUsuarioIds.some(id => id.toLowerCase() === al.toLowerCase())
+      );
+      
+      return { 
+        ...producto, 
+        esSeguro: alergenosPeligrosos.length === 0, 
+        alergenosPeligrosos 
+      } as ProductoMaquetado;
     });
   });
 
@@ -104,16 +124,73 @@ export class CartaComponent {
   // ── Producto Modal ──────────────────────────────────────────────
   abrirProducto(producto: any): void {
     this.productoSeleccionado.set(producto);
+    this.varianteSeleccionada.set(null);
+    this.modificadoresSeleccionados.set([]);
     this.mostrarModalProducto.set(true);
   }
 
   cerrarProducto(): void {
     this.mostrarModalProducto.set(false);
-    setTimeout(() => this.productoSeleccionado.set(null), 300);
+    setTimeout(() => {
+      this.productoSeleccionado.set(null);
+      this.varianteSeleccionada.set(null);
+      this.modificadoresSeleccionados.set([]);
+    }, 300);
   }
 
-  agregarDesdeModal(producto: any): void {
-    this.comandaService.agregarLinea(producto, 1);
+  seleccionarVariante(variante: VarianteProducto): void {
+    this.varianteSeleccionada.set(variante);
+  }
+
+  toggleModificador(grupo: any, opcion: OpcionModificador): void {
+    const seleccionados = [...this.modificadoresSeleccionados()];
+    const index = seleccionados.findIndex(o => o.nombre === opcion.nombre);
+
+    if (grupo.tipo === 'EXCLUYENTE') {
+      // Quitar otras opciones del mismo grupo
+      const nuevasOpciones = seleccionados.filter(o => !grupo.opciones.find((gop: any) => gop.nombre === o.nombre));
+      nuevasOpciones.push(opcion);
+      this.modificadoresSeleccionados.set(nuevasOpciones);
+    } else {
+      // Checkbox normal
+      if (index >= 0) {
+        seleccionados.splice(index, 1);
+      } else {
+        seleccionados.push(opcion);
+      }
+      this.modificadoresSeleccionados.set(seleccionados);
+    }
+  }
+
+  esModificadorSeleccionado(opcion: OpcionModificador): boolean {
+    return this.modificadoresSeleccionados().some(o => o.nombre === opcion.nombre);
+  }
+
+  puedeAnadir(): boolean {
+    const p = this.productoSeleccionado();
+    if (!p || !p.esSeguro) return false;
+
+    // Si tiene variantes, una debe estar seleccionada
+    if (p.variantes && p.variantes.length > 0 && !this.varianteSeleccionada()) {
+      return false;
+    }
+
+    // Aquí se podrían añadir validaciones de grupos obligatorios si los hubiera
+    return true;
+  }
+
+  agregarDesdeModal(producto: Producto): void {
+    if (!this.puedeAnadir()) return;
+
+    this.comandaService.agregarLinea(
+      producto, 
+      1, 
+      '', 
+      this.varianteSeleccionada() || undefined, 
+      this.modificadoresSeleccionados()
+    );
+
+    this.audioService.reproducirNotificacionSuave();
     this.productoRecienAnadido.set(producto.id);
     setTimeout(() => {
       if (this.productoRecienAnadido() === producto.id) this.productoRecienAnadido.set(null);

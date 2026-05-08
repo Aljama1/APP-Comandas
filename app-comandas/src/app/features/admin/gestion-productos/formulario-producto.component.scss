@@ -348,3 +348,147 @@ ion-content.dashboard-bg {
     .actions { width: 100%; ion-button { width: 100%; } }
   }
 }
+
+/* ── ESTILOS FORMULARIO EXTENDIDO ── */
+.turnos-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+
+  .turno-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--dash-border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--dash-text-sec);
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.2s;
+    cursor: pointer;
+
+    &.activo {
+      background: rgba($neon-blue, 0.15);
+      border-color: $neon-blue;
+      color: white;
+      box-shadow: 0 0 15px rgba($neon-blue, 0.2);
+    }
+    &:hover:not(.activo) {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+.panel-header-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+
+  .btn-text-action {
+    background: transparent;
+    color: $neon-blue;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    ion-icon { font-size: 1.1rem; }
+    &:hover { filter: brightness(1.2); }
+  }
+}
+
+.dynamic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dynamic-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+
+  .price-small { flex: 0 0 100px; }
+  .btn-remove { 
+    background: rgba(255, 69, 58, 0.1); 
+    color: #ff453a; 
+    border-radius: 8px; 
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 69, 58, 0.2);
+    cursor: pointer;
+    ion-icon { font-size: 1.2rem; }
+    &:hover { background: rgba(255, 69, 58, 0.2); }
+  }
+}
+
+.mod-group-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--dash-border);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 10px;
+
+  .mod-group-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+    .select-small { flex: 0 0 180px; --background: rgba(255,255,255,0.05); }
+  }
+}
+
+.mod-options-list {
+  padding-left: 16px;
+  border-left: 2px solid rgba($neon-blue, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mod-option-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  .price-tiny { flex: 0 0 85px; }
+  .btn-remove-small { 
+    background: transparent; 
+    color: rgba(255, 69, 58, 0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    ion-icon { font-size: 1.1rem; }
+    &:hover { color: #ff453a; }
+  }
+}
+
+.btn-add-opc {
+  background: transparent;
+  color: var(--dash-text-sec);
+  font-size: 0.8rem;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  &:hover { color: $neon-blue; }
+}
+
+.empty-hint {
+  font-size: 0.85rem;
+  color: var(--dash-text-sec);
+  text-align: center;
+  margin: 10px 0;
+  opacity: 0.6;
+}
+
+.neon-text-purple { color: #bf7fff; }
+.neon-text-green  { color: $neon-green; }

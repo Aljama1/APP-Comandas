@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { LineaComanda } from '../models/comanda.model';
-import { Producto, CategoriaProducto, MAPA_DESTINO_CATEGORIA, DestinoReceptor } from '../models/producto.model';
+import { Producto, CategoriaProducto, MAPA_DESTINO_CATEGORIA, DestinoReceptor, VarianteProducto, OpcionModificador } from '../models/producto.model';
 
 @Injectable({
   providedIn: 'root'
@@ -25,30 +25,49 @@ export class ComandaService {
   /**
    * Agrega un producto a la comanda. Si ya existe, incrementa la cantidad.
    */
-  public agregarLinea(producto: Producto, cantidad: number = 1, notasEspeciales: string = ''): void {
+  public agregarLinea(
+    producto: Producto, 
+    cantidad: number = 1, 
+    notasEspeciales: string = '',
+    variante?: VarianteProducto,
+    modificadores: OpcionModificador[] = []
+  ): void {
     this.lineasComanda.update(lineas => {
-      const existeIndice = lineas.findIndex(l => l.idProducto === producto.id && l.notasEspeciales === notasEspeciales);
+      // Cálculo del precio unitario real
+      let precioUnitario = variante ? variante.precio : producto.precio;
+      const extraModificadores = modificadores.reduce((acc, mod) => acc + (mod.precioAdicional || 0), 0);
+      precioUnitario += extraModificadores;
+
+      // Para considerar si es el mismo artículo, deben coincidir: ID, notas, variante y modificadores (nombres)
+      const modsKeys = modificadores.map(m => m.nombre).sort().join('|');
+      
+      const existeIndice = lineas.findIndex(l => {
+        const lModsKeys = (l.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+        return l.idProducto === producto.id && 
+               l.notasEspeciales === notasEspeciales && 
+               l.varianteSeleccionada?.nombre === variante?.nombre &&
+               lModsKeys === modsKeys;
+      });
       
       if (existeIndice >= 0) {
-        // Actualizamos la cantidad si el producto (y sus notas) es exactamente el mismo
         const lineasActualizadas = [...lineas];
         const linea = lineasActualizadas[existeIndice];
         linea.cantidad += cantidad;
         linea.subtotal = linea.cantidad * linea.precioUnitario;
         return lineasActualizadas;
       } else {
-        // Determinamos el destino automáticamente según la categoría del producto.
-        // Si la categoría no está en el mapa (caso improbable), asumimos COCINA.
         const destino: DestinoReceptor = MAPA_DESTINO_CATEGORIA[producto.categoria as CategoriaProducto] ?? 'COCINA';
 
         const nuevaLinea: LineaComanda = {
           idProducto: producto.id,
           nombreProducto: producto.nombre,
           cantidad: cantidad,
-          precioUnitario: producto.precio,
-          subtotal: producto.precio * cantidad,
+          precioUnitario: precioUnitario,
+          subtotal: precioUnitario * cantidad,
           destino: destino,
-          notasEspeciales: notasEspeciales
+          notasEspeciales: notasEspeciales,
+          varianteSeleccionada: variante,
+          modificadoresSeleccionados: modificadores
         };
         return [...lineas, nuevaLinea];
       }
@@ -59,31 +78,46 @@ export class ComandaService {
   /**
    * Elimina completamente un producto de la comanda.
    */
-  public eliminarLinea(idProducto: string, notasEspeciales: string | undefined = undefined): void {
-    this.lineasComanda.update(lineas => lineas.filter(l => !(l.idProducto === idProducto && l.notasEspeciales === notasEspeciales)));
+  public eliminarLinea(linea: LineaComanda): void {
+    const modsKeys = (linea.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+    
+    this.lineasComanda.update(lineas => lineas.filter(l => {
+      const lModsKeys = (l.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+      return !(l.idProducto === linea.idProducto && 
+               l.notasEspeciales === linea.notasEspeciales && 
+               l.varianteSeleccionada?.nombre === linea.varianteSeleccionada?.nombre &&
+               lModsKeys === modsKeys);
+    }));
     this.persistir();
   }
 
   /**
    * Modifica la cantidad de una línea específica en 1 (incrementar o decrementar).
    */
-  public actualizarCantidad(idProducto: string, operacion: 'incrementar' | 'decrementar', notasEspeciales: string | undefined = undefined): void {
+  public actualizarCantidad(linea: LineaComanda, operacion: 'incrementar' | 'decrementar'): void {
+    const modsKeys = (linea.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+
     this.lineasComanda.update(lineas => {
       const lineasActualizadas = [...lineas];
-      const indice = lineasActualizadas.findIndex(l => l.idProducto === idProducto && l.notasEspeciales === notasEspeciales);
+      const indice = lineasActualizadas.findIndex(l => {
+        const lModsKeys = (l.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+        return l.idProducto === linea.idProducto && 
+               l.notasEspeciales === linea.notasEspeciales && 
+               l.varianteSeleccionada?.nombre === linea.varianteSeleccionada?.nombre &&
+               lModsKeys === modsKeys;
+      });
       
       if (indice >= 0) {
-        const linea = lineasActualizadas[indice];
+        const l = lineasActualizadas[indice];
         if (operacion === 'incrementar') {
-          linea.cantidad += 1;
+          l.cantidad += 1;
         } else if (operacion === 'decrementar') {
-          linea.cantidad -= 1;
-          if (linea.cantidad <= 0) {
-            // Si la cantidad llega a 0, eliminamos del listado
+          l.cantidad -= 1;
+          if (l.cantidad <= 0) {
             return lineasActualizadas.filter((_, i) => i !== indice);
           }
         }
-        linea.subtotal = linea.cantidad * linea.precioUnitario;
+        l.subtotal = l.cantidad * l.precioUnitario;
       }
       return lineasActualizadas;
     });
@@ -93,10 +127,18 @@ export class ComandaService {
   /**
    * Modifica las notas a cocina de una línea existente.
    */
-  public actualizarNotasLinea(idProducto: string, notasAntiguas: string | undefined, nuevasNotas: string): void {
+  public actualizarNotasLinea(linea: LineaComanda, nuevasNotas: string): void {
+    const modsKeys = (linea.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+
     this.lineasComanda.update(lineas => {
       const lineasActualizadas = [...lineas];
-      const indice = lineasActualizadas.findIndex(l => l.idProducto === idProducto && l.notasEspeciales === notasAntiguas);
+      const indice = lineasActualizadas.findIndex(l => {
+        const lModsKeys = (l.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+        return l.idProducto === linea.idProducto && 
+               l.notasEspeciales === linea.notasEspeciales && 
+               l.varianteSeleccionada?.nombre === linea.varianteSeleccionada?.nombre &&
+               lModsKeys === modsKeys;
+      });
       
       if (indice >= 0) {
         lineasActualizadas[indice].notasEspeciales = nuevasNotas;

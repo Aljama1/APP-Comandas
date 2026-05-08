@@ -57,6 +57,16 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     loadComponent: () => import('./features/admin/gestion-productos/formulario-producto.component').then((m) => m.FormularioProductoComponent),
   },
+  {
+    path: 'admin/metricas',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/dashboard-metricas/dashboard-metricas.component').then((m) => m.DashboardMetricasComponent),
+  },
+  {
+    path: 'admin/qr',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/generador-qr/generador-qr.component').then((m) => m.GeneradorQrComponent),
+  },
 
   {
     path: '',

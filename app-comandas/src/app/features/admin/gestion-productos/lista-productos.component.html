@@ -22,13 +22,13 @@
       </div>
 
       <div class="actions">
-        <ion-button (click)="irAPanel()" class="btn-neon-blue">
-          <ion-icon name="grid-outline" slot="start"></ion-icon>
-          <span class="btn-text">Panel</span>
-        </ion-button>
-        <ion-button (click)="irANuevo()" class="btn-neon-green">
+        <ion-button (click)="irANuevo()" class="btn-neon-blue">
           <ion-icon name="add-outline" slot="start"></ion-icon>
           <span class="btn-text">Nuevo</span>
+        </ion-button>
+        <ion-button (click)="irAPanel()" class="btn-neon-green">
+          <ion-icon name="grid-outline" slot="start"></ion-icon>
+          <span class="btn-text">Panel</span>
         </ion-button>
         <ion-button (click)="logout()" fill="clear" class="btn-logout">
           <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
@@ -61,11 +61,11 @@
           <span class="kpi-label">Inactivos</span>
         </div>
       </div>
-      <div class="kpi-card">
-        <ion-icon name="pricetag-outline" class="kpi-icon icon-amber"></ion-icon>
+      <div class="kpi-card" [class.alert-glow]="stockBajo() > 0">
+        <ion-icon name="cube-outline" class="kpi-icon icon-amber"></ion-icon>
         <div class="kpi-info">
-          <span class="kpi-value">{{ categoriaActual() }}</span>
-          <span class="kpi-label">Categoría activa</span>
+          <span class="kpi-value">{{ stockBajo() }}</span>
+          <span class="kpi-label">Stock bajo</span>
         </div>
       </div>
     </div>
@@ -140,6 +140,46 @@
                   }
                 </div>
               }
+
+                <!-- Fila de Configuración Rápida -->
+                <div class="quick-config-row">
+                  <div class="stock-control-panel" 
+                       [class.danger]="producto.stock !== undefined && producto.stock !== null && producto.stock <= 5"
+                       [class.is-null]="producto.stock === undefined || producto.stock === null">
+                    <div class="stock-label">
+                      <ion-icon name="cube-outline"></ion-icon>
+                      <span>STOCK</span>
+                    </div>
+                    <div class="stock-actions">
+                      @if (producto.stock === undefined || producto.stock === null) {
+                        <button (click)="ajustarStock(producto, 20)" class="btn-stock-activate">Activar</button>
+                      } @else {
+                        <button (click)="ajustarStock(producto, -1)" class="btn-stock-minus">
+                          <ion-icon name="remove-outline"></ion-icon>
+                        </button>
+                        <input type="number" 
+                               [value]="producto.stock" 
+                               (change)="actualizarStockRapido(producto, $any($event.target).value)" 
+                               class="input-stock-pro">
+                        <button (click)="ajustarStock(producto, 1)" class="btn-stock-plus">
+                          <ion-icon name="add-outline"></ion-icon>
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Control de Orden integrado -->
+                  <div class="orden-config">
+                    <div class="orden-badge">
+                      <ion-icon name="swap-vertical-outline"></ion-icon>
+                      <input type="number" 
+                             [value]="producto.orden || 0" 
+                             (change)="actualizarOrden(producto, $any($event.target).value)" 
+                             class="input-orden"
+                             title="Cambiar orden">
+                    </div>
+                  </div>
+                </div>
             </div>
 
             <!-- Acciones -->

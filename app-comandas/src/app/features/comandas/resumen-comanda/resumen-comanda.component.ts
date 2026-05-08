@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ComandaService } from '../../../core/services/comanda.service';
 import { ComandaFirestoreService } from '../../../core/services/comanda-firestore.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
+import { AudioService } from '../../../core/services/audio.service';
 import { Comanda, LineaComanda } from '../../../core/models/comanda.model';
 import { addIcons } from 'ionicons';
 import { trashOutline, addOutline, removeOutline, chatbubbleEllipsesOutline, checkmarkCircleOutline, arrowBackOutline, readerOutline } from 'ionicons/icons';
@@ -20,6 +21,7 @@ export class ResumenComandaComponent {
   public comandaService = inject(ComandaService);
   public firestoreService = inject(ComandaFirestoreService);
   private usuarioService = inject(UsuarioService);
+  private audioService = inject(AudioService);
   private alertController = inject(AlertController);
   private loadingController = inject(LoadingController);
   private router = inject(Router);
@@ -33,11 +35,11 @@ export class ResumenComandaComponent {
   }
 
   actualizarCantidad(linea: LineaComanda, operacion: 'incrementar' | 'decrementar') {
-    this.comandaService.actualizarCantidad(linea.idProducto, operacion, linea.notasEspeciales);
+    this.comandaService.actualizarCantidad(linea, operacion);
   }
 
   eliminarLinea(linea: LineaComanda) {
-    this.comandaService.eliminarLinea(linea.idProducto, linea.notasEspeciales);
+    this.comandaService.eliminarLinea(linea);
   }
 
   async abrirNotas(linea: LineaComanda) {
@@ -64,7 +66,7 @@ export class ResumenComandaComponent {
           text: 'Guardar',
           handler: (data) => {
             const nuevaNota = data.nota?.trim();
-            this.comandaService.actualizarNotasLinea(linea.idProducto, linea.notasEspeciales, nuevaNota);
+            this.comandaService.actualizarNotasLinea(linea, nuevaNota);
           }
         }
       ]
@@ -125,6 +127,7 @@ export class ResumenComandaComponent {
       };
 
       await this.firestoreService.enviarComanda(nuevaComanda);
+      this.audioService.reproducirExito();
       await loading.dismiss();
 
       const successAlert = await this.alertController.create({

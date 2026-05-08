@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController, ToastController } from '@ionic/angular';
+import { IonicModule, AlertController, ToastController, IonPopover } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { UserSettingsService } from '../../../core/services/user-settings.service';
@@ -9,7 +9,7 @@ import { addIcons } from 'ionicons';
 import { 
   personCircleOutline, settingsOutline, chevronUpOutline, sunnyOutline, 
   moonOutline, volumeHighOutline, volumeMuteOutline, logOutOutline, 
-  keyOutline, chevronForwardOutline, notificationsOutline 
+  keyOutline, chevronForwardOutline, notificationsOutline, restaurantOutline, barChartOutline, qrCodeOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -25,6 +25,7 @@ export class AdminConfigBarComponent {
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
   private router = inject(Router);
+  @ViewChild('configPopover') popover!: IonPopover;
 
   // Ya no usamos isExpanded, usamos el popover de Ionic
   
@@ -32,11 +33,12 @@ export class AdminConfigBarComponent {
     addIcons({
       personCircleOutline, settingsOutline, chevronUpOutline, sunnyOutline,
       moonOutline, volumeHighOutline, volumeMuteOutline, logOutOutline,
-      keyOutline, chevronForwardOutline, notificationsOutline
+      keyOutline, chevronForwardOutline, notificationsOutline, restaurantOutline, barChartOutline, qrCodeOutline
     });
   }
 
   async changePassword() {
+    this.popover.dismiss();
     const alert = await this.alertCtrl.create({
       header: 'Cambiar Contraseña',
       inputs: [
@@ -76,6 +78,7 @@ export class AdminConfigBarComponent {
   }
 
   async logout() {
+    this.popover.dismiss();
     const alert = await this.alertCtrl.create({
       header: 'Cerrar Sesión',
       message: '¿Estás seguro de que quieres salir?',
@@ -101,6 +104,17 @@ export class AdminConfigBarComponent {
     await toast.present();
   }
 
-  irAGestionProductos() { this.router.navigate(['/admin/productos']); }
+  irAGestionProductos() { 
+    this.popover.dismiss();
+    this.router.navigate(['/admin/productos']); 
+  }
+  irAMetricas() { 
+    this.popover.dismiss();
+    this.router.navigate(['/admin/metricas']); 
+  }
+  irAGeneradorQr() { 
+    this.popover.dismiss();
+    this.router.navigate(['/admin/qr']); 
+  }
 }
 

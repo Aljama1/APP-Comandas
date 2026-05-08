@@ -184,5 +184,36 @@ Aplicación Híbrida con dos verticales:
     - **Persistencia de Preferencias (UserSettingsService):** Creación de una capa de servicio encargada de la serialización y recuperación de preferencias de usuario (ej. modo oscuro) mediante `localStorage`. Esto garantiza una experiencia de usuario consistente tras ciclos de recarga o reinicio de sesión.
     - **Refactorización Visual de Interfaz Cliente:** Aplicación de técnicas de *Glassmorphism* y micro-interacciones en los componentes de `Carta` y `SeguimientoComanda`. Se ha optimizado la jerarquía visual de los estados de pedido para mejorar la transparencia informativa hacia el comensal.
 
+### Fase 8: Gestión de la Carta Avanzada (Backoffice) (Completado)
+
+#### Día 17: Módulo de Gestión de Productos (CRUD Pro) (Completado)
+- **Hito**: Evolución del catálogo a un sistema de productos complejo con variantes y modificadores.
+- **Detalles técnicos**:
+    - **Variantes de Producto**: Implementación de raciones (ej. Tapa, Media, Ración) con precios dinámicos vinculados a una única ficha de producto.
+    - **Grupos de Modificadores**: Sistema de extras opcionales y selecciones excluyentes (ej. punto de la carne) con recálculo automático de precio en el carrito.
+    - **Formulario Reactivo Dinámico**: Uso de `FormArray` y señales para gestionar colecciones de variantes y modificadores en el panel de administración.
+
+#### Día 18: Motor de Turnos y Horarios Reactivos (Completado)
+- **Hito**: Implementación de inteligencia temporal en la carta basada en la configuración de Firestore.
+- **Detalles técnicos**:
+    - **HorarioRestauranteService**: Escucha activa del documento `configuracion/general` para determinar el turno actual (Almuerzo/Cena).
+    - **Filtrado Reactivo por Tiempo**: La `CartaService` ahora usa un `computed()` que depende del turno actual. Si el restaurante "cierra", los platos restringidos desaparecen de la carta del cliente al instante sin recargar la página.
+    - **Ordenación Manual**: Incorporación del campo `orden` para que el administrador controle la prioridad visual de los platos.
+
+#### Día 19: Centralización de Audio y UX (Completado)
+- **Hito**: Creación del `AudioService` para feedback sonoro unificado mediante Web Audio API.
+- **Detalles técnicos**:
+    - **Síntesis de Audio**: Generación de sonidos (Ping de campana, Clic de éxito) mediante osciladores, eliminando la dependencia de archivos `.mp3` externos y mejorando el rendimiento.
+    - **Integración Transversal**: Notificaciones sonoras en el panel B2B para pedidos nuevos y feedback táctil/sonoro en el B2C al añadir productos.
+    - **Corrección de Tipos y Limpieza**: Normalización de interfaces (`ProductoMaquetado`) y eliminación de código muerto tras el refactorizado.
+
 ---
-*Última actualización: 6 de mayo de 2026 - Finalización Fase 7*
+#### Día 19 (Parte 1): Generador QR y Exportación a PDF (Completado)
+- **Hito**: Implementación de herramientas administrativas para la gestión física de mesas y auditoría financiera mediante exportación de datos.
+- **Detalles técnicos**:
+    - **Generador QR Dinámico**: Creación del `GeneradorQrComponent` que permite asignar números de mesa, generar URLs vinculadas y descargar/imprimir el código QR para su uso físico en el local.
+    - **Exportación Z (PDF)**: Integración de las librerías `jspdf` y `jspdf-autotable`. Se ha desarrollado una lógica de exportación que transforma las señales de `MetricasService` (KPIs y Ranking) en un documento PDF profesional con formato de informe de cierre.
+    - **UI Administrativa**: Adición de botones de acción con feedback visual (hover, active, disabled) y estados de carga para evitar exportaciones inconsistentes si no hay datos.
+
+---
+*Última actualización: 9 de mayo de 2026 - Avance Fase 9*

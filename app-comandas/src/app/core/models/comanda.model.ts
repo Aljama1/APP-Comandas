@@ -1,4 +1,4 @@
-import { DestinoReceptor } from './producto.model';
+import { DestinoReceptor, VarianteProducto, OpcionModificador } from './producto.model';
 
 export type EstadoComanda = 'PENDIENTE' | 'PREPARANDO' | 'LISTO' | 'SERVIDO' | 'PAGADO' | 'CANCELADO';
 
@@ -11,6 +11,8 @@ export interface LineaComanda {
   destino: DestinoReceptor;    // A dónde se despacha esta línea: BARRA (bebidas) o COCINA (comidas)
   notasEspeciales?: string;    // Peticiones especiales del cliente (Ej: 'Sin salsa y muy hecho')
   preparado?: boolean;         // Control individual para ir tachando platos en la cocina
+  varianteSeleccionada?: VarianteProducto; // Variante elegida (ej. Ración o Tapa)
+  modificadoresSeleccionados?: OpcionModificador[]; // Modificadores extra elegidos
 }
 
 export interface Comanda {

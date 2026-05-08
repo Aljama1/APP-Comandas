@@ -1,13 +1,17 @@
-import { Injectable, inject, signal, computed, NgZone, runInInjectionContext, EnvironmentInjector } from '@angular/core';
+import { Injectable, inject, signal, computed, NgZone, runInInjectionContext, EnvironmentInjector, OnDestroy } from '@angular/core';
 import { Firestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc } from '@angular/fire/firestore';
 import { Comanda, EstadoComanda } from '../models/comanda.model';
 import { UserSettingsService } from './user-settings.service';
+import { AudioService } from './audio.service';
+import { ProductoAdminService } from './producto-admin.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AdminComandaService {
+export class AdminComandaService implements OnDestroy {
   private firestore = inject(Firestore);
+  private audioService = inject(AudioService);
+  private productoAdminService = inject(ProductoAdminService);
   private zone = inject(NgZone);
   private injector = inject(EnvironmentInjector);
 
@@ -213,7 +217,13 @@ export class AdminComandaService {
 
     // Clonamos el array de líneas para modificarlo de forma inmutable
     const nuevasLineas = [...comanda.lineasComanda];
-    nuevasLineas[indexLinea] = { ...nuevasLineas[indexLinea], preparado };
+    const lineaAnterior = nuevasLineas[indexLinea];
+    nuevasLineas[indexLinea] = { ...lineaAnterior, preparado };
+
+    // Si se está marcando como preparado por PRIMERA VEZ, descontamos stock
+    if (preparado && !lineaAnterior.preparado) {
+      this.productoAdminService.descontarStock(lineaAnterior.idProducto, lineaAnterior.cantidad);
+    }
 
     const docRef = doc(this.firestore, `comandas/${idComanda}`);
     
@@ -244,42 +254,13 @@ export class AdminComandaService {
   }
 
   /**
-   * Reproduce un sonido (ping) de "Campana de Servicio de Restaurante" 
-   * utilizando la Web Audio API sintetizando frecuencias inarmónicas.
+   * Reproduce un sonido (ping) mediante el servicio de audio.
    */
   private reproducirPing() {
-    try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+    this.audioService.reproducirPing();
+  }
 
-      const playTone = (freq: number, type: OscillatorType, duration: number, vol: number) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-        
-        // Ataque percusivo y metálico (golpe a la campana)
-        gain.gain.setValueAtTime(0, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.01);
-        // Desvanecimiento lento (resonancia en el aire)
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + duration);
-      };
-
-      // Simulamos una campanilla de mostrador pequeña y muy aguda (¡Ding!)
-      playTone(3500, 'sine', 1.2, 0.5);      // Tono principal agudo y directo
-      playTone(4800, 'sine', 0.8, 0.2);      // Brillo metálico
-      playTone(6200, 'sine', 0.4, 0.1);      // Resonancia fina inicial
-      
-    } catch (e) {
-      console.error('API de Audio no soportada en este navegador', e);
-    }
+  ngOnDestroy(): void {
+    this.detenerEscucha();
   }
 }

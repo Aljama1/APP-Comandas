@@ -144,10 +144,11 @@
   --min-height: 44px;
   border-radius: 8px;
   margin-bottom: 2px;
-  transition: background 0.2s;
+  cursor: pointer;
+  user-select: none;
 
   &:hover {
-    --background: rgba(0, 0, 0, 0.03);
+    --background: rgba(var(--ion-color-primary-rgb), 0.08);
   }
 
   ion-icon {

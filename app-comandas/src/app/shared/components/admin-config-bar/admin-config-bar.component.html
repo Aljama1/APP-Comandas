@@ -9,7 +9,7 @@
   <ion-icon name="settings-outline" class="settings-icon"></ion-icon>
 </div>
 
-<ion-popover trigger="click-trigger" triggerAction="click" class="config-popover">
+<ion-popover #configPopover trigger="click-trigger" triggerAction="click" class="config-popover">
   <ng-template>
     <ion-content class="ion-padding">
       <div class="popover-header">
@@ -19,15 +19,23 @@
 
       <div class="config-section">
         <div class="section-title">Gestión</div>
-        <ion-item lines="none" class="config-item" (click)="irAGestionProductos()">
+        <ion-item button lines="none" class="config-item" (click)="irAGestionProductos()">
           <ion-icon name="restaurant-outline" slot="start"></ion-icon>
           <ion-label>Gestionar carta</ion-label>
+        </ion-item>
+        <ion-item button lines="none" class="config-item" (click)="irAMetricas()">
+          <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
+          <ion-label>Métricas de venta</ion-label>
+        </ion-item>
+        <ion-item button lines="none" class="config-item" (click)="irAGeneradorQr()">
+          <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+          <ion-label>Generador de QR</ion-label>
         </ion-item>
       </div>
 
       <div class="config-section">
         <div class="section-title">Seguridad</div>
-        <ion-item lines="none" class="config-item" (click)="changePassword()">
+        <ion-item button lines="none" class="config-item" (click)="changePassword()">
           <ion-icon name="key-outline" slot="start"></ion-icon>
           <ion-label>Cambiar contraseña</ion-label>
         </ion-item>
@@ -35,15 +43,15 @@
 
       <div class="config-section">
         <div class="section-title">Preferencias</div>
-        <ion-item lines="none" class="config-item">
+        <ion-item button lines="none" class="config-item" (click)="settingsService.toggleDark()">
           <ion-icon [name]="settingsService.isDark() ? 'sunny-outline' : 'moon-outline'" slot="start"></ion-icon>
           <ion-label>Modo oscuro</ion-label>
-          <ion-toggle [checked]="settingsService.isDark()" (ionChange)="settingsService.toggleDark()" slot="end"></ion-toggle>
+          <ion-toggle [checked]="settingsService.isDark()" slot="end"></ion-toggle>
         </ion-item>
-        <ion-item lines="none" class="config-item">
+        <ion-item button lines="none" class="config-item" (click)="settingsService.toggleSound()">
           <ion-icon [name]="settingsService.soundEnabled() ? 'volume-high-outline' : 'volume-mute-outline'" slot="start"></ion-icon>
           <ion-label>Sonidos</ion-label>
-          <ion-toggle [checked]="settingsService.soundEnabled()" (ionChange)="settingsService.toggleSound()" slot="end"></ion-toggle>
+          <ion-toggle [checked]="settingsService.soundEnabled()" slot="end"></ion-toggle>
         </ion-item>
       </div>
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * App Global CSS
  * ----------------------------------------------------------------------------
  * Put style rules here that you want to apply globally. These styles are for
@@ -208,3 +208,18 @@ $neon-green-dim: rgba(0, 255, 136, 0.15);
   to { opacity: 0.7; text-shadow: 0 0 12px rgba(239, 68, 68, 0.6); }
 }
 
+
+/* ==========================================================================
+   IMPRESION GLOBAL (QR / TICKETS)
+   ========================================================================== */
+@media print {
+  /* Ocultamos toda la interfaz general si estamos en modo IMPRESION especial */
+  body.is-printing-qr > :not(.print-area) {
+    display: none !important;
+  }
+  body.is-printing-qr {
+    background: white !important;
+    /* Normal display para etiquetas térmicas */
+    margin: 0 !important;
+  }
+}

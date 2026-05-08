@@ -9,8 +9,9 @@ import { addIcons } from 'ionicons';
 import {
   chevronBackOutline, cameraOutline, closeCircleOutline,
   checkmarkOutline, warningOutline, cloudUploadOutline,
-  restaurantOutline, imageOutline
+  restaurantOutline, imageOutline, addOutline, trashOutline
 } from 'ionicons/icons';
+import { VarianteProducto, GrupoModificadores, Turno, OpcionModificador, Alergeno } from '../../../core/models/producto.model';
 
 @Component({
   selector: 'app-formulario-producto',
@@ -40,6 +41,13 @@ export class FormularioProductoComponent implements OnInit {
   imagenPreview = signal<string | null>(null);
   imagenFile    = signal<File | null>(null);
   guardando     = signal(false);
+
+  // Nuevos campos avanzados
+  variantes     = signal<VarianteProducto[]>([]);
+  modificadores = signal<GrupoModificadores[]>([]);
+  turnos        = signal<Turno[]>([]);
+  orden         = signal<number>(0);
+  stock         = signal<number | null>(null);
 
   categorias: { clave: CategoriaProducto; etiqueta: string }[] = [
     { clave: 'entrante',  etiqueta: 'Entrante'  },
@@ -79,6 +87,13 @@ export class FormularioProductoComponent implements OnInit {
       this.disponible.set(encontrado.disponible);
       this.urlImagen.set(encontrado.urlImagen || '');
       this.imagenPreview.set(encontrado.urlImagen || null);
+      
+      // Cargar campos avanzados
+      this.variantes.set([...(encontrado.variantes || [])]);
+      this.modificadores.set(JSON.parse(JSON.stringify(encontrado.modificadores || []))); // Deep copy
+      this.turnos.set([...(encontrado.turnos || [])]);
+      this.orden.set(encontrado.orden ?? 0);
+      this.stock.set(encontrado.stock ?? null);
     }
   }
 
@@ -120,6 +135,105 @@ export class FormularioProductoComponent implements OnInit {
     this.urlImagen.set('');
   }
 
+  // ── Métodos para Variantes ──────────────────────────────────────
+  anadirVariante() {
+    this.variantes.update(v => [...v, { nombre: '', precio: 0 }]);
+  }
+
+  quitarVariante(index: number) {
+    this.variantes.update(v => v.filter((_, i) => i !== index));
+  }
+
+  // ── Métodos para Modificadores ──────────────────────────────────
+  anadirGrupoModificadores() {
+    this.modificadores.update(m => [...m, { 
+      nombre: '', 
+      tipo: 'EXCLUYENTE', 
+      opciones: [{ nombre: '', precioAdicional: 0 }] 
+    }]);
+  }
+
+  quitarGrupoModificadores(index: number) {
+    this.modificadores.update(m => m.filter((_, i) => i !== index));
+  }
+
+  anadirOpcionModificador(grupoIndex: number) {
+    this.modificadores.update(m => {
+      const nuevos = [...m];
+      nuevos[grupoIndex].opciones.push({ nombre: '', precioAdicional: 0 });
+      return nuevos;
+    });
+  }
+
+  quitarOpcionModificador(grupoIndex: number, opcionIndex: number) {
+    this.modificadores.update(m => {
+      const nuevos = [...m];
+      nuevos[grupoIndex].opciones = nuevos[grupoIndex].opciones.filter((_, i) => i !== opcionIndex);
+      return nuevos;
+    });
+  }
+
+  // ── Métodos para Turnos ─────────────────────────────────────────
+  toggleTurno(t: Turno) {
+    const actual = this.turnos();
+    const idx = actual.indexOf(t);
+    if (idx === -1) {
+      this.turnos.set([...actual, t]);
+    } else {
+      this.turnos.set(actual.filter(item => item !== t));
+    }
+  }
+
+  tieneTurno(t: Turno): boolean {
+    return this.turnos().includes(t);
+  }
+
+  // ── Actualizadores para ngModel (debido a señales de arrays) ───
+  updateVarianteNombre(i: number, val: string) {
+    this.variantes.update(v => {
+      const copy = [...v];
+      copy[i].nombre = val;
+      return copy;
+    });
+  }
+  updateVariantePrecio(i: number, val: number) {
+    this.variantes.update(v => {
+      const copy = [...v];
+      copy[i].precio = val;
+      return copy;
+    });
+  }
+
+  updateGrupoNombre(i: number, val: string) {
+    this.modificadores.update(m => {
+      const copy = [...m];
+      copy[i].nombre = val;
+      return copy;
+    });
+  }
+  updateGrupoTipo(i: number, val: any) {
+    this.modificadores.update(m => {
+      const copy = [...m];
+      copy[i].tipo = val;
+      return copy;
+    });
+  }
+
+  updateOpcionNombre(gi: number, oi: number, val: string) {
+    this.modificadores.update(m => {
+      const copy = JSON.parse(JSON.stringify(m));
+      copy[gi].opciones[oi].nombre = val;
+      return copy;
+    });
+  }
+  updateOpcionPrecio(gi: number, oi: number, val: number) {
+    this.modificadores.update(m => {
+      const copy = JSON.parse(JSON.stringify(m));
+      copy[gi].opciones[oi].precioAdicional = val;
+      return copy;
+    });
+  }
+
   esValido(): boolean {
     const n = this.nombre().trim();
     const p = this.precio();
@@ -151,7 +265,13 @@ export class FormularioProductoComponent implements OnInit {
         precio:      this.precio()!,
         categoria:   this.categoria(),
         alergenos:   this.alergenos(),
-        disponible:  this.disponible()
+        disponible:  this.disponible(),
+        // Campos avanzados
+        variantes:     this.variantes(),
+        modificadores: this.modificadores(),
+        turnos:        this.turnos(),
+        orden:         this.orden(),
+        stock:         this.stock() ?? undefined
       };
 
       if (urlFinal) {

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed, OnDestroy } from '@angular/core';
 import {
   Firestore, collection, addDoc, updateDoc, deleteDoc,
-  doc, query, orderBy, onSnapshot, Unsubscribe
+  doc, query, orderBy, onSnapshot, Unsubscribe, increment
 } from '@angular/fire/firestore';
 import { UploadTask, ref, uploadBytesResumable, getDownloadURL } from '@angular/fire/storage';
 import { Storage } from '@angular/fire/storage';
@@ -49,7 +49,7 @@ export class ProductoAdminService implements OnDestroy {
     this.error.set(null);
 
     const productosRef = collection(this.firestore, 'productos');
-    const q = query(productosRef, orderBy('nombre'));
+    const q = query(productosRef, orderBy('nombre', 'asc'));
 
     this.cancelarEscucha = onSnapshot(
       q,
@@ -57,7 +57,9 @@ export class ProductoAdminService implements OnDestroy {
         const lista: Producto[] = snapshot.docs.map(doc => ({
           ...(doc.data() as Producto),
           id: doc.id
-        }));
+        }))
+        .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999));
+
         this.productos.set(lista);
         this.cargando.set(false);
       },
@@ -121,5 +123,20 @@ export class ProductoAdminService implements OnDestroy {
         }
       );
     });
+  }
+
+  async descontarStock(idProducto: string, cantidad: number): Promise<void> {
+    const producto = this.productos().find(p => p.id === idProducto);
+    if (!producto || producto.stock === undefined || producto.stock === null) return;
+
+    const docRef = doc(this.firestore, 'productos', idProducto);
+    const nuevoStock = Math.max(0, producto.stock - cantidad);
+    
+    const updates: any = { stock: nuevoStock };
+    if (nuevoStock <= 0) {
+      updates.disponible = false;
+    }
+
+    await updateDoc(docRef, updates);
   }
 }

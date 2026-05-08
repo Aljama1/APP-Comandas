@@ -20,7 +20,7 @@ Cada fase se ha diseñado siguiendo criterios académicos, promoviendo la resili
 | 5 | Modelo de Destinos y Comandas Múltiples | ✅ Completada |
 | 6 | Panel de Administración B2B (Staff) | ✅ Completada |
 | 7 | Vista de Cocina en Tiempo Real | ✅ Completada |
-| 8 | Gestión de la Carta (Backoffice Dueño) | 🔜 Pendiente |
+| 8 | Gestión de la Carta Avanzada (Backoffice) | ✅ Completada |
 | 9 | Analítica, Stock y Features | 🔜 Pendiente |
 | 10 | Auditoría, Seguridad y Entrega Final | 🔜 Pendiente |
 
@@ -94,7 +94,7 @@ Cada fase se ha diseñado siguiendo criterios académicos, promoviendo la resili
 
 ### Día 13: Historial y Notificaciones
 - **Propuesta:** Implementación de pestaña de historial y notificaciones sonoras nativas.
-- **Artefactos:** Web Audio API (campanilla 🛎️), Pestaña Historial.
+- **Artefactos:** Web Audio API (campanilla), Pestaña Historial.
 
 ---
 
@@ -110,26 +110,32 @@ Cada fase se ha diseñado siguiendo criterios académicos, promoviendo la resili
 
 ---
 
-## Fase 8: Gestión de la Carta y Control de Inventario (Backoffice) 🔜
+## Fase 8: Gestión de la Carta Avanzada (Backoffice) ✅
 
-### Día 17: Módulo de Gestión de Productos (CRUD)
-- **Propuesta:** Implementación de un panel administrativo para la gestión integral del catálogo (precios, descripciones, alérgenos y categorías).
-- **Artefactos:** `GestionCartaComponent`, formularios reactivos dinámicos, integración con colección `productos` en Firestore.
+### Día 17: Módulo de Gestión de Productos (CRUD Pro)
+- **Propuesta:** Implementación de un panel administrativo avanzado con soporte para variantes de precio, modificadores obligatorios/opcionales y gestión de turnos.
+- **Artefactos:** `FormularioProductoComponent`, `ListaProductosComponent`, `ProductoAdminService`.
 
-### Día 18: Control de Disponibilidad en Tiempo Real
-- **Propuesta:** Sistema de "Sold Out" instantáneo para desactivar productos agotados, sincronizando la vista de todos los clientes de forma inmediata.
-- **Artefactos:** Atributo `disponible` en Firestore, lógica de filtrado en `CartaService`.
+### Día 18: Horarios de Servicio y Ordenación Dinámica
+- **Propuesta:** Sistema de control de turnos (Almuerzo/Cena) basado en la configuración de Firestore y ordenación manual de la carta.
+- **Artefactos:** `HorarioRestauranteService`, `CartaService` refactorizado (reactivo al tiempo).
+
+### Día 19: Centralización de Audio y UX
+- **Propuesta:** Creación de un servicio de audio centralizado para feedback táctil y sonoro en toda la aplicación.
+- **Artefactos:** `AudioService` (Web Audio API).
 
 ---
 
 ## Fase 9: Analítica, Stock y Features Pro 🔜
 
-### Día 18: Dashboard de Métricas
-- **Propuesta:** Visualización de producto más vendido, facturación diaria y tiempos medios de servicio.
-- **Artefactos:** Señales computadas para analítica.
+### Día 18: Dashboard de Métricas y Gestión de Stock ✅
+- **Propuesta:** Visualización de Kpis de negocio, control de inventario en tiempo real y auto-sold-out.
+- **Artefactos:** `MetricasService`, `ProductoAdminService` ampliado, `DashboardMetricasComponent`.
 
-### Día 19: Generador de QR y Multi-idioma
-- **Propuesta:** Herramienta para generar el QR de cada mesa y soporte básico para inglés.
+### Día 19: Generador de QR, Exportación y Multi-idioma
+- **Propuesta 1 (Generador QR):** Herramienta para generar el QR dinámico de cada mesa (ej. ?mesa=1).
+- **Propuesta 2 (Exportación Z):** [NUEVA MEJORA] Generar PDF de cierre de caja en el panel de métricas. ✅
+- **Propuesta 3 (i18n):** Soporte básico para inglés y español.
 
 ---
 
@@ -138,8 +144,10 @@ Cada fase se ha diseñado siguiendo criterios académicos, promoviendo la resili
 ### Día 20: Reglas de Seguridad (Firestore Rules)
 - **Propuesta:** Blindaje de la base de datos para que los clientes solo escriban sus propios pedidos.
 
-### Día 21: Refactorización y Despliegue
-- **Propuesta:** Limpieza final (100% Español + Control Flow) y despliegue en Firebase Hosting.
+### Día 21: Refactorización y Despliegue Avanzado
+- **Propuesta 1 (Ticket Electrónico):** [NUEVA MEJORA] Generación de ticket en blanco y negro para impresión térmica de comandas.
+- **Propuesta 2 (PWA y Modo Offline):** [NUEVA MEJORA] Convertir la app en instalable (PWA) con Service Workers para resiliencia de red.
+- **Propuesta 3 (Despliegue):** Limpieza final (100% Español + Control Flow) y subida a Firebase Hosting.
 
 ---
 

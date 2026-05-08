@@ -1,0 +1,60 @@
+<ion-content class="dashboard-bg">
+  <div class="dashboard-container">
+    <header class="top-bar glass-panel animar-entrada-abajo">
+      <div class="brand">
+        <div class="logo-pulse"></div>
+        <h1>Generador de QR</h1>
+      </div>
+    </header>
+
+    <div class="content-wrapper animar-entrada-arriba">
+      <div class="config-panel glass-panel">
+        <div class="panel-header">
+          <ion-icon name="qr-code-outline"></ion-icon>
+          <h2>Configurar Mesa</h2>
+        </div>
+        
+        <div class="input-group">
+          <label>Número de Mesa</label>
+          <div class="number-input-wrapper">
+            <button class="btn-adjust" (click)="numeroMesa.set(numeroMesa() - 1)" [disabled]="numeroMesa() <= 1">-</button>
+            <input type="number" [ngModel]="numeroMesa()" (ngModelChange)="numeroMesa.set($event)" class="table-input" min="1">
+            <button class="btn-adjust" (click)="numeroMesa.set(numeroMesa() + 1)">+</button>
+          </div>
+        </div>
+
+        <div class="link-preview">
+          <div class="link-label">
+            <ion-icon name="link-outline"></ion-icon>
+            <span>URL de destino:</span>
+          </div>
+          <div class="link-box" (click)="copiarEnlace()">
+            <span class="url-text">{{ urlDestino() }}</span>
+            <ion-icon [name]="copiado() ? 'checkmark-outline' : 'copy-outline'" [class.success]="copiado()"></ion-icon>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-panel glass-panel">
+        <div class="qr-container print-area">
+          <div class="qr-header">
+            <div class="brand-mini">TRACE<span class="dot">.</span></div>
+            <div class="table-badge">MESA {{ numeroMesa() }}</div>
+          </div>
+          <div class="qr-image-wrapper">
+            <img [src]="qrImageUrl()" alt="QR Mesa {{numeroMesa()}}" class="qr-image">
+            <div class="scan-text">ESCANEA PARA PEDIR</div>
+          </div>
+        </div>
+
+        <div class="actions-panel hide-on-print">
+          <button class="btn-print" (click)="imprimirQr()">
+            <ion-icon name="print-outline"></ion-icon>
+            <span>Imprimir QR</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+

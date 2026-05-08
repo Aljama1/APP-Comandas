@@ -88,6 +88,23 @@
               class="toggle-disponible">
             </ion-toggle>
           </div>
+
+          <!-- Control de Stock -->
+          <div class="stock-panel" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--dash-border);">
+            <div class="campo-grupo">
+              <label class="campo-label small" style="color: var(--dash-text-sec); font-size: 0.75rem; margin-bottom: 8px; display: block;">Control de Inventario (Stock)</label>
+              <div class="stock-input-wrap" style="display: flex; align-items: center; gap: 12px;">
+                <ion-input
+                  type="number"
+                  placeholder="∞ Sin límite"
+                  [ngModel]="stock()"
+                  (ngModelChange)="stock.set($event ? +$event : null)"
+                  style="--padding-start: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--dash-border); border-radius: 8px; font-weight: 700;">
+                </ion-input>
+              </div>
+              <p style="font-size: 0.7rem; color: var(--dash-text-sec); margin: 8px 0 0;">Deja vacío si no quieres limitar la venta.</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -150,20 +167,144 @@
           </div>
         </div>
 
-        <!-- Panel: Alérgenos -->
+        <!-- Panel: Turnos y Orden -->
         <div class="form-panel glass-panel">
           <h3 class="panel-title">
-            <ion-icon name="warning-outline" class="neon-text-amber"></ion-icon>
-            Alérgenos
+            <ion-icon name="time-outline" class="neon-text-purple"></ion-icon>
+            Turnos y Visibilidad
           </h3>
-          <p class="panel-hint">Selecciona los alérgenos presentes en el plato</p>
-          <div class="alergenos-grid">
-            @for (al of todosLosAlergenos; track al.id) {
-              <button class="alergeno-btn" [class.seleccionado]="tieneAlergeno(al.id)"
-                (click)="toggleAlergeno(al.id)" type="button">
-                <span class="al-icon">{{ al.emoji }}</span>
-                {{ al.label }}
-              </button>
+          <div class="form-row-2col">
+            <div class="campo-grupo">
+              <label class="campo-label">Turnos disponibles</label>
+              <div class="turnos-row">
+                <button 
+                  type="button" 
+                  class="turno-btn" 
+                  [class.activo]="tieneTurno('ALMUERZO')" 
+                  (click)="toggleTurno('ALMUERZO')">
+                  Almuerzo
+                </button>
+                <button 
+                  type="button" 
+                  class="turno-btn" 
+                  [class.activo]="tieneTurno('CENA')" 
+                  (click)="toggleTurno('CENA')">
+                  Cena
+                </button>
+              </div>
+            </div>
+            <div class="campo-grupo">
+              <label class="campo-label">Prioridad (Orden)</label>
+              <ion-input 
+                type="number" 
+                [ngModel]="orden()" 
+                (ngModelChange)="orden.set(+$event)" 
+                class="campo-input">
+              </ion-input>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel: Variantes -->
+        <div class="form-panel glass-panel">
+          <div class="panel-header-action">
+            <h3 class="panel-title">
+              <ion-icon name="list-outline" class="neon-text-green"></ion-icon>
+              Variantes / Formatos
+            </h3>
+            <button type="button" class="btn-text-action" (click)="anadirVariante()">
+              <ion-icon name="add-outline"></ion-icon> Añadir variante
+            </button>
+          </div>
+          
+          <div class="dynamic-list">
+            @for (v of variantes(); track $index; let i = $index) {
+              <div class="dynamic-item">
+                <ion-input 
+                  placeholder="Nombre (ej: Tapa, Media, Ración)" 
+                  [ngModel]="v.nombre" 
+                  (ngModelChange)="updateVarianteNombre(i, $event)"
+                  class="campo-input">
+                </ion-input>
+                <ion-input 
+                  type="number" 
+                  placeholder="Precio" 
+                  [ngModel]="v.precio" 
+                  (ngModelChange)="updateVariantePrecio(i, +$event)"
+                  class="campo-input price-small">
+                </ion-input>
+                <button type="button" class="btn-remove" (click)="quitarVariante(i)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            }
+            @if (variantes().length === 0) {
+              <p class="empty-hint">No hay variantes definidas. Se usará el precio base.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Panel: Modificadores -->
+        <div class="form-panel glass-panel">
+          <div class="panel-header-action">
+            <h3 class="panel-title">
+              <ion-icon name="options-outline" class="neon-text-blue"></ion-icon>
+              Modificadores / Extras
+            </h3>
+            <button type="button" class="btn-text-action" (click)="anadirGrupoModificadores()">
+              <ion-icon name="add-outline"></ion-icon> Añadir grupo
+            </button>
+          </div>
+
+          <div class="dynamic-list">
+            @for (grupo of modificadores(); track $index; let gi = $index) {
+              <div class="mod-group-card">
+                <div class="mod-group-header">
+                  <ion-input 
+                    placeholder="Título del grupo (ej: Punto de la carne)" 
+                    [ngModel]="grupo.nombre" 
+                    (ngModelChange)="updateGrupoNombre(gi, $event)"
+                    class="campo-input">
+                  </ion-input>
+                  <ion-select 
+                    interface="popover" 
+                    [ngModel]="grupo.tipo" 
+                    (ngModelChange)="updateGrupoTipo(gi, $event)"
+                    class="campo-select select-small">
+                    <ion-select-option value="EXCLUYENTE">Excluyente (Radio)</ion-select-option>
+                    <ion-select-option value="OPCIONAL">Opcional (Checkbox)</ion-select-option>
+                  </ion-select>
+                  <button type="button" class="btn-remove" (click)="quitarGrupoModificadores(gi)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+                </div>
+
+                <div class="mod-options-list">
+                  @for (opc of grupo.opciones; track $index; let oi = $index) {
+                    <div class="mod-option-item">
+                      <ion-input 
+                        placeholder="Opción (ej: Muy hecha)" 
+                        [ngModel]="opc.nombre" 
+                        (ngModelChange)="updateOpcionNombre(gi, oi, $event)"
+                        class="campo-input">
+                      </ion-input>
+                      <ion-input 
+                        type="number" 
+                        placeholder="+ €" 
+                        [ngModel]="opc.precioAdicional" 
+                        (ngModelChange)="updateOpcionPrecio(gi, oi, +$event)"
+                        class="campo-input price-tiny">
+                      </ion-input>
+                      <button type="button" class="btn-remove-small" (click)="quitarOpcionModificador(gi, oi)">
+                        <ion-icon name="trash-outline"></ion-icon>
+                      </button>
+                    </div>
+                  }
+                  <button type="button" class="btn-add-opc" (click)="anadirOpcionModificador(gi)">
+                    <ion-icon name="add-outline" slot="start"></ion-icon> Añadir opción
+                  </button>
+                </div>
+              </div>
             }
           </div>
         </div>

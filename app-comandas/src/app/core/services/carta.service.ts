@@ -3,16 +3,34 @@ import {
   Firestore, collection, query, orderBy, onSnapshot, Unsubscribe
 } from '@angular/fire/firestore';
 import { Producto } from '../models/producto.model';
+import { HorarioRestauranteService } from './horario-restaurante.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartaService implements OnDestroy {
   private firestore = inject(Firestore);
+  private horarioService = inject(HorarioRestauranteService);
 
-  public productos = signal<Producto[]>([]);
+  private productosRaw = signal<Producto[]>([]);
   public cargando = signal(true);
   public error = signal<string | null>(null);
+
+  // Carta filtrada reactivamente por turno y orden
+  public productos = computed(() => {
+    const raw = this.productosRaw();
+    const turno = this.horarioService.turnoActual();
+
+    return raw
+      .filter(p => p.disponible)
+      .filter(p => {
+        // Si el producto no tiene turnos asignados, es "todo el día"
+        if (!p.turnos || p.turnos.length === 0) return true;
+        // Si tiene turnos, solo mostrar si coincide con el actual
+        return turno ? p.turnos.includes(turno) : false;
+      })
+      .sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999));
+  });
 
   private cancelarEscucha: Unsubscribe | null = null;
 
@@ -43,10 +61,9 @@ export class CartaService implements OnDestroy {
       q,
       (snapshot) => {
         const lista: Producto[] = snapshot.docs
-          .map(doc => ({ ...(doc.data() as Producto), id: doc.id }))
-          .filter(p => p.disponible); // Solo mostramos los disponibles a los clientes
+          .map(doc => ({ ...(doc.data() as Producto), id: doc.id }));
 
-        this.productos.set(lista);
+        this.productosRaw.set(lista);
         this.cargando.set(false);
       },
       () => {

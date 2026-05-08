@@ -182,10 +182,65 @@
           </div>
         </div>
 
+        <!-- Variantes -->
+        @if (productoSeleccionado()!.variantes?.length) {
+          <div class="modal-options-section">
+            <h3 class="modal-section-label">Elige un formato</h3>
+            <div class="options-list">
+              @for (v of productoSeleccionado()!.variantes; track v.nombre) {
+                <button 
+                  class="option-item" 
+                  [class.option-item--selected]="varianteSeleccionada()?.nombre === v.nombre"
+                  (click)="seleccionarVariante(v)"
+                >
+                  <div class="option-info">
+                    <span class="option-name">{{ v.nombre }}</span>
+                    <span class="option-price">{{ v.precio | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+                  </div>
+                  <div class="option-check">
+                    <ion-icon [name]="varianteSeleccionada()?.nombre === v.nombre ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Modificadores -->
+        @if (productoSeleccionado()!.modificadores?.length) {
+          @for (grupo of productoSeleccionado()!.modificadores; track grupo.nombre) {
+            <div class="modal-options-section">
+              <h3 class="modal-section-label">
+                {{ grupo.nombre }}
+                @if (grupo.tipo === 'EXCLUYENTE') { <small>(Elige uno)</small> }
+              </h3>
+              <div class="options-list">
+                @for (opcion of grupo.opciones; track opcion.nombre) {
+                  <button 
+                    class="option-item" 
+                    [class.option-item--selected]="esModificadorSeleccionado(opcion)"
+                    (click)="toggleModificador(grupo, opcion)"
+                  >
+                    <div class="option-info">
+                      <span class="option-name">{{ opcion.nombre }}</span>
+                      @if (opcion.precioAdicional > 0) {
+                        <span class="option-price">+ {{ opcion.precioAdicional | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
+                      }
+                    </div>
+                    <div class="option-check">
+                      <ion-icon [name]="esModificadorSeleccionado(opcion) ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                    </div>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        }
+
         <!-- Botón añadir -->
         <button
           class="btn-anadir-modal"
-          [disabled]="!productoSeleccionado()!.esSeguro"
+          [disabled]="!puedeAnadir()"
           (click)="agregarDesdeModal(productoSeleccionado()!)"
           [attr.aria-label]="'Añadir ' + productoSeleccionado()!.nombre + ' al pedido'"
         >
