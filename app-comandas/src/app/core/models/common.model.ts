@@ -9,10 +9,9 @@ export interface LocalizedString {
 }
 
 /**
- * Tipo utilidad para campos que pueden ser o un string simple (legacy)
- * o un objeto traducido (escalable).
+ * Tipo utilidad para campos que deben ser objetos traducidos (escalable).
  */
-export type Translatable = string | LocalizedString;
+export type Translatable = LocalizedString;
 
 /**
  * Función de utilidad para extraer el texto correcto basado en el idioma.
@@ -20,7 +19,7 @@ export type Translatable = string | LocalizedString;
  * @param lang El idioma actual (ej: 'es', 'en').
  * @returns El string correspondiente o el valor por defecto.
  */
-export function getTranslation(field: Translatable | undefined, lang: string = 'es'): string {
+export function getTranslation(field: Translatable | string | undefined, lang: string = 'es'): string {
   if (!field) return '';
   if (typeof field === 'string') return field;
   return field[lang as keyof LocalizedString] || field['es'] || '';
@@ -32,6 +31,5 @@ export function getTranslation(field: Translatable | undefined, lang: string = '
 export function areTranslatableEqual(a: Translatable | undefined, b: Translatable | undefined): boolean {
   if (a === b) return true;
   if (!a || !b) return false;
-  if (typeof a === 'string' && typeof b === 'string') return a === b;
-  return JSON.stringify(a) === JSON.stringify(b);
+  return a.es === b.es && a.en === b.en;
 }

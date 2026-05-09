@@ -23,10 +23,11 @@ if (environment.production) {
   enableProdMode();
 }
 
-import { importProvidersFrom } from '@angular/core';
+import { importProvidersFrom, isDevMode } from '@angular/core';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader';
+import { provideServiceWorker } from '@angular/service-worker';
 
 // Función para cargar los archivos JSON de traducción
 // En v17+, el loader inyecta HttpClient automáticamente, por lo que no necesita deps manuales
@@ -61,6 +62,9 @@ bootstrapApplication(AppComponent, {
     provideFirebaseApp(() => initializeApp(environment.firebase)), 
     provideAuth(() => getAuth()), 
     provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage()), 
+    provideStorage(() => getStorage()), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          }), 
   ],
 }).catch((err) => console.log(err));

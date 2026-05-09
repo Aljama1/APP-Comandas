@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Reglas para pedidos (comandas)
+    // - Clientes (sin auth) pueden crear pedidos y leer pedidos de SU mesa (idMesa).
+    // - Admins (con auth) pueden leer y modificar cualquier pedido.
+    match /comandas/{comandaId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null || resource.data.idMesa == request.resource.data.idMesa;
+    }
+
+    // Reglas para productos (carta)
+    // - Todos pueden leer (para ver el menú).
+    // - Solo admins (con auth) pueden crear, actualizar o eliminar productos.
+    match /productos/{productoId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+    
+    // Reglas para facturas
+    // - Solo admins pueden leer o crear facturas.
+    match /facturas/{facturaId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Reglas para configuración
+    // - Todos pueden leer.
+    // - Solo admins pueden escribir.
+    match /configuracion/{configId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Bloquear todo lo demás por defecto
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

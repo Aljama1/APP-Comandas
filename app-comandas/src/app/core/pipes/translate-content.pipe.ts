@@ -15,7 +15,7 @@ export class TranslateContentPipe implements PipeTransform {
    * @param value El contenido traducible desde el backend.
    * @returns El texto en el idioma activo.
    */
-  transform(value: Translatable | undefined): string {
+  transform(value: Translatable | string | undefined): string {
     const currentLang = this.translate.currentLang || this.translate.defaultLang || 'es';
     return getTranslation(value, currentLang);
   }

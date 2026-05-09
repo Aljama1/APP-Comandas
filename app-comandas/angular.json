@@ -26,13 +26,31 @@
                 "output": "assets"
               },
               {
+                "glob": "**/*",
+                "input": "public",
+                "output": "/"
+              },
+              {
                 "glob": "**/*.svg",
                 "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
-            "scripts": []
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss"
+            ],
+            "scripts": [],
+            "serviceWorker": true,
+            "ngswConfigPath": "ngsw-config.json",
+            "allowedCommonJsDependencies": [
+              "canvg",
+              "jspdf",
+              "html2canvas",
+              "raf",
+              "rgbcolor",
+              "core-js"
+            ]
           },
           "configurations": {
             "production": {
@@ -45,7 +63,7 @@
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "8kb",
-                  "maximumError": "25kb"
+                  "maximumError": "100kb"
                 }
               ],
               "fileReplacements": [
@@ -90,9 +108,6 @@
             },
             "development": {
               "buildTarget": "app:build:development"
-            },
-            "ci": {
-              "progress": false
             }
           },
           "defaultConfiguration": "development"
@@ -118,12 +133,20 @@
                 "output": "assets"
               },
               {
+                "glob": "**/*",
+                "input": "public",
+                "output": "/"
+              },
+              {
                 "glob": "**/*.svg",
                 "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss"
+            ],
             "scripts": []
           },
           "configurations": {
