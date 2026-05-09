@@ -407,7 +407,10 @@ ion-content.dashboard-bg {
 .dynamic-item {
   display: flex;
   gap: 10px;
-  align-items: center;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  &:last-child { border-bottom: none; }
 
   .price-small { flex: 0 0 100px; }
   .btn-remove { 
@@ -436,7 +439,7 @@ ion-content.dashboard-bg {
     display: flex;
     gap: 10px;
     margin-bottom: 15px;
-    align-items: center;
+    align-items: flex-start;
     .select-small { flex: 0 0 180px; --background: rgba(255,255,255,0.05); }
   }
 }
@@ -492,3 +495,25 @@ ion-content.dashboard-bg {
 
 .neon-text-purple { color: #bf7fff; }
 .neon-text-green  { color: $neon-green; }
+
+/* ── MULTI-IDIOMA STYLES ── */
+.inputs-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+
+  .campo-input {
+    font-size: 0.88rem;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+  }
+}
+
+.mod-option-item {
+  .inputs-stacked {
+    .campo-input {
+      font-size: 0.8rem;
+    }
+  }
+}

@@ -182,7 +182,7 @@
                 <div class="item-content">
                   <div class="item-top">
                     <span class="qty">{{ linea.cantidad }}x</span>
-                    <span class="name">{{ linea.nombreProducto }}</span>
+                    <span class="name">{{ linea.nombreProducto | translateContent }}</span>
                   </div>
                   @if (linea.notasEspeciales) {
                   <div class="nota-inline">
@@ -285,7 +285,7 @@
                 @for (linea of comanda.lineasComanda | slice:0:3; track linea) {
                 <span class="mini-badge" [class.ready]="linea.preparado">
                   @if (linea.preparado) { <ion-icon name="checkmark-outline"></ion-icon> }
-                  {{ linea.cantidad }}x {{ linea.nombreProducto | slice:0:10 }}{{ linea.nombreProducto.length > 10 ? '…' : '' }}
+                  {{ linea.cantidad }}x {{ (linea.nombreProducto | translateContent) | slice:0:10 }}{{ (linea.nombreProducto | translateContent).length > 10 ? '…' : '' }}
                 </span>
                 }
                 @if (comanda.lineasComanda.length > 3) {
@@ -306,7 +306,7 @@
                 <div class="item-content">
                   <div class="item-top">
                     <span class="qty">{{ linea.cantidad }}x</span>
-                    <span class="name" [class.tachado]="linea.preparado">{{ linea.nombreProducto }}</span>
+                    <span class="name" [class.tachado]="linea.preparado">{{ linea.nombreProducto | translateContent }}</span>
                   </div>
                   @if (linea.notasEspeciales) {
                   <div class="nota-inline">
@@ -383,7 +383,7 @@
                 <div class="item-content">
                   <div class="item-top">
                     <span class="qty">{{ linea.cantidad }}x</span>
-                    <span class="name tachado">{{ linea.nombreProducto }}</span>
+                    <span class="name tachado">{{ linea.nombreProducto | translateContent }}</span>
                   </div>
                 </div>
                 <span class="item-precio muted">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2' }}</span>
@@ -447,7 +447,7 @@
             <div class="tl-ronda-badge">Ronda {{ i + 1 }}</div>
             <div class="tl-ronda-meta">
               <span class="tl-estado" [class]="'estado-' + comanda.estado.toLowerCase()">
-                {{ getLabelEstado(comanda.estado) }}
+                {{ getLabelEstado(comanda.estado) | translate }}
               </span>
               <span class="tl-hora">{{ comanda.fechaCreacion | date:'HH:mm' }}</span>
             </div>
@@ -467,7 +467,7 @@
                 </span>
                 <div class="tl-linea-info">
                   <span class="tl-cant">{{ linea.cantidad }}x</span>
-                  <span class="tl-nom">{{ linea.nombreProducto }}</span>
+                  <span class="tl-nom">{{ linea.nombreProducto | translateContent }}</span>
                   @if (linea.notasEspeciales) {
                   <em class="tl-nota">— {{ linea.notasEspeciales }}</em>
                   }
@@ -529,7 +529,7 @@
               <div class="info-plato">
                 <div class="header-plato">
                   <span class="qty-plato">{{ linea.cantidad }}x</span>
-                  <span class="nom-plato">{{ linea.nombreProducto }}</span>
+                  <span class="nom-plato">{{ linea.nombreProducto | translateContent }}</span>
                 </div>
                 @if (linea.notasEspeciales) {
                   <div class="nota-especial">

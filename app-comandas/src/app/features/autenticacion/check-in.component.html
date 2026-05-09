@@ -23,7 +23,7 @@
       <h1 class="headline">
         Trace<span class="headline--dot">.</span>
       </h1>
-      <p class="subheadline">Tu experiencia gastronómica personalizada</p>
+      <p class="subheadline">{{ 'CHECKIN.SUBHEADLINE' | translate }}</p>
     </header>
 
     <!-- FORMULARIO -->
@@ -31,14 +31,14 @@
 
       <!-- Campo Nombre -->
       <div class="field-group" [class.field-group--error]="errorNombre()">
-        <label class="field-label" for="input-nombre">Tu nombre</label>
+        <label class="field-label" for="input-nombre">{{ 'CHECKIN.NOMBRE_LABEL' | translate }}</label>
         <div class="field-wrapper">
           <ion-icon name="person-outline" class="field-icon" aria-hidden="true"></ion-icon>
           <input
             id="input-nombre"
             type="text"
             class="field-input"
-            placeholder="¿Cómo te llamas?"
+            [placeholder]="'CHECKIN.NOMBRE_PLACEHOLDER' | translate"
             [(ngModel)]="nombre"
             (ngModelChange)="onNombreChange()"
             autocomplete="given-name"
@@ -55,14 +55,14 @@
 
       <!-- Campo Mesa -->
       <div class="field-group" [class.field-group--error]="errorMesa()" [class.field-group--locked]="mesaDesdeQR">
-        <label class="field-label" for="input-mesa">Número de mesa</label>
+        <label class="field-label" for="input-mesa">{{ 'CHECKIN.MESA_LABEL' | translate }}</label>
         <div class="field-wrapper">
           <ion-icon [name]="mesaDesdeQR ? 'lock-closed-outline' : 'scan-outline'" class="field-icon" aria-hidden="true"></ion-icon>
           <input
             id="input-mesa"
             type="number"
             class="field-input"
-            placeholder="Mesa"
+            [placeholder]="'CHECKIN.MESA_PLACEHOLDER' | translate"
             [(ngModel)]="mesaId"
             (ngModelChange)="onMesaChange()"
             [readonly]="mesaDesdeQR"
@@ -89,9 +89,9 @@
     <section class="alergenos-section" aria-label="Selección de alérgenos">
       <div class="alergenos-header">
         <div class="alergenos-dot" aria-hidden="true"></div>
-        <h2 class="alergenos-title">Perfil de seguridad alimentaria</h2>
+        <h2 class="alergenos-title">{{ 'CHECKIN.ALERGENOS_TITULO' | translate }}</h2>
       </div>
-      <p class="alergenos-desc">Selecciona tus alergias para filtrar la carta automáticamente.</p>
+      <p class="alergenos-desc">{{ 'CHECKIN.ALERGENOS_DESC' | translate }}</p>
 
       <div class="alergenos-grid" role="group" aria-label="Alérgenos">
         @for (item of alergenos; track item.id) {
@@ -100,13 +100,13 @@
             [class.alergeno-chip--activo]="item.activo"
             (click)="toggleAlergeno(item.id)"
             [attr.aria-pressed]="item.activo"
-            [attr.aria-label]="(item.activo ? 'Desactivar' : 'Activar') + ' alérgeno: ' + item.nombre"
+            [attr.aria-label]="((item.activo ? 'ACCIONES.DESACTIVAR' : 'ACCIONES.ACTIVAR') | translate) + ' ' + (item.nombre | translate)"
           >
             <div class="alergeno-icon">
               @if (!item.esSvg) { <ion-icon [name]="item.icono" aria-hidden="true"></ion-icon> }
               @if (item.esSvg)  { <ion-icon [src]="item.icono"  aria-hidden="true"></ion-icon> }
             </div>
-            <span class="alergeno-label">{{ item.nombre }}</span>
+            <span class="alergeno-label">{{ item.nombre | translate }}</span>
             @if (item.activo) {
               <div class="alergeno-check" aria-hidden="true">
                 <ion-icon name="checkmark-outline"></ion-icon>
@@ -119,8 +119,8 @@
 
     <!-- CTA -->
     <div class="checkin-cta">
-      <button class="btn-acceder" (click)="acceder()" aria-label="Comenzar experiencia en Trace">
-        <span>Comenzar Experiencia</span>
+      <button class="btn-acceder" (click)="acceder()" [attr.aria-label]="'CHECKIN.CTA' | translate">
+        <span>{{ 'CHECKIN.CTA' | translate }}</span>
         <ion-icon name="arrow-forward-outline" aria-hidden="true"></ion-icon>
       </button>
     </div>

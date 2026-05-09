@@ -1,10 +1,11 @@
 import { DestinoReceptor, VarianteProducto, OpcionModificador } from './producto.model';
+import { Translatable } from './common.model';
 
 export type EstadoComanda = 'PENDIENTE' | 'PREPARANDO' | 'LISTO' | 'SERVIDO' | 'PAGADO' | 'CANCELADO';
 
 export interface LineaComanda {
   idProducto: string;          // Referencia al ID del producto
-  nombreProducto: string;      // Nombre congelado en el momento de pedir
+  nombreProducto: Translatable;      // Nombre traducible
   cantidad: number;            // Cantidad solicitada
   precioUnitario: number;      // Precio bloqueado en el momento de pedir
   subtotal: number;            // cantidad * precioUnitario

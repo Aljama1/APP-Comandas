@@ -13,7 +13,7 @@
 
     <div class="header-center">
       <div class="mesa-badge" role="status" aria-label="Mesa asignada">
-        Mesa {{ perfil()?.mesaId }}
+        {{ 'CARTA.MESA' | translate }} {{ perfil()?.mesaId }}
       </div>
     </div>
 
@@ -49,10 +49,10 @@
   ════════════════════════════════════════ -->
   <div class="carta-body">
     @for (grupo of productosPorCategoria(); track grupo.clave) {
-      <section class="categoria-seccion" [attr.aria-label]="grupo.etiqueta">
+      <section class="categoria-seccion" [attr.aria-label]="grupo.etiqueta | translate">
         <div class="categoria-header">
           <span class="categoria-emoji" aria-hidden="true">{{ grupo.emoji }}</span>
-          <h2 class="categoria-titulo">{{ grupo.etiqueta }}</h2>
+          <h2 class="categoria-titulo">{{ grupo.etiqueta | translate }}</h2>
         </div>
         <div class="categoria-items" role="list">
           @for (producto of grupo.items; track producto.id) {
@@ -61,20 +61,20 @@
               [class.menu-item--danger]="!producto.esSeguro"
               (click)="abrirProducto(producto)"
               role="listitem"
-              [attr.aria-label]="producto.nombre + ' · ' + (producto.precio | currency:'EUR') + (producto.esSeguro ? '' : ' · CONTIENE ALÉRGENOS')"
+              [attr.aria-label]="(producto.nombre | translateContent) + ' · ' + (producto.precio | currency:'EUR') + (producto.esSeguro ? '' : ' · CONTIENE ALÉRGENOS')"
             >
               <div class="menu-item__info">
                 <div class="menu-item__name-row">
                   @if (!producto.esSeguro) {
                     <ion-icon name="alert-circle-outline" class="danger-icon" aria-label="Contiene tus alérgenos"></ion-icon>
                   }
-                  <span class="menu-item__name">{{ producto.nombre }}</span>
+                  <span class="menu-item__name">{{ producto.nombre | translateContent }}</span>
                 </div>
                 @if (producto.alergenosPeligrosos.length > 0) {
                   <span class="menu-item__danger-text">Contiene: {{ producto.alergenosPeligrosos.join(', ') }}</span>
                 }
                 @else {
-                  <span class="menu-item__desc">{{ producto.descripcion }}</span>
+                  <span class="menu-item__desc">{{ producto.descripcion | translateContent }}</span>
                 }
               </div>
               <div class="menu-item__right">
@@ -114,10 +114,10 @@
        PÍLDORA FLOTANTE DE CARRITO
   ════════════════════════════════════════ -->
   @if (comandaService.totalArticulos() > 0) {
-    <div class="cart-pill" (click)="irALaComanda()" role="button" aria-label="Ver comanda — {{ comandaService.totalArticulos() }} artículos · {{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}">
+    <div class="cart-pill" (click)="irALaComanda()" role="button" [attr.aria-label]="'COMANDAS.VER_COMANDA' | translate">
       <div class="cart-pill__left">
         <span class="cart-pill__count">{{ comandaService.totalArticulos() }}</span>
-        <span class="cart-pill__label">Ver Comanda</span>
+        <span class="cart-pill__label">{{ 'COMANDAS.VER_COMANDA' | translate }}</span>
       </div>
       <div class="cart-pill__right">
         <span class="cart-pill__total">{{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
@@ -132,13 +132,13 @@
      MODAL DETALLE DE PRODUCTO
 ════════════════════════════════════════════════════════════════ -->
 @if (mostrarModalProducto() && productoSeleccionado()) {
-  <div class="modal-overlay" (click)="cerrarProducto()" role="dialog" aria-modal="true" [attr.aria-label]="'Detalle de ' + productoSeleccionado()!.nombre">
+  <div class="modal-overlay" (click)="cerrarProducto()" role="dialog" aria-modal="true" [attr.aria-label]="('CARTA.DETALLE' | translate) + ' ' + (productoSeleccionado()!.nombre | translateContent)">
     <div class="modal-sheet" (click)="$event.stopPropagation()">
       <!-- Imagen -->
       <div class="modal-image-wrapper">
         <div class="modal-handle" aria-hidden="true"></div>
         @if (productoSeleccionado()!.urlImagen) {
-          <img [src]="productoSeleccionado()!.urlImagen" [alt]="'Foto de ' + productoSeleccionado()!.nombre" class="modal-image">
+          <img [src]="productoSeleccionado()!.urlImagen" [alt]="'Foto de ' + (productoSeleccionado()!.nombre | translateContent)" class="modal-image">
         } @else {
           <div class="modal-image-placeholder">
             <ion-icon name="restaurant-outline"></ion-icon>
@@ -147,7 +147,7 @@
         @if (!productoSeleccionado()!.esSeguro) {
           <div class="modal-danger-overlay">
             <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
-            <span>Incompatible con tus alérgenos</span>
+            <span>{{ 'CARTA.PRODUCTO_PELIGROSO' | translate }}</span>
           </div>
         }
         <button class="modal-close-btn" (click)="cerrarProducto()" aria-label="Cerrar detalle">
@@ -158,18 +158,18 @@
       <!-- Contenido -->
       <div class="modal-content">
         <div class="modal-title-row">
-          <h2 class="modal-title">{{ productoSeleccionado()!.nombre }}</h2>
+          <h2 class="modal-title">{{ productoSeleccionado()!.nombre | translateContent }}</h2>
           <span class="modal-price">{{ productoSeleccionado()!.precio | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
         </div>
 
-        <p class="modal-desc">{{ productoSeleccionado()!.descripcion }}</p>
+        <p class="modal-desc">{{ productoSeleccionado()!.descripcion | translateContent }}</p>
 
         <!-- Alérgenos -->
         <div class="modal-alergenos-section">
-          <h3 class="modal-section-label">Alérgenos</h3>
+          <h3 class="modal-section-label">{{ 'ALERGENOS.TITULO' | translate }}</h3>
           <div class="modal-alergenos-list">
             @if (productoSeleccionado()!.alergenos.length === 0) {
-              <span class="alergeno-pill alergeno-pill--safe">✓ Sin alérgenos</span>
+              <span class="alergeno-pill alergeno-pill--safe">✓ {{ 'ALERGENOS.SIN_ALERGENOS' | translate }}</span>
             }
             @for (al of productoSeleccionado()!.alergenos; track al) {
               <span
@@ -185,7 +185,7 @@
         <!-- Variantes -->
         @if (productoSeleccionado()!.variantes?.length) {
           <div class="modal-options-section">
-            <h3 class="modal-section-label">Elige un formato</h3>
+            <h3 class="modal-section-label">{{ 'CARTA.VARIANTES' | translate }}</h3>
             <div class="options-list">
               @for (v of productoSeleccionado()!.variantes; track v.nombre) {
                 <button 
@@ -194,7 +194,7 @@
                   (click)="seleccionarVariante(v)"
                 >
                   <div class="option-info">
-                    <span class="option-name">{{ v.nombre }}</span>
+                    <span class="option-name">{{ v.nombre | translateContent }}</span>
                     <span class="option-price">{{ v.precio | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
                   </div>
                   <div class="option-check">
@@ -211,8 +211,8 @@
           @for (grupo of productoSeleccionado()!.modificadores; track grupo.nombre) {
             <div class="modal-options-section">
               <h3 class="modal-section-label">
-                {{ grupo.nombre }}
-                @if (grupo.tipo === 'EXCLUYENTE') { <small>(Elige uno)</small> }
+                {{ grupo.nombre | translateContent }}
+                @if (grupo.tipo === 'EXCLUYENTE') { <small>({{ 'CARTA.ELIJA_UNO' | translate }})</small> }
               </h3>
               <div class="options-list">
                 @for (opcion of grupo.opciones; track opcion.nombre) {
@@ -222,7 +222,7 @@
                     (click)="toggleModificador(grupo, opcion)"
                   >
                     <div class="option-info">
-                      <span class="option-name">{{ opcion.nombre }}</span>
+                      <span class="option-name">{{ opcion.nombre | translateContent }}</span>
                       @if (opcion.precioAdicional > 0) {
                         <span class="option-price">+ {{ opcion.precioAdicional | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
                       }
@@ -242,14 +242,14 @@
           class="btn-anadir-modal"
           [disabled]="!puedeAnadir()"
           (click)="agregarDesdeModal(productoSeleccionado()!)"
-          [attr.aria-label]="'Añadir ' + productoSeleccionado()!.nombre + ' al pedido'"
+          [attr.aria-label]="('CARTA.ADD_AL_PEDIDO' | translate) + ' ' + (productoSeleccionado()!.nombre | translateContent)"
         >
           @if (!productoSeleccionado()!.esSeguro) {
             <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
-            <span>No disponible para ti</span>
+            <span>{{ 'CARTA.NO_DISPONIBLE' | translate }}</span>
           } @else {
             <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
-            <span>Añadir al pedido</span>
+            <span>{{ 'CARTA.ADD_AL_PEDIDO' | translate }}</span>
           }
         </button>
       </div>
@@ -323,7 +323,7 @@
                 @if (!al.esSvg) { <ion-icon [name]="al.icono" aria-hidden="true"></ion-icon> }
                 @if (al.esSvg)  { <ion-icon [src]="al.icono"  aria-hidden="true"></ion-icon> }
               </div>
-              <span>{{ al.nombre }}</span>
+              <span>{{ al.nombre | translate }}</span>
               @if (estaActivo(al.id)) {
                 <div class="chip-check" aria-hidden="true">
                   <ion-icon name="checkmark-outline"></ion-icon>
@@ -332,8 +332,8 @@
             </button>
           }
         </div>
-        <button class="btn-guardar-settings" (click)="guardarSettings()" aria-label="Guardar cambios de configuración">
-          Guardar cambios
+        <button class="btn-guardar-settings" (click)="guardarSettings()" [attr.aria-label]="'ACCIONES.GUARDAR' | translate">
+          {{ 'ACCIONES.GUARDAR' | translate }}
         </button>
       </div>
 

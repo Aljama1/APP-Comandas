@@ -4,6 +4,8 @@ import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ComandaFirestoreService } from '../../../core/services/comanda-firestore.service';
 import { ComandaService } from '../../../core/services/comanda.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { EstadoComanda, Comanda } from '../../../core/models/comanda.model';
 import { addIcons } from 'ionicons';
@@ -23,7 +25,7 @@ import {
 @Component({
   selector: 'app-seguimiento-comanda',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, TranslateModule, TranslateContentPipe],
   templateUrl: './seguimiento-comanda.component.html',
   styleUrls: ['./seguimiento-comanda.component.scss']
 })
@@ -66,12 +68,12 @@ export class SeguimientoComandaComponent {
   // ── Helpers de estado ────────────────────────────────────────────
   getEstadoConfig(estado: EstadoComanda): { icono: string; etiqueta: string; clase: string } {
     const configs: Record<EstadoComanda, { icono: string; etiqueta: string; clase: string }> = {
-      'PENDIENTE':   { icono: 'time-outline',              etiqueta: 'Pendiente',    clase: 'estado--pendiente' },
-      'PREPARANDO':  { icono: 'flame-outline',             etiqueta: 'En cocina',    clase: 'estado--preparando' },
-      'LISTO':       { icono: 'checkmark-circle-outline',  etiqueta: 'Listo',        clase: 'estado--listo' },
-      'SERVIDO':     { icono: 'restaurant-outline',        etiqueta: 'Servido',      clase: 'estado--servido' },
-      'PAGADO':      { icono: 'checkmark-circle-outline',  etiqueta: 'Pagado',       clase: 'estado--servido' },
-      'CANCELADO':   { icono: 'alert-circle-outline',      etiqueta: 'Cancelado',    clase: 'estado--cancelado' },
+      'PENDIENTE':   { icono: 'time-outline',              etiqueta: 'ESTADOS.PENDIENTE',    clase: 'estado--pendiente' },
+      'PREPARANDO':  { icono: 'flame-outline',             etiqueta: 'ESTADOS.PREPARANDO',   clase: 'estado--preparando' },
+      'LISTO':       { icono: 'checkmark-circle-outline',  etiqueta: 'ESTADOS.LISTO',        clase: 'estado--listo' },
+      'SERVIDO':     { icono: 'restaurant-outline',        etiqueta: 'ESTADOS.SERVIDO',      clase: 'estado--servido' },
+      'PAGADO':      { icono: 'checkmark-circle-outline',  etiqueta: 'ESTADOS.PAGADO',       clase: 'estado--servido' },
+      'CANCELADO':   { icono: 'alert-circle-outline',      etiqueta: 'ESTADOS.CANCELADO',    clase: 'estado--cancelado' },
     };
     return configs[estado] ?? { icono: 'time-outline', etiqueta: estado, clase: '' };
   }

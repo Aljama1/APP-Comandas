@@ -14,10 +14,13 @@ import { qrCodeOutline, printOutline, downloadOutline, copyOutline, checkmarkOut
 })
 export class GeneradorQrComponent {
   numeroMesa = signal<number>(1);
-  baseUrl = window.location.origin;
+  manualUrl = signal<string>(''); // Para sobreescribir la URL en producción
+  
+  // URL base: usa la manual si existe, si no, la del navegador
+  baseUrl = computed(() => this.manualUrl() || window.location.origin);
 
   // URL completa que escaneará el cliente
-  urlDestino = computed(() => `${this.baseUrl}?mesa=${this.numeroMesa()}`);
+  urlDestino = computed(() => `${this.baseUrl()}?mesa=${this.numeroMesa()}`);
 
   // URL de la API que genera la imagen QR
   qrImageUrl = computed(() => `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(this.urlDestino())}&margin=10`);

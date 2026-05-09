@@ -1,4 +1,4 @@
-﻿@import '../../../../global.scss';
+@import '../../../../global.scss';
 
 :host { display: block; height: 100%; }
 
@@ -64,6 +64,21 @@
       outline: none;
       &::-webkit-inner-spin-button { display: none; }
     }
+  }
+  .url-input-wrapper {
+    .url-override-input {
+      width: 100%;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--dash-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: var(--dash-text-main);
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s;
+      &:focus { border-color: var(--dash-accent-blue); background: rgba(0, 210, 255, 0.05); }
+    }
+    .hint { display: block; margin-top: 8px; color: var(--dash-text-sec); font-size: 0.75rem; font-style: italic; }
   }
 }
 

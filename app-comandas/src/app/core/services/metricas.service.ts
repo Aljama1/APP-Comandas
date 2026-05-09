@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Firestore, collection, query, where, orderBy, limit, onSnapshot, Unsubscribe } from '@angular/fire/firestore';
 import { Comanda } from '../models/comanda.model';
+import { getTranslation } from '../models/common.model';
 
 export interface KpiGeneral {
   totalVentas: number;
@@ -61,7 +62,7 @@ export class MetricasService {
           existente.totalRecaudado += l.subtotal;
         } else {
           mapa.set(l.idProducto, {
-            nombre: l.nombreProducto,
+            nombre: getTranslation(l.nombreProducto, 'es'),
             cantidad: l.cantidad,
             totalRecaudado: l.subtotal
           });

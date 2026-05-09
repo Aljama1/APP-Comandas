@@ -9,6 +9,9 @@ import { ComandaFirestoreService } from '../../core/services/comanda-firestore.s
 import { UserSettingsService } from '../../core/services/user-settings.service';
 import { AudioService } from '../../core/services/audio.service';
 import { Producto, VarianteProducto, OpcionModificador, Alergeno } from '../../core/models/producto.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateContentPipe } from '../../core/pipes/translate-content.pipe';
+import { areTranslatableEqual } from '../../core/models/common.model';
 
 export interface ProductoMaquetado extends Producto {
   esSeguro: boolean;
@@ -24,11 +27,11 @@ import {
 } from 'ionicons/icons';
 
 const ETIQUETAS_CATEGORIA: Record<string, string> = {
-  'entrante': 'Entrantes',
-  'principal': 'Principales',
-  'postre': 'Postres',
-  'bebida': 'Bebidas',
-  'especial': 'Especiales'
+  'entrante': 'CATEGORIAS.entrante',
+  'principal': 'CATEGORIAS.principal',
+  'postre': 'CATEGORIAS.postre',
+  'bebida': 'CATEGORIAS.bebida',
+  'especial': 'CATEGORIAS.especial'
 };
 
 const EMOJIS_CATEGORIA: Record<string, string> = {
@@ -40,7 +43,7 @@ const ORDEN_CATEGORIAS = ['entrante', 'principal', 'postre', 'bebida', 'especial
 @Component({
   selector: 'app-carta',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, TranslateModule, TranslateContentPipe],
   templateUrl: './carta.component.html',
   styleUrls: ['./carta.component.scss']
 })
@@ -53,6 +56,7 @@ export class CartaComponent {
   private audioService = inject(AudioService);
   private router = inject(Router);
   private alertController = inject(AlertController);
+  private translate = inject(TranslateService);
 
   perfil = this.usuarioService.perfil;
 
@@ -71,12 +75,12 @@ export class CartaComponent {
   alergenosEditados = signal<string[]>([]);
 
   readonly todosLosAlergenos = [
-    { id: 'gluten',       nombre: 'Gluten',    icono: '/assets/icon/gluten.svg',       esSvg: true  },
-    { id: 'lactosa',      nombre: 'Lactosa',   icono: '/assets/icon/lactosa.svg',      esSvg: true  },
-    { id: 'frutos-secos', nombre: 'F. Secos',  icono: '/assets/icon/frutos-secos.svg', esSvg: true  },
-    { id: 'huevo',        nombre: 'Huevo',     icono: 'egg-outline',                   esSvg: false },
-    { id: 'pescado',      nombre: 'Pescado',   icono: 'fish-outline',                  esSvg: false },
-    { id: 'marisco',      nombre: 'Marisco',   icono: 'restaurant-outline',            esSvg: false },
+    { id: 'gluten',       nombre: 'ALERGENOS.gluten',    icono: '/assets/icon/gluten.svg',       esSvg: true  },
+    { id: 'lactosa',      nombre: 'ALERGENOS.lactosa',   icono: '/assets/icon/lactosa.svg',      esSvg: true  },
+    { id: 'frutos-secos', nombre: 'ALERGENOS.frutos-secos',  icono: '/assets/icon/frutos-secos.svg', esSvg: true  },
+    { id: 'huevo',        nombre: 'ALERGENOS.huevo',     icono: 'egg-outline',                   esSvg: false },
+    { id: 'pescado',      nombre: 'ALERGENOS.pescado',   icono: 'fish-outline',                  esSvg: false },
+    { id: 'marisco',      nombre: 'ALERGENOS.marisco',   icono: 'restaurant-outline',            esSvg: false },
   ];
 
   // Feedback visual al añadir
@@ -144,11 +148,11 @@ export class CartaComponent {
 
   toggleModificador(grupo: any, opcion: OpcionModificador): void {
     const seleccionados = [...this.modificadoresSeleccionados()];
-    const index = seleccionados.findIndex(o => o.nombre === opcion.nombre);
+    const index = seleccionados.findIndex(o => areTranslatableEqual(o.nombre, opcion.nombre));
 
     if (grupo.tipo === 'EXCLUYENTE') {
       // Quitar otras opciones del mismo grupo
-      const nuevasOpciones = seleccionados.filter(o => !grupo.opciones.find((gop: any) => gop.nombre === o.nombre));
+      const nuevasOpciones = seleccionados.filter(o => !grupo.opciones.find((gop: any) => areTranslatableEqual(gop.nombre, o.nombre)));
       nuevasOpciones.push(opcion);
       this.modificadoresSeleccionados.set(nuevasOpciones);
     } else {
@@ -163,7 +167,7 @@ export class CartaComponent {
   }
 
   esModificadorSeleccionado(opcion: OpcionModificador): boolean {
-    return this.modificadoresSeleccionados().some(o => o.nombre === opcion.nombre);
+    return this.modificadoresSeleccionados().some(o => areTranslatableEqual(o.nombre, opcion.nombre));
   }
 
   puedeAnadir(): boolean {

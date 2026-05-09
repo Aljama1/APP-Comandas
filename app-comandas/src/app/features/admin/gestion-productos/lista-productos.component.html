@@ -7,7 +7,7 @@
     <header class="top-bar glass-panel">
       <div class="brand">
         <div class="logo-pulse"></div>
-        <h1>Gestión de Carta</h1>
+        <h1>{{ 'ADMIN.TITULO_CARTA' | translate }}</h1>
       </div>
 
       <!-- Filtros de categoría -->
@@ -16,7 +16,7 @@
           <button class="cat-tab" [class.active]="filtroActivo() === cat.clave"
             (click)="filtroActivo.set(cat.clave)">
             <ion-icon [name]="cat.icono"></ion-icon>
-            <span>{{ cat.etiqueta }}</span>
+            <span>{{ cat.etiqueta | translate }}</span>
           </button>
         }
       </div>
@@ -24,11 +24,11 @@
       <div class="actions">
         <ion-button (click)="irANuevo()" class="btn-neon-blue">
           <ion-icon name="add-outline" slot="start"></ion-icon>
-          <span class="btn-text">Nuevo</span>
+          <span class="btn-text">{{ 'ADMIN.NUEVO' | translate }}</span>
         </ion-button>
         <ion-button (click)="irAPanel()" class="btn-neon-green">
           <ion-icon name="grid-outline" slot="start"></ion-icon>
-          <span class="btn-text">Panel</span>
+          <span class="btn-text">{{ 'ADMIN.PANEL' | translate }}</span>
         </ion-button>
         <ion-button (click)="logout()" fill="clear" class="btn-logout">
           <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
@@ -44,28 +44,28 @@
         <ion-icon name="restaurant-outline" class="kpi-icon icon-blue"></ion-icon>
         <div class="kpi-info">
           <span class="kpi-value">{{ totalProductos() }}</span>
-          <span class="kpi-label">Total productos</span>
+          <span class="kpi-label">{{ 'ADMIN.KPI_TOTAL' | translate }}</span>
         </div>
       </div>
       <div class="kpi-card">
         <ion-icon name="checkmark-circle-outline" class="kpi-icon icon-green"></ion-icon>
         <div class="kpi-info">
           <span class="kpi-value">{{ productosActivos() }}</span>
-          <span class="kpi-label">Disponibles</span>
+          <span class="kpi-label">{{ 'ADMIN.KPI_DISPONIBLES' | translate }}</span>
         </div>
       </div>
       <div class="kpi-card">
         <ion-icon name="eye-off-outline" class="kpi-icon icon-orange"></ion-icon>
         <div class="kpi-info">
           <span class="kpi-value">{{ productosInactivos() }}</span>
-          <span class="kpi-label">Inactivos</span>
+          <span class="kpi-label">{{ 'ADMIN.KPI_INACTIVOS' | translate }}</span>
         </div>
       </div>
       <div class="kpi-card" [class.alert-glow]="stockBajo() > 0">
         <ion-icon name="cube-outline" class="kpi-icon icon-amber"></ion-icon>
         <div class="kpi-info">
           <span class="kpi-value">{{ stockBajo() }}</span>
-          <span class="kpi-label">Stock bajo</span>
+          <span class="kpi-label">{{ 'ADMIN.KPI_STOCK_BAJO' | translate }}</span>
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@
     @if (productoService.cargando()) {
       <div class="estado-vacio">
         <ion-spinner name="crescent" class="spinner-neon"></ion-spinner>
-        <p>Cargando carta...</p>
+        <p>{{ 'ADMIN.CARGANDO' | translate }}</p>
       </div>
     }
 
@@ -94,8 +94,8 @@
     @if (!productoService.cargando() && !productoService.error() && productosFiltrados().length === 0) {
       <div class="estado-vacio">
         <ion-icon name="restaurant-outline"></ion-icon>
-        <p>Sin productos en esta categoría</p>
-        <p class="sub">Pulsa "Nuevo" para añadir el primero.</p>
+        <p>{{ 'ADMIN.SIN_PRODUCTOS' | translate }}</p>
+        <p class="sub">{{ 'ADMIN.SIN_PRODUCTOS_SUB' | translate }}</p>
       </div>
     }
 
@@ -109,27 +109,27 @@
             <!-- Imagen -->
             <div class="producto-img-wrap">
               @if (producto.urlImagen) {
-                <img [src]="producto.urlImagen" [alt]="producto.nombre" class="producto-img">
+                <img [src]="producto.urlImagen" [alt]="producto.nombre | translateContent" class="producto-img">
               } @else {
                 <div class="producto-img-placeholder">
                   <ion-icon name="image-outline"></ion-icon>
                 </div>
               }
-              <div class="categoria-ribbon">{{ getLabelCategoria(producto.categoria) }}</div>
+              <div class="categoria-ribbon">{{ getLabelCategoria(producto.categoria) | translate }}</div>
               @if (!producto.disponible) {
-                <div class="badge-inactivo">INACTIVO</div>
+                <div class="badge-inactivo">{{ 'ADMIN.INACTIVO_BADGE' | translate }}</div>
               }
             </div>
 
             <!-- Cuerpo -->
             <div class="producto-body">
               <div class="producto-header">
-                <span class="producto-nombre">{{ producto.nombre }}</span>
+                <span class="producto-nombre">{{ producto.nombre | translateContent }}</span>
                 <span class="producto-precio">{{ producto.precio | currency:'EUR':'symbol':'1.2-2' }}</span>
               </div>
 
               @if (producto.descripcion) {
-                <p class="producto-desc">{{ producto.descripcion }}</p>
+                <p class="producto-desc">{{ producto.descripcion | translateContent }}</p>
               }
 
               @if (producto.alergenos && producto.alergenos.length > 0) {
@@ -148,11 +148,11 @@
                        [class.is-null]="producto.stock === undefined || producto.stock === null">
                     <div class="stock-label">
                       <ion-icon name="cube-outline"></ion-icon>
-                      <span>STOCK</span>
+                      <span>{{ 'ADMIN.STOCK' | translate }}</span>
                     </div>
                     <div class="stock-actions">
                       @if (producto.stock === undefined || producto.stock === null) {
-                        <button (click)="ajustarStock(producto, 20)" class="btn-stock-activate">Activar</button>
+                        <button (click)="ajustarStock(producto, 20)" class="btn-stock-activate">{{ 'ADMIN.ACTIVAR' | translate }}</button>
                       } @else {
                         <button (click)="ajustarStock(producto, -1)" class="btn-stock-minus">
                           <ion-icon name="remove-outline"></ion-icon>
@@ -176,7 +176,7 @@
                              [value]="producto.orden || 0" 
                              (change)="actualizarOrden(producto, $any($event.target).value)" 
                              class="input-orden"
-                             title="Cambiar orden">
+                             [title]="'ADMIN.ORDEN' | translate">
                     </div>
                   </div>
                 </div>
@@ -186,13 +186,13 @@
             <div class="producto-acciones">
               <button class="btn-accion btn-toggle" [class.activo]="producto.disponible"
                 (click)="cambiarDisponibilidad(producto)"
-                [title]="producto.disponible ? 'Desactivar' : 'Activar'">
+                [title]="(producto.disponible ? 'ACCIONES.DESACTIVAR' : 'ACCIONES.ACTIVAR') | translate">
                 <ion-icon [name]="producto.disponible ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
               </button>
-              <button class="btn-accion btn-editar" (click)="irAEditar(producto.id)" title="Editar">
+              <button class="btn-accion btn-editar" (click)="irAEditar(producto.id)" [title]="'ADMIN.EDITAR' | translate">
                 <ion-icon name="create-outline"></ion-icon>
               </button>
-              <button class="btn-accion btn-eliminar" (click)="eliminarProducto(producto)" title="Eliminar">
+              <button class="btn-accion btn-eliminar" (click)="eliminarProducto(producto)" [title]="'ADMIN.ELIMINAR' | translate">
                 <ion-icon name="trash-outline"></ion-icon>
               </button>
             </div>

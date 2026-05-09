@@ -11,7 +11,7 @@
         </button>
         <div class="title-wrap">
           <div class="logo-pulse"></div>
-          <h1>{{ modoEdicion() ? 'Editar producto' : 'Nuevo producto' }}</h1>
+          <h1>{{ (modoEdicion() ? 'ADMIN.FORM.EDITAR' : 'ADMIN.FORM.NUEVO') | translate }}</h1>
         </div>
       </div>
 
@@ -23,10 +23,10 @@
           mode="ios">
           @if (guardando()) {
             <ion-spinner name="crescent" slot="start"></ion-spinner>
-            Guardando...
+            {{ 'ADMIN.FORM.GUARDANDO' | translate }}
           } @else {
             <ion-icon name="checkmark-outline" slot="start"></ion-icon>
-            {{ modoEdicion() ? 'Guardar cambios' : 'Crear producto' }}
+            {{ (modoEdicion() ? 'ADMIN.FORM.GUARDAR' : 'ADMIN.FORM.CREAR') | translate }}
           }
         </ion-button>
       </div>
@@ -42,7 +42,7 @@
         <div class="form-panel glass-panel">
           <h3 class="panel-title">
             <ion-icon name="camera-outline" class="neon-text-blue"></ion-icon>
-            Imagen
+            {{ 'ADMIN.FORM.IMAGEN' | translate }}
           </h3>
 
           <!-- Preview / Upload -->
@@ -57,7 +57,7 @@
             } @else {
               <label class="upload-placeholder">
                 <ion-icon name="cloud-upload-outline"></ion-icon>
-                <span class="upload-label">Subir imagen</span>
+                <span class="upload-label">{{ 'ADMIN.FORM.SUBIR_IMAGEN' | translate }}</span>
                 <span class="upload-hint">JPG, PNG, WEBP</span>
                 <input type="file" accept="image/*" (change)="onImagenSeleccionada($event)" class="file-input">
               </label>
@@ -66,7 +66,7 @@
 
           <!-- URL manual -->
           <div class="url-section">
-            <label class="campo-label small">O pega una URL</label>
+            <label class="campo-label small">{{ 'ADMIN.FORM.URL_HINT' | translate }}</label>
             <ion-input
               placeholder="https://..."
               [ngModel]="urlImagen()"
@@ -79,8 +79,8 @@
           <!-- Toggle disponible -->
           <div class="disponible-row">
             <div class="disponible-info">
-              <span class="disponible-label">Disponible en carta</span>
-              <span class="disponible-hint">Los clientes podrán verlo y pedirlo</span>
+              <span class="disponible-label">{{ 'ADMIN.FORM.DISPONIBLE' | translate }}</span>
+              <span class="disponible-hint">{{ 'ADMIN.FORM.DISPONIBLE_HINT' | translate }}</span>
             </div>
             <ion-toggle
               [ngModel]="disponible()"
@@ -92,17 +92,17 @@
           <!-- Control de Stock -->
           <div class="stock-panel" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--dash-border);">
             <div class="campo-grupo">
-              <label class="campo-label small" style="color: var(--dash-text-sec); font-size: 0.75rem; margin-bottom: 8px; display: block;">Control de Inventario (Stock)</label>
+              <label class="campo-label small" style="color: var(--dash-text-sec); font-size: 0.75rem; margin-bottom: 8px; display: block;">{{ 'ADMIN.FORM.STOCK_LABEL' | translate }}</label>
               <div class="stock-input-wrap" style="display: flex; align-items: center; gap: 12px;">
                 <ion-input
                   type="number"
-                  placeholder="∞ Sin límite"
+                  [placeholder]="'ADMIN.FORM.STOCK_PLACEHOLDER' | translate"
                   [ngModel]="stock()"
                   (ngModelChange)="stock.set($event ? +$event : null)"
                   style="--padding-start: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--dash-border); border-radius: 8px; font-weight: 700;">
                 </ion-input>
               </div>
-              <p style="font-size: 0.7rem; color: var(--dash-text-sec); margin: 8px 0 0;">Deja vacío si no quieres limitar la venta.</p>
+              <p style="font-size: 0.7rem; color: var(--dash-text-sec); margin: 8px 0 0;">{{ 'ADMIN.FORM.STOCK_HINT' | translate }}</p>
             </div>
           </div>
         </div>
@@ -115,33 +115,56 @@
         <div class="form-panel glass-panel">
           <h3 class="panel-title">
             <ion-icon name="restaurant-outline" class="neon-text-orange"></ion-icon>
-            Información del plato
+            {{ 'ADMIN.FORM.INFO_PLATO' | translate }}
           </h3>
 
-          <div class="campo-grupo">
-            <label class="campo-label">Nombre <span class="req">*</span></label>
-            <ion-input
-              placeholder="Ej: Croquetas de jamón ibérico"
-              [ngModel]="nombre()"
-              (ngModelChange)="nombre.set($event)"
-              class="campo-input">
-            </ion-input>
-          </div>
-
-          <div class="campo-grupo">
-            <label class="campo-label">Descripción</label>
-            <ion-textarea
-              placeholder="Describe el plato, sus ingredientes principales..."
-              [ngModel]="descripcion()"
-              (ngModelChange)="descripcion.set($event)"
-              [rows]="3"
-              class="campo-input">
-            </ion-textarea>
+          <div class="form-row-2col">
+            <div class="campo-grupo">
+              <label class="campo-label">{{ 'ADMIN.FORM.NOMBRE' | translate }} (ES) <span class="req">*</span></label>
+              <ion-input
+                placeholder="Nombre en español"
+                [ngModel]="nombreEs()"
+                (ngModelChange)="nombreEs.set($event)"
+                class="campo-input">
+              </ion-input>
+            </div>
+            <div class="campo-grupo">
+              <label class="campo-label">{{ 'ADMIN.FORM.NOMBRE' | translate }} (EN)</label>
+              <ion-input
+                placeholder="Name in English"
+                [ngModel]="nombreEn()"
+                (ngModelChange)="nombreEn.set($event)"
+                class="campo-input">
+              </ion-input>
+            </div>
           </div>
 
           <div class="form-row-2col">
             <div class="campo-grupo">
-              <label class="campo-label">Precio (€) <span class="req">*</span></label>
+              <label class="campo-label">{{ 'ADMIN.FORM.DESCRIPCION' | translate }} (ES)</label>
+              <ion-textarea
+                placeholder="Descripción en español"
+                [ngModel]="descEs()"
+                (ngModelChange)="descEs.set($event)"
+                [rows]="2"
+                class="campo-input">
+              </ion-textarea>
+            </div>
+            <div class="campo-grupo">
+              <label class="campo-label">{{ 'ADMIN.FORM.DESCRIPCION' | translate }} (EN)</label>
+              <ion-textarea
+                placeholder="English description"
+                [ngModel]="descEn()"
+                (ngModelChange)="descEn.set($event)"
+                [rows]="2"
+                class="campo-input">
+              </ion-textarea>
+            </div>
+          </div>
+
+          <div class="form-row-2col">
+            <div class="campo-grupo">
+              <label class="campo-label">{{ 'ADMIN.FORM.PRECIO' | translate }} <span class="req">*</span></label>
               <ion-input
                 type="number"
                 placeholder="0.00"
@@ -153,14 +176,14 @@
               </ion-input>
             </div>
             <div class="campo-grupo">
-              <label class="campo-label">Categoría</label>
+              <label class="campo-label">{{ 'ADMIN.FORM.CATEGORIA' | translate }}</label>
               <ion-select
                 interface="popover"
                 [ngModel]="categoria()"
                 (ngModelChange)="categoria.set($event)"
                 class="campo-select">
                 @for (cat of categorias; track cat.clave) {
-                  <ion-select-option [value]="cat.clave">{{ cat.etiqueta }}</ion-select-option>
+                  <ion-select-option [value]="cat.clave">{{ cat.etiqueta | translate }}</ion-select-option>
                 }
               </ion-select>
             </div>
@@ -171,30 +194,30 @@
         <div class="form-panel glass-panel">
           <h3 class="panel-title">
             <ion-icon name="time-outline" class="neon-text-purple"></ion-icon>
-            Turnos y Visibilidad
+            {{ 'ADMIN.FORM.TURNOS' | translate }}
           </h3>
           <div class="form-row-2col">
             <div class="campo-grupo">
-              <label class="campo-label">Turnos disponibles</label>
+              <label class="campo-label">{{ 'ADMIN.FORM.TURNOS_DISP' | translate }}</label>
               <div class="turnos-row">
                 <button 
                   type="button" 
                   class="turno-btn" 
                   [class.activo]="tieneTurno('ALMUERZO')" 
                   (click)="toggleTurno('ALMUERZO')">
-                  Almuerzo
+                  {{ 'ADMIN.FORM.ALMUERZO' | translate }}
                 </button>
                 <button 
                   type="button" 
                   class="turno-btn" 
                   [class.activo]="tieneTurno('CENA')" 
                   (click)="toggleTurno('CENA')">
-                  Cena
+                  {{ 'ADMIN.FORM.CENA' | translate }}
                 </button>
               </div>
             </div>
             <div class="campo-grupo">
-              <label class="campo-label">Prioridad (Orden)</label>
+              <label class="campo-label">{{ 'ADMIN.FORM.PRIORIDAD' | translate }}</label>
               <ion-input 
                 type="number" 
                 [ngModel]="orden()" 
@@ -210,22 +233,30 @@
           <div class="panel-header-action">
             <h3 class="panel-title">
               <ion-icon name="list-outline" class="neon-text-green"></ion-icon>
-              Variantes / Formatos
+              {{ 'ADMIN.FORM.VARIANTES' | translate }}
             </h3>
             <button type="button" class="btn-text-action" (click)="anadirVariante()">
-              <ion-icon name="add-outline"></ion-icon> Añadir variante
+              <ion-icon name="add-outline"></ion-icon> {{ 'ADMIN.FORM.ADD_VARIANTE' | translate }}
             </button>
           </div>
           
           <div class="dynamic-list">
             @for (v of variantes(); track $index; let i = $index) {
               <div class="dynamic-item">
-                <ion-input 
-                  placeholder="Nombre (ej: Tapa, Media, Ración)" 
-                  [ngModel]="v.nombre" 
-                  (ngModelChange)="updateVarianteNombre(i, $event)"
-                  class="campo-input">
-                </ion-input>
+                <div class="inputs-stacked">
+                  <ion-input 
+                    placeholder="ES (ej: Tapa)" 
+                    [ngModel]="$any(v.nombre).es" 
+                    (ngModelChange)="updateVarianteNombre(i, 'es', $event)"
+                    class="campo-input">
+                  </ion-input>
+                  <ion-input 
+                    placeholder="EN (ex: Portion)" 
+                    [ngModel]="$any(v.nombre).en" 
+                    (ngModelChange)="updateVarianteNombre(i, 'en', $event)"
+                    class="campo-input">
+                  </ion-input>
+                </div>
                 <ion-input 
                   type="number" 
                   placeholder="Precio" 
@@ -249,10 +280,10 @@
           <div class="panel-header-action">
             <h3 class="panel-title">
               <ion-icon name="options-outline" class="neon-text-blue"></ion-icon>
-              Modificadores / Extras
+              {{ 'ADMIN.FORM.MODIFICADORES' | translate }}
             </h3>
             <button type="button" class="btn-text-action" (click)="anadirGrupoModificadores()">
-              <ion-icon name="add-outline"></ion-icon> Añadir grupo
+              <ion-icon name="add-outline"></ion-icon> {{ 'ADMIN.FORM.ADD_GRUPO' | translate }}
             </button>
           </div>
 
@@ -260,19 +291,27 @@
             @for (grupo of modificadores(); track $index; let gi = $index) {
               <div class="mod-group-card">
                 <div class="mod-group-header">
-                  <ion-input 
-                    placeholder="Título del grupo (ej: Punto de la carne)" 
-                    [ngModel]="grupo.nombre" 
-                    (ngModelChange)="updateGrupoNombre(gi, $event)"
-                    class="campo-input">
-                  </ion-input>
+                  <div class="inputs-stacked">
+                    <ion-input 
+                      placeholder="ES (ej: Punto carne)" 
+                      [ngModel]="$any(grupo.nombre).es" 
+                      (ngModelChange)="updateGrupoNombre(gi, 'es', $event)"
+                      class="campo-input">
+                    </ion-input>
+                    <ion-input 
+                      placeholder="EN (ex: Meat point)" 
+                      [ngModel]="$any(grupo.nombre).en" 
+                      (ngModelChange)="updateGrupoNombre(gi, 'en', $event)"
+                      class="campo-input">
+                    </ion-input>
+                  </div>
                   <ion-select 
                     interface="popover" 
                     [ngModel]="grupo.tipo" 
                     (ngModelChange)="updateGrupoTipo(gi, $event)"
                     class="campo-select select-small">
-                    <ion-select-option value="EXCLUYENTE">Excluyente (Radio)</ion-select-option>
-                    <ion-select-option value="OPCIONAL">Opcional (Checkbox)</ion-select-option>
+                    <ion-select-option value="EXCLUYENTE">{{ 'ADMIN.FORM.TIPO_EXCLUYENTE' | translate }}</ion-select-option>
+                    <ion-select-option value="OPCIONAL">{{ 'ADMIN.FORM.TIPO_OPCIONAL' | translate }}</ion-select-option>
                   </ion-select>
                   <button type="button" class="btn-remove" (click)="quitarGrupoModificadores(gi)">
                     <ion-icon name="trash-outline"></ion-icon>
@@ -282,12 +321,20 @@
                 <div class="mod-options-list">
                   @for (opc of grupo.opciones; track $index; let oi = $index) {
                     <div class="mod-option-item">
-                      <ion-input 
-                        placeholder="Opción (ej: Muy hecha)" 
-                        [ngModel]="opc.nombre" 
-                        (ngModelChange)="updateOpcionNombre(gi, oi, $event)"
-                        class="campo-input">
-                      </ion-input>
+                      <div class="inputs-stacked">
+                        <ion-input 
+                          placeholder="ES" 
+                          [ngModel]="$any(opc.nombre).es" 
+                          (ngModelChange)="updateOpcionNombre(gi, oi, 'es', $event)"
+                          class="campo-input">
+                        </ion-input>
+                        <ion-input 
+                          placeholder="EN" 
+                          [ngModel]="$any(opc.nombre).en" 
+                          (ngModelChange)="updateOpcionNombre(gi, oi, 'en', $event)"
+                          class="campo-input">
+                        </ion-input>
+                      </div>
                       <ion-input 
                         type="number" 
                         placeholder="+ €" 
@@ -301,7 +348,7 @@
                     </div>
                   }
                   <button type="button" class="btn-add-opc" (click)="anadirOpcionModificador(gi)">
-                    <ion-icon name="add-outline" slot="start"></ion-icon> Añadir opción
+                    <ion-icon name="add-outline" slot="start"></ion-icon> {{ 'ADMIN.FORM.ADD_OPCION' | translate }}
                   </button>
                 </div>
               </div>

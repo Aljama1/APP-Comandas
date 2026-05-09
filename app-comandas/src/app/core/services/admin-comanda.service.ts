@@ -4,6 +4,7 @@ import { Comanda, EstadoComanda } from '../models/comanda.model';
 import { UserSettingsService } from './user-settings.service';
 import { AudioService } from './audio.service';
 import { ProductoAdminService } from './producto-admin.service';
+import { getTranslation } from '../models/common.model';
 
 @Injectable({
   providedIn: 'root'
@@ -63,7 +64,7 @@ export class AdminComandaService implements OnDestroy {
           } else {
             // Si es la primera vez que lo vemos, lo inicializamos
             mapa.set(linea.idProducto, {
-              nombre: linea.nombreProducto,
+              nombre: getTranslation(linea.nombreProducto, 'es'),
               cantidadTotal: linea.cantidad,
               mesas: [comanda.idMesa],
               notas: linea.notasEspeciales ? [`Mesa ${comanda.idMesa}: ${linea.notasEspeciales}`] : []
@@ -95,7 +96,7 @@ export class AdminComandaService implements OnDestroy {
             }
           } else {
             mapa.set(linea.idProducto, {
-              nombre: linea.nombreProducto,
+              nombre: getTranslation(linea.nombreProducto, 'es'),
               cantidadTotal: linea.cantidad,
               mesas: [comanda.idMesa],
               notas: linea.notasEspeciales ? [`Mesa ${comanda.idMesa}: ${linea.notasEspeciales}`] : []
@@ -202,6 +203,27 @@ export class AdminComandaService implements OnDestroy {
       });
     } catch (error) {
       console.error(`Error al actualizar a ${nuevoEstado}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cierra todas las comandas activas de una mesa específica (marcar como PAGADO).
+   * Esto libera la mesa para nuevos clientes.
+   */
+  async finalizarCuentaMesa(idMesa: string): Promise<void> {
+    const comandasDeLaMesa = this._comandasActivas().filter(c => c.idMesa === idMesa);
+    
+    const promesas = comandasDeLaMesa.map(comanda => {
+      if (!comanda.id) return Promise.resolve();
+      return this.actualizarEstado(comanda.id, 'PAGADO');
+    });
+
+    try {
+      await Promise.all(promesas);
+      console.log(`Mesa ${idMesa} cerrada y pagada.`);
+    } catch (error) {
+      console.error(`Error al cerrar la mesa ${idMesa}:`, error);
       throw error;
     }
   }

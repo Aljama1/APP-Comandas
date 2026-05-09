@@ -12,11 +12,13 @@ import {
   restaurantOutline, imageOutline, addOutline, trashOutline
 } from 'ionicons/icons';
 import { VarianteProducto, GrupoModificadores, Turno, OpcionModificador, Alergeno } from '../../../core/models/producto.model';
+import { LocalizedString, Translatable, getTranslation } from '../../../core/models/common.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-formulario-producto',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, TranslateModule],
   templateUrl: './formulario-producto.component.html',
   styleUrls: ['./formulario-producto.component.scss']
 })
@@ -26,13 +28,16 @@ export class FormularioProductoComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private toastCtrl = inject(ToastController);
   private loadingCtrl = inject(LoadingController);
+  private translate = inject(TranslateService);
 
   modoEdicion = signal(false);
   productoId = signal<string | null>(null);
 
   // Form state
-  nombre      = signal('');
-  descripcion = signal('');
+  nombreEs    = signal('');
+  nombreEn    = signal('');
+  descEs      = signal('');
+  descEn      = signal('');
   precio      = signal<number | null>(null);
   categoria   = signal<CategoriaProducto>('principal');
   alergenos   = signal<string[]>([]);
@@ -79,8 +84,11 @@ export class FormularioProductoComponent implements OnInit {
   private cargarProducto(id: string) {
     const encontrado = this.productoService.productos().find(p => p.id === id);
     if (encontrado) {
-      this.nombre.set(encontrado.nombre);
-      this.descripcion.set(encontrado.descripcion || '');
+      // Cargar textos localizados (Híbrido)
+      this.nombreEs.set(getTranslation(encontrado.nombre, 'es'));
+      this.nombreEn.set(getTranslation(encontrado.nombre, 'en'));
+      this.descEs.set(getTranslation(encontrado.descripcion || '', 'es'));
+      this.descEn.set(getTranslation(encontrado.descripcion || '', 'en'));
       this.precio.set(encontrado.precio);
       this.categoria.set(encontrado.categoria as CategoriaProducto);
       this.alergenos.set([...encontrado.alergenos]);
@@ -137,7 +145,7 @@ export class FormularioProductoComponent implements OnInit {
 
   // ── Métodos para Variantes ──────────────────────────────────────
   anadirVariante() {
-    this.variantes.update(v => [...v, { nombre: '', precio: 0 }]);
+    this.variantes.update(v => [...v, { nombre: { es: '', en: '' }, precio: 0 }]);
   }
 
   quitarVariante(index: number) {
@@ -147,9 +155,9 @@ export class FormularioProductoComponent implements OnInit {
   // ── Métodos para Modificadores ──────────────────────────────────
   anadirGrupoModificadores() {
     this.modificadores.update(m => [...m, { 
-      nombre: '', 
+      nombre: { es: '', en: '' }, 
       tipo: 'EXCLUYENTE', 
-      opciones: [{ nombre: '', precioAdicional: 0 }] 
+      opciones: [{ nombre: { es: '', en: '' }, precioAdicional: 0 }] 
     }]);
   }
 
@@ -160,7 +168,7 @@ export class FormularioProductoComponent implements OnInit {
   anadirOpcionModificador(grupoIndex: number) {
     this.modificadores.update(m => {
       const nuevos = [...m];
-      nuevos[grupoIndex].opciones.push({ nombre: '', precioAdicional: 0 });
+      nuevos[grupoIndex].opciones.push({ nombre: { es: '', en: '' }, precioAdicional: 0 });
       return nuevos;
     });
   }
@@ -189,10 +197,14 @@ export class FormularioProductoComponent implements OnInit {
   }
 
   // ── Actualizadores para ngModel (debido a señales de arrays) ───
-  updateVarianteNombre(i: number, val: string) {
+  updateVarianteNombre(i: number, lang: 'es' | 'en', val: string) {
     this.variantes.update(v => {
       const copy = [...v];
-      copy[i].nombre = val;
+      const nombreActual = copy[i].nombre as LocalizedString;
+      copy[i].nombre = { 
+        es: lang === 'es' ? val : (typeof nombreActual === 'string' ? nombreActual : nombreActual.es),
+        en: lang === 'en' ? val : (typeof nombreActual === 'string' ? '' : nombreActual.en)
+      };
       return copy;
     });
   }
@@ -204,10 +216,14 @@ export class FormularioProductoComponent implements OnInit {
     });
   }
 
-  updateGrupoNombre(i: number, val: string) {
+  updateGrupoNombre(i: number, lang: 'es' | 'en', val: string) {
     this.modificadores.update(m => {
       const copy = [...m];
-      copy[i].nombre = val;
+      const nombreActual = copy[i].nombre as LocalizedString;
+      copy[i].nombre = { 
+        es: lang === 'es' ? val : (typeof nombreActual === 'string' ? nombreActual : nombreActual.es),
+        en: lang === 'en' ? val : (typeof nombreActual === 'string' ? '' : nombreActual.en)
+      };
       return copy;
     });
   }
@@ -219,10 +235,14 @@ export class FormularioProductoComponent implements OnInit {
     });
   }
 
-  updateOpcionNombre(gi: number, oi: number, val: string) {
+  updateOpcionNombre(gi: number, oi: number, lang: 'es' | 'en', val: string) {
     this.modificadores.update(m => {
       const copy = JSON.parse(JSON.stringify(m));
-      copy[gi].opciones[oi].nombre = val;
+      const nombreActual = copy[gi].opciones[oi].nombre as LocalizedString;
+      copy[gi].opciones[oi].nombre = { 
+        es: lang === 'es' ? val : (typeof nombreActual === 'string' ? nombreActual : nombreActual.es),
+        en: lang === 'en' ? val : (typeof nombreActual === 'string' ? '' : nombreActual.en)
+      };
       return copy;
     });
   }
@@ -235,7 +255,7 @@ export class FormularioProductoComponent implements OnInit {
   }
 
   esValido(): boolean {
-    const n = this.nombre().trim();
+    const n = this.nombreEs().trim();
     const p = this.precio();
     return n.length > 0 && p !== null && p > 0;
   }
@@ -260,8 +280,8 @@ export class FormularioProductoComponent implements OnInit {
       }
 
       const datos: any = {
-        nombre:      this.nombre().trim(),
-        descripcion: this.descripcion().trim(),
+        nombre:      { es: this.nombreEs().trim(), en: this.nombreEn().trim() },
+        descripcion: { es: this.descEs().trim(), en: this.descEn().trim() },
         precio:      this.precio()!,
         categoria:   this.categoria(),
         alergenos:   this.alergenos(),
@@ -277,6 +297,10 @@ export class FormularioProductoComponent implements OnInit {
       if (urlFinal) {
         datos.urlImagen = urlFinal;
       }
+
+      // Limpiar objetos vacíos en inglés si no se introdujeron (opcional, pero recomendado)
+      if (!datos.nombre.en) datos.nombre.en = datos.nombre.es;
+      if (!datos.descripcion.en) datos.descripcion.en = datos.descripcion.es;
 
       // 2. Guardar en Firestore
       if (this.modoEdicion()) {

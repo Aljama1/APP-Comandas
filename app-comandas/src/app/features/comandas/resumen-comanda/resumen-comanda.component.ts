@@ -7,13 +7,18 @@ import { ComandaFirestoreService } from '../../../core/services/comanda-firestor
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { AudioService } from '../../../core/services/audio.service';
 import { Comanda, LineaComanda } from '../../../core/models/comanda.model';
+import { TranslateService } from '@ngx-translate/core';
+import { getTranslation } from '../../../core/models/common.model';
 import { addIcons } from 'ionicons';
 import { trashOutline, addOutline, removeOutline, chatbubbleEllipsesOutline, checkmarkCircleOutline, arrowBackOutline, readerOutline } from 'ionicons/icons';
+
+import { TranslateModule } from '@ngx-translate/core';
+import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
 
 @Component({
   selector: 'app-resumen-comanda',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, TranslateModule, TranslateContentPipe],
   templateUrl: './resumen-comanda.component.html',
   styleUrls: ['./resumen-comanda.component.scss']
 })
@@ -25,6 +30,7 @@ export class ResumenComandaComponent {
   private alertController = inject(AlertController);
   private loadingController = inject(LoadingController);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   constructor() {
     addIcons({ trashOutline, addOutline, removeOutline, chatbubbleEllipsesOutline, checkmarkCircleOutline, arrowBackOutline, readerOutline });
@@ -45,7 +51,7 @@ export class ResumenComandaComponent {
   async abrirNotas(linea: LineaComanda) {
     const alert = await this.alertController.create({
       header: 'Notas a cocina',
-      subHeader: linea.nombreProducto,
+      subHeader: getTranslation(linea.nombreProducto, this.translate.currentLang),
       message: 'Indica si tienes alguna preferencia (ej. "poco hecho", "salsa aparte").',
       cssClass: 'premium-alert',
       mode: 'ios',

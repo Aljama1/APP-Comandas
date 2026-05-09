@@ -23,13 +23,40 @@ if (environment.production) {
   enableProdMode();
 }
 
+import { importProvidersFrom } from '@angular/core';
+import { HttpClient, provideHttpClient } from '@angular/common/http';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader';
+
+// Función para cargar los archivos JSON de traducción
+// En v17+, el loader inyecta HttpClient automáticamente, por lo que no necesita deps manuales
+export function createTranslateLoader() {
+  return new TranslateHttpLoader();
+}
+
 // Arrancamos la aplicación con todos los proveedores necesarios
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(), // Proveedor de los servicios de Ionic
-    provideRouter(routes, withPreloading(PreloadAllModules)), // Configuración de rutas
+    provideIonicAngular(), 
+    provideRouter(routes, withPreloading(PreloadAllModules)), 
+    provideHttpClient(),
     
+    // Configuración de Traducciones (UI Frontend)
+    importProvidersFrom(
+      TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useFactory: createTranslateLoader
+        }
+      })
+    ),
+    // Token de configuración requerido por las nuevas versiones de TranslateHttpLoader
+    {
+      provide: TRANSLATE_HTTP_LOADER_CONFIG,
+      useValue: { prefix: './assets/i18n/', suffix: '.json' }
+    },
+
     // Configuración de Firebase
     provideFirebaseApp(() => initializeApp(environment.firebase)), 
     provideAuth(() => getAuth()), 

@@ -1,6 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { LineaComanda } from '../models/comanda.model';
 import { Producto, CategoriaProducto, MAPA_DESTINO_CATEGORIA, DestinoReceptor, VarianteProducto, OpcionModificador } from '../models/producto.model';
+import { areTranslatableEqual } from '../models/common.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +24,14 @@ export class ComandaService {
   constructor() { }
 
   /**
+   * Genera una clave única basada en un Translatable para comparaciones estables.
+   */
+  private getTranslatableKey(t: any): string {
+    if (!t) return '';
+    return typeof t === 'string' ? t : JSON.stringify(t);
+  }
+
+  /**
    * Agrega un producto a la comanda. Si ya existe, incrementa la cantidad.
    */
   public agregarLinea(
@@ -39,13 +48,13 @@ export class ComandaService {
       precioUnitario += extraModificadores;
 
       // Para considerar si es el mismo artículo, deben coincidir: ID, notas, variante y modificadores (nombres)
-      const modsKeys = modificadores.map(m => m.nombre).sort().join('|');
+      const modsKeys = modificadores.map(m => this.getTranslatableKey(m.nombre)).sort().join('|');
       
       const existeIndice = lineas.findIndex(l => {
-        const lModsKeys = (l.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+        const lModsKeys = (l.modificadoresSeleccionados || []).map(m => this.getTranslatableKey(m.nombre)).sort().join('|');
         return l.idProducto === producto.id && 
                l.notasEspeciales === notasEspeciales && 
-               l.varianteSeleccionada?.nombre === variante?.nombre &&
+               areTranslatableEqual(l.varianteSeleccionada?.nombre, variante?.nombre) &&
                lModsKeys === modsKeys;
       });
       
@@ -79,13 +88,13 @@ export class ComandaService {
    * Elimina completamente un producto de la comanda.
    */
   public eliminarLinea(linea: LineaComanda): void {
-    const modsKeys = (linea.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+    const modsKeys = (linea.modificadoresSeleccionados || []).map(m => this.getTranslatableKey(m.nombre)).sort().join('|');
     
     this.lineasComanda.update(lineas => lineas.filter(l => {
-      const lModsKeys = (l.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+      const lModsKeys = (l.modificadoresSeleccionados || []).map(m => this.getTranslatableKey(m.nombre)).sort().join('|');
       return !(l.idProducto === linea.idProducto && 
                l.notasEspeciales === linea.notasEspeciales && 
-               l.varianteSeleccionada?.nombre === linea.varianteSeleccionada?.nombre &&
+               areTranslatableEqual(l.varianteSeleccionada?.nombre, linea.varianteSeleccionada?.nombre) &&
                lModsKeys === modsKeys);
     }));
     this.persistir();
@@ -95,15 +104,15 @@ export class ComandaService {
    * Modifica la cantidad de una línea específica en 1 (incrementar o decrementar).
    */
   public actualizarCantidad(linea: LineaComanda, operacion: 'incrementar' | 'decrementar'): void {
-    const modsKeys = (linea.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+    const modsKeys = (linea.modificadoresSeleccionados || []).map(m => this.getTranslatableKey(m.nombre)).sort().join('|');
 
     this.lineasComanda.update(lineas => {
       const lineasActualizadas = [...lineas];
       const indice = lineasActualizadas.findIndex(l => {
-        const lModsKeys = (l.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+        const lModsKeys = (l.modificadoresSeleccionados || []).map(m => this.getTranslatableKey(m.nombre)).sort().join('|');
         return l.idProducto === linea.idProducto && 
                l.notasEspeciales === linea.notasEspeciales && 
-               l.varianteSeleccionada?.nombre === linea.varianteSeleccionada?.nombre &&
+               areTranslatableEqual(l.varianteSeleccionada?.nombre, linea.varianteSeleccionada?.nombre) &&
                lModsKeys === modsKeys;
       });
       
@@ -128,15 +137,15 @@ export class ComandaService {
    * Modifica las notas a cocina de una línea existente.
    */
   public actualizarNotasLinea(linea: LineaComanda, nuevasNotas: string): void {
-    const modsKeys = (linea.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+    const modsKeys = (linea.modificadoresSeleccionados || []).map(m => this.getTranslatableKey(m.nombre)).sort().join('|');
 
     this.lineasComanda.update(lineas => {
       const lineasActualizadas = [...lineas];
       const indice = lineasActualizadas.findIndex(l => {
-        const lModsKeys = (l.modificadoresSeleccionados || []).map(m => m.nombre).sort().join('|');
+        const lModsKeys = (l.modificadoresSeleccionados || []).map(m => this.getTranslatableKey(m.nombre)).sort().join('|');
         return l.idProducto === linea.idProducto && 
                l.notasEspeciales === linea.notasEspeciales && 
-               l.varianteSeleccionada?.nombre === linea.varianteSeleccionada?.nombre &&
+               areTranslatableEqual(l.varianteSeleccionada?.nombre, linea.varianteSeleccionada?.nombre) &&
                lModsKeys === modsKeys;
       });
       

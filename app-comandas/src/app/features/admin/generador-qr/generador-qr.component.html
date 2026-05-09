@@ -23,6 +23,18 @@
           </div>
         </div>
 
+        <div class="input-group">
+          <label>URL Base (opcional para producción)</label>
+          <div class="url-input-wrapper">
+            <input type="text" 
+                   [ngModel]="manualUrl()" 
+                   (ngModelChange)="manualUrl.set($event)" 
+                   placeholder="Ej: https://mi-app.com"
+                   class="url-override-input">
+            <small *ngIf="!manualUrl()" class="hint">Usando URL actual: {{baseUrl()}}</small>
+          </div>
+        </div>
+
         <div class="link-preview">
           <div class="link-label">
             <ion-icon name="link-outline"></ion-icon>

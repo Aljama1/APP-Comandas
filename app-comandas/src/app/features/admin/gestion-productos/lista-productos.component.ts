@@ -4,6 +4,9 @@ import { IonicModule, ToastController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ProductoAdminService } from '../../../core/services/producto-admin.service';
 import { Producto, CategoriaProducto } from '../../../core/models/producto.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
+import { getTranslation } from '../../../core/models/common.model';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { addIcons } from 'ionicons';
 import {
@@ -20,7 +23,7 @@ type VistaFiltro = 'todas' | CategoriaProducto;
 @Component({
   selector: 'app-lista-productos',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, TranslateModule, TranslateContentPipe],
   templateUrl: './lista-productos.component.html',
   styleUrls: ['./lista-productos.component.scss']
 })
@@ -30,16 +33,17 @@ export class ListaProductosComponent {
   private router = inject(Router);
   private toastCtrl = inject(ToastController);
   private alertCtrl = inject(AlertController);
+  private translate = inject(TranslateService);
 
   filtroActivo = signal<VistaFiltro>('todas');
 
   categorias: { clave: VistaFiltro; etiqueta: string; icono: string }[] = [
-    { clave: 'todas',     etiqueta: 'Todas',      icono: 'list-outline' },
-    { clave: 'entrante',  etiqueta: 'Entrantes',   icono: 'egg-outline' },
-    { clave: 'principal', etiqueta: 'Principales', icono: 'restaurant-outline' },
-    { clave: 'postre',    etiqueta: 'Postres',     icono: 'ice-cream-outline' },
-    { clave: 'bebida',    etiqueta: 'Bebidas',     icono: 'beer-outline' },
-    { clave: 'especial',  etiqueta: 'Especiales',  icono: 'star-outline' }
+    { clave: 'todas',     etiqueta: 'ADMIN.TODAS',      icono: 'list-outline' },
+    { clave: 'entrante',  etiqueta: 'CATEGORIAS.entrante',   icono: 'egg-outline' },
+    { clave: 'principal', etiqueta: 'CATEGORIAS.principal', icono: 'restaurant-outline' },
+    { clave: 'postre',    etiqueta: 'CATEGORIAS.postre',     icono: 'ice-cream-outline' },
+    { clave: 'bebida',    etiqueta: 'CATEGORIAS.bebida',     icono: 'beer-outline' },
+    { clave: 'especial',  etiqueta: 'CATEGORIAS.especial',  icono: 'star-outline' }
   ];
 
   productosFiltrados = computed(() => {
@@ -131,8 +135,8 @@ export class ListaProductosComponent {
 
   async eliminarProducto(producto: Producto) {
     const alert = await this.alertCtrl.create({
-      header: '¿Eliminar producto?',
-      message: `"${producto.nombre}" se eliminará permanentemente.`,
+      header: this.translate.instant('ADMIN.ELIMINAR_PREGUNTA'),
+      message: `"${getTranslation(producto.nombre, this.translate.currentLang)}" ${this.translate.instant('ADMIN.ELIMINAR_AVISO')}`,
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {

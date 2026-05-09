@@ -10,7 +10,7 @@
       <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
     </button>
     <div class="titulo-cabecera" style="margin-left: 12px;">
-      <h1>Tu Comanda</h1>
+      <h1>{{ 'COMANDAS.TU_COMANDA' | translate }}</h1>
     </div>
     @if (firestoreService.tieneComandas()) {
       <span class="ronda-badge">Ronda {{ firestoreService.totalRondas() + 1 }}</span>
@@ -25,11 +25,11 @@
         <div class="orbe-cristal" aria-hidden="true">
           <ion-icon name="reader-outline"></ion-icon>
         </div>
-        <h3>Sin Selecciones</h3>
-        <p>Aún no has añadido ningún plato a la comanda.</p>
-        <button class="btn-seguir-pidiendo" (click)="volver()" aria-label="Ir a la carta para añadir platos">
+        <h3>{{ 'COMANDAS.VACIO_TITULO' | translate }}</h3>
+        <p>{{ 'COMANDAS.VACIO_DESC' | translate }}</p>
+        <button class="btn-seguir-pidiendo" (click)="volver()" [attr.aria-label]="'COMANDAS.VOLVER_ARIA' | translate">
           <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
-          <span>Explorar la carta</span>
+          <span>{{ 'COMANDAS.EXPLORAR' | translate }}</span>
         </button>
       </div>
     }
@@ -40,17 +40,17 @@
         @for (linea of comandaService.lineasComanda(); track linea) {
           <article class="tarjeta-item panel-cristal" role="listitem">
             <div class="cabecera-item">
-              <h3>{{ linea.nombreProducto }}</h3>
+              <h3>{{ linea.nombreProducto | translateContent }}</h3>
               <span class="precio" [attr.aria-label]="'Subtotal: ' + (linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es')">{{ linea.subtotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
             </div>
 
             @if (linea.varianteSeleccionada || (linea.modificadoresSeleccionados && linea.modificadoresSeleccionados.length > 0)) {
               <div class="item-opciones">
                 @if (linea.varianteSeleccionada) {
-                  <span class="opcion-tag">{{ linea.varianteSeleccionada.nombre }}</span>
+                  <span class="opcion-tag">{{ linea.varianteSeleccionada.nombre | translateContent }}</span>
                 }
                 @for (mod of linea.modificadoresSeleccionados; track mod.nombre) {
-                  <span class="opcion-tag">+ {{ mod.nombre }}</span>
+                  <span class="opcion-tag">+ {{ mod.nombre | translateContent }}</span>
                 }
               </div>
             }
@@ -65,7 +65,7 @@
                 (click)="abrirNotas(linea)"
                 [attr.aria-label]="linea.notasEspeciales ? 'Editar nota de cocina para ' + linea.nombreProducto : 'Añadir nota de cocina para ' + linea.nombreProducto">
                 <ion-icon name="chatbubble-ellipses-outline" aria-hidden="true"></ion-icon>
-                <span>{{ linea.notasEspeciales ? 'Editar nota' : 'Añadir nota' }}</span>
+                <span>{{ (linea.notasEspeciales ? 'COMANDAS.EDITAR_NOTA' : 'COMANDAS.ADD_NOTA') | translate }}</span>
               </button>
               <div class="control-cantidad" role="group" [attr.aria-label]="'Cantidad de ' + linea.nombreProducto">
                 <button class="btn-paso"
@@ -85,9 +85,9 @@
           </article>
         }
         <!-- Botón secundario: Seguir pidiendo -->
-        <button class="btn-seguir-pidiendo" (click)="volver()" aria-label="Volver a la carta para seguir añadiendo platos">
+        <button class="btn-seguir-pidiendo" (click)="volver()" [attr.aria-label]="'COMANDAS.VOLVER_ARIA' | translate">
           <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
-          <span>Seguir pidiendo</span>
+          <span>{{ 'COMANDAS.SEGUIR_PIDIENDO' | translate }}</span>
         </button>
       </div>
     }
@@ -101,11 +101,11 @@
 @if (comandaService.lineasComanda().length > 0) {
   <div class="footer-pago animar-deslizar-arriba" role="region" aria-label="Resumen del pedido">
     <div class="desglose">
-      <span class="etiqueta">Total a pagar ({{ comandaService.totalArticulos() }} ítems)</span>
+      <span class="etiqueta">{{ 'COMANDAS.TOTAL' | translate }} ({{ comandaService.totalArticulos() }} ítems)</span>
       <span class="total" aria-live="polite">{{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
     </div>
-    <button class="btn-confirmar" (click)="confirmarPedido()" aria-label="Confirmar y enviar el pedido">
-      <span>Confirmar y Enviar</span>
+    <button class="btn-confirmar" (click)="confirmarPedido()" [attr.aria-label]="'COMANDAS.CONFIRMAR_ARIA' | translate">
+      <span>{{ 'COMANDAS.CONFIRMAR' | translate }}</span>
       <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
     </button>
   </div>

@@ -16,13 +16,17 @@ import {
   analyticsOutline, checkmarkOutline
 } from 'ionicons/icons';
 import { DatePipe } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
+import { Turno } from '../../../core/models/producto.model';
+import { LocalizedString, Translatable } from '../../../core/models/common.model';
 
 import { AdminConfigBarComponent } from '../../../shared/components/admin-config-bar/admin-config-bar.component';
 
 @Component({
   selector: 'app-panel-pedidos',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, AdminConfigBarComponent],
+  imports: [CommonModule, IonicModule, FormsModule, AdminConfigBarComponent, TranslateModule, TranslateContentPipe],
   providers: [DatePipe],
   templateUrl: './panel-pedidos.component.html',
   styleUrls: ['./panel-pedidos.component.scss']
@@ -221,8 +225,12 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
 
   getLabelEstado(estado: EstadoComanda): string {
     const map: Record<EstadoComanda, string> = {
-      PENDIENTE: 'Pendiente', PREPARANDO: 'En marcha',
-      LISTO: 'Listo', SERVIDO: 'Completado', PAGADO: 'Pagado', CANCELADO: 'Cancelado'
+      PENDIENTE: 'ESTADOS.PENDIENTE', 
+      PREPARANDO: 'ESTADOS.PREPARANDO',
+      LISTO: 'ESTADOS.LISTO', 
+      SERVIDO: 'ESTADOS.SERVIDO', 
+      PAGADO: 'ESTADOS.PAGADO', 
+      CANCELADO: 'ESTADOS.CANCELADO'
     };
     return map[estado] ?? estado;
   }
@@ -272,9 +280,39 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  cobrarMesa(mesa: string) {
-    this.mesasPidiendoCuenta.update(mesas => mesas.filter(m => m !== mesa));
-    this.toastCtrl.create({ message: `Cuenta impresa y ${mesa} cobrada.`, duration: 2000, color: 'success', icon: 'wallet-outline' }).then(t => t.present());
+  async cobrarMesa(idMesa: string) {
+    const alert = await this.alertCtrl.create({
+      header: `Cobrar Mesa ${idMesa}`,
+      message: `¿Confirmas que la mesa ${idMesa} ha pagado la cuenta? Esto cerrará todas sus comandas activas.`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Confirmar Pago',
+          handler: async () => {
+            const loading = await this.loadingCtrl.create({ message: 'Procesando pago...' });
+            await loading.present();
+            try {
+              await this.adminComandaService.finalizarCuentaMesa(idMesa);
+              this.mesasPidiendoCuenta.update(mesas => mesas.filter(m => m !== idMesa));
+              this.cerrarTimeline(); // Si estaba el modal abierto, lo cerramos
+              
+              const toast = await this.toastCtrl.create({
+                message: `Mesa ${idMesa} cobrada y liberada.`,
+                duration: 2000,
+                color: 'success',
+                icon: 'wallet-outline'
+              });
+              await toast.present();
+            } catch (error) {
+              console.error(error);
+            } finally {
+              await loading.dismiss();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   irACocina() { this.router.navigate(['/admin/cocina']); }

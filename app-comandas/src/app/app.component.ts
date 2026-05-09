@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { UserSettingsService } from './core/services/user-settings.service';
+import { LanguageService } from './core/services/language.service';
 
 /**
  * Componente principal de la aplicación.
@@ -14,8 +15,9 @@ import { UserSettingsService } from './core/services/user-settings.service';
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
-  // Inyectar el servicio para que se inicialice en el arranque y aplique el tema
+  // Inyectar servicios para que se inicialicen en el arranque
   private settings = inject(UserSettingsService);
+  private language = inject(LanguageService);
 
   constructor() {
     console.log('Trace — Gestión de Comandas inicializada.');

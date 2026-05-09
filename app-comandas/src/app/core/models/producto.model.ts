@@ -1,20 +1,22 @@
+import { Translatable, LocalizedString } from './common.model';
+
+export type TipoModificador = 'EXCLUYENTE' | 'OPCIONAL';
+export type Turno = 'ALMUERZO' | 'CENA';
+
 export type Alergeno = 'Gluten' | 'Crustáceos' | 'Huevos' | 'Pescado' | 'Cacahuetes' | 'Soja' | 'Lácteos' | 'Frutos de cáscara' | 'Apio' | 'Mostaza' | 'Granos de sésamo' | 'Dióxido de azufre y sulfitos' | 'Altramuces' | 'Moluscos';
 
-export type Turno = 'ALMUERZO' | 'CENA';
-export type TipoModificador = 'EXCLUYENTE' | 'OPCIONAL';
-
 export interface VarianteProducto {
-  nombre: string;
+  nombre: Translatable;
   precio: number;
 }
 
 export interface OpcionModificador {
-  nombre: string;
+  nombre: Translatable;
   precioAdicional: number;
 }
 
 export interface GrupoModificadores {
-  nombre: string;
+  nombre: Translatable;
   tipo: TipoModificador;
   opciones: OpcionModificador[];
   obligatorio?: boolean;
@@ -22,8 +24,8 @@ export interface GrupoModificadores {
 
 export interface Producto {
   id: string;
-  nombre: string;
-  descripcion: string;
+  nombre: Translatable;
+  descripcion: Translatable;
   precio: number;
   urlImagen?: string;
   categoria: CategoriaProducto;
@@ -39,6 +41,8 @@ export interface Producto {
 export type CategoriaProducto = 'entrante' | 'principal' | 'postre' | 'bebida' | 'especial';
 
 export type DestinoReceptor = 'BARRA' | 'COCINA';
+
+export { LocalizedString, Translatable };
 
 export const MAPA_DESTINO_CATEGORIA: Record<CategoriaProducto, DestinoReceptor> = {
   'entrante': 'COCINA',

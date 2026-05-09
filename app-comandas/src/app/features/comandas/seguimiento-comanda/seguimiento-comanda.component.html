@@ -9,10 +9,10 @@
       <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
     </button>
     <div class="seg-header__title">
-      <h1>Mis Pedidos</h1>
+      <h1>{{ 'SEGUIMIENTO.TITULO' | translate }}</h1>
     </div>
     <div class="seg-header__mesa">
-      Mesa {{ todasLasComandas()[0]?.idMesa ?? '—' }}
+      {{ 'CARTA.MESA' | translate }} {{ todasLasComandas()[0]?.idMesa ?? '—' }}
     </div>
   </header>
 
@@ -30,7 +30,7 @@
     @if (todasLasComandas().length === 0) {
       <div class="empty-state">
         <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
-        <p>No tienes pedidos todavía</p>
+        <p>{{ 'SEGUIMIENTO.SIN_PEDIDOS' | translate }}</p>
       </div>
     }
 
@@ -40,10 +40,10 @@
 
         <!-- Cabecera de ronda -->
         <div class="ronda-header">
-          <span class="ronda-num">Ronda {{ i + 1 }}</span>
+          <span class="ronda-num">{{ 'SEGUIMIENTO.RONDA' | translate }} {{ i + 1 }}</span>
           <div class="ronda-estado" [class]="getEstadoConfig(comanda.estado).clase">
             <ion-icon [name]="getEstadoConfig(comanda.estado).icono" aria-hidden="true"></ion-icon>
-            <span>{{ getEstadoConfig(comanda.estado).etiqueta }}</span>
+            <span>{{ getEstadoConfig(comanda.estado).etiqueta | translate }}</span>
           </div>
         </div>
 
@@ -64,13 +64,13 @@
               <div class="item-info">
                 <span class="item-name" [class.item-name--done]="esServido(comanda.estado)">
                   <span class="item-qty">{{ linea.cantidad }}×</span>
-                  {{ linea.nombreProducto }}
+                  {{ linea.nombreProducto | translateContent }}
                 </span>
                 @if (linea.notasEspeciales) {
                   <span class="item-nota">📝 {{ linea.notasEspeciales }}</span>
                 }
                 <span class="item-destino" [class.destino-barra]="linea.destino === 'BARRA'" [class.destino-cocina]="linea.destino === 'COCINA'">
-                  {{ linea.destino === 'BARRA' ? '🍺 Barra' : '🔥 Cocina' }}
+                  {{ linea.destino === 'BARRA' ? '🍺 ' + ('SEGUIMIENTO.DESTINO_BARRA' | translate) : '🔥 ' + ('SEGUIMIENTO.DESTINO_COCINA' | translate) }}
                 </span>
               </div>
 
@@ -82,7 +82,7 @@
 
         <!-- Subtotal ronda -->
         <div class="ronda-subtotal">
-          <span>Subtotal ronda {{ i + 1 }}</span>
+          <span>{{ 'SEGUIMIENTO.SUBTOTAL_RONDA' | translate }} {{ i + 1 }}</span>
           <span>{{ comanda.precioTotal | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
         </div>
 
@@ -93,7 +93,7 @@
     @if (todasLasComandas().length > 0) {
       <div class="total-card">
         <div class="total-card__row">
-          <span class="total-card__label">Total consumido ({{ totalItems() }} items)</span>
+          <span class="total-card__label">{{ 'SEGUIMIENTO.TOTAL_CONSUMIDO' | translate }} ({{ totalItems() }} items)</span>
           <span class="total-card__value">{{ totalAcumulado() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
         </div>
       </div>
@@ -101,15 +101,15 @@
 
     <!-- ══ ACCIONES ══ -->
     <div class="seg-actions">
-      <button class="btn-nueva-ronda" (click)="nuevaRonda()" aria-label="Pedir otra ronda">
+      <button class="btn-nueva-ronda" (click)="nuevaRonda()" [attr.aria-label]="'SEGUIMIENTO.PEDIR_OTRA' | translate">
         <ion-icon name="add-circle-outline" aria-hidden="true"></ion-icon>
-        <span>Pedir otra ronda</span>
+        <span>{{ 'SEGUIMIENTO.PEDIR_OTRA' | translate }}</span>
       </button>
 
       @if (todasServidas()) {
-        <button class="btn-cerrar" (click)="cerrarSesion()" aria-label="Cerrar sesión y volver al inicio">
+        <button class="btn-cerrar" (click)="cerrarSesion()" [attr.aria-label]="'SEGUIMIENTO.CERRAR_SESION' | translate">
           <ion-icon name="home-outline" aria-hidden="true"></ion-icon>
-          <span>Cerrar sesión</span>
+          <span>{{ 'SEGUIMIENTO.CERRAR_SESION' | translate }}</span>
         </button>
       }
     </div>
