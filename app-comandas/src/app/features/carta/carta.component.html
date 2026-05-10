@@ -136,9 +136,13 @@
 <!-- ═══════════════════════════════════════════════════════════════
      MODAL DETALLE DE PRODUCTO
 ════════════════════════════════════════════════════════════════ -->
-@if (mostrarModalProducto() && productoSeleccionado()) {
-  <div class="modal-overlay" (click)="cerrarProducto()" role="dialog" aria-modal="true" [attr.aria-label]="('CARTA.DETALLE' | translate) + ' ' + (productoSeleccionado()!.nombre | translateContent)">
-    <div class="modal-sheet" (click)="$event.stopPropagation()">
+<ion-modal
+  [isOpen]="mostrarModalProducto() && productoSeleccionado() !== null"
+  (didDismiss)="manejarCierreModalProducto($event)"
+  class="modal-producto"
+>
+  <ng-template>
+    <div class="modal-sheet" [attr.aria-label]="('CARTA.DETALLE' | translate) + ' ' + (productoSeleccionado()!.nombre | translateContent)">
       <!-- Imagen -->
       <div class="modal-image-wrapper">
         <div class="modal-handle" aria-hidden="true"></div>
@@ -262,8 +266,8 @@
         </button>
       </div>
     </div>
-  </div>
-}
+  </ng-template>
+</ion-modal>
 
 <!-- ═══════════════════════════════════════════════════════════════
      MODAL CONFIGURACIÓN DE USUARIO

@@ -1,11 +1,12 @@
 import { Injectable, inject, signal, computed, NgZone, runInInjectionContext, EnvironmentInjector, OnDestroy } from '@angular/core';
-import { Firestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, runTransaction } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc } from '@angular/fire/firestore';
 import { Comanda, EstadoComanda } from '../models/comanda.model';
 import { UserSettingsService } from './user-settings.service';
 import { AudioService } from './audio.service';
 import { ProductoAdminService } from './producto-admin.service';
+import { FacturacionService } from './facturacion.service';
 import { getTranslation } from '../models/common.model';
-import { FacturaLegal, ContadorFacturas, calcularDesgloseIva, generarHashFactura } from '../models/factura.model';
+import { FacturaLegal } from '../models/factura.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +15,9 @@ export class AdminComandaService implements OnDestroy {
   private firestore = inject(Firestore);
   private audioService = inject(AudioService);
   private productoAdminService = inject(ProductoAdminService);
-  private zone = inject(NgZone);
-  private injector = inject(EnvironmentInjector);
+  private facturacionService = inject(FacturacionService);
+  private zona = inject(NgZone);
+  private inyector = inject(EnvironmentInjector);
 
   // Señal maestra con TODAS las comandas activas (Pendientes, Preparando, Listas)
   private _comandasActivas = signal<Comanda[]>([]);
@@ -133,7 +135,7 @@ export class AdminComandaService implements OnDestroy {
       return;
     }
 
-    runInInjectionContext(this.injector, () => {
+    runInInjectionContext(this.inyector, () => {
       const comandasRef = collection(this.firestore, 'comandas');
       
       // Consulta: Traemos 4 estados a la vez. 
@@ -146,7 +148,7 @@ export class AdminComandaService implements OnDestroy {
       let isInitialLoad = true;
 
       this.unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
-        this.zone.run(() => {
+        this.zona.run(() => {
           // Lógica de notificaciones sonoras para pedidos nuevos
           if (!isInitialLoad && this.userSettings.soundEnabled()) {
             snapshot.docChanges().forEach(change => {
@@ -170,7 +172,7 @@ export class AdminComandaService implements OnDestroy {
           this._comandasActivas.set(pedidos);
         });
       }, (error) => {
-        this.zone.run(() => {
+        this.zona.run(() => {
           console.error('Error escuchando pedidos activos:', error);
         });
       });
@@ -333,92 +335,28 @@ export class AdminComandaService implements OnDestroy {
   }
 
   /**
-   * Genera una factura para todas las comandas activas de una mesa y las marca como pagadas.
-   * Utiliza transacciones para garantizar correlatividad y encadenamiento (Veri*factu).
+   * Genera una factura para todas las comandas activas de una mesa.
+   *
+   * Delega toda la lógica de facturación (cálculos, encadenamiento VeriFactu,
+   * transacciones) a FacturacionService para separar responsabilidades.
+   *
+   * @param idMesa - ID de la mesa
+   * @param metodoPago - Método de pago utilizado
+   * @returns FacturaLegal generada con todos los detalles
    */
   async generarFactura(idMesa: string, metodoPago: string): Promise<FacturaLegal> {
-    const comandasMesa = this._comandasActivas().filter(c => c.idMesa === idMesa);
-    if (comandasMesa.length === 0) throw new Error('No hay consumiciones para esta mesa');
+    return this.facturacionService.generarFactura(idMesa, metodoPago);
+  }
 
-    const totalConIva = comandasMesa.reduce((sum, c) => sum + (c.precioTotal || 0), 0);
-    const productos = comandasMesa.map((c: Comanda) => c.lineasComanda).reduce((acc, val) => acc.concat(val), []);
-
-    const desglose = calcularDesgloseIva(totalConIva, 10);
-
-    const snapshotProductos = productos.map((p: any) => ({
-      idProducto: p.idProducto,
-      nombre: getTranslation(p.nombreProducto, 'es'),
-      cantidad: p.cantidad,
-      precioUnitario: p.precioUnitario,
-      subtotal: p.subtotal
-    }));
-
-    // Referencias a los documentos implicados
-    const contadorRef = doc(this.firestore, 'metadatos/contadores_facturas');
-    const nuevaFacturaRef = doc(collection(this.firestore, 'facturas')); // Generamos el ID antes de la transacción
-
-    try {
-      const facturaGenerada = await runInInjectionContext(this.injector, () => 
-        runTransaction(this.firestore, async (transaction) => {
-          // 1. Leer el contador actual (debe ser el primer paso de la transacción)
-          const contadorDoc = await transaction.get(contadorRef);
-          
-          if (!contadorDoc.exists()) {
-            throw new Error('El contador de facturas no existe. Por favor, crea el documento inicial en metadatos/contadores_facturas');
-          }
-
-          const datosContador = contadorDoc.data() as ContadorFacturas;
-          
-          // 2. Incrementar contador y preparar datos de la nueva factura
-          const nuevoNumero = datosContador.ultimoNumero + 1;
-          const numeroFormateado = `${datosContador.serieActual}-${nuevoNumero.toString().padStart(6, '0')}`;
-          const fechaExpedicion = Date.now();
-          const hashAnterior = datosContador.ultimoHash;
-
-          // 3. Generar el nuevo Hash de encadenamiento
-          const hashActual = await generarHashFactura(numeroFormateado, fechaExpedicion, totalConIva, hashAnterior);
-
-          // 4. Construir la factura legal
-          const facturaLegal: FacturaLegal = {
-            id: nuevaFacturaRef.id,
-            idMesa: idMesa,
-            numeroFactura: numeroFormateado,
-            fechaExpedicion: fechaExpedicion,
-            baseImponible: desglose.baseImponible,
-            cuotaIva: desglose.cuotaIva,
-            porcentajeIva: 10,
-            importeTotal: totalConIva,
-            metodoPago: metodoPago,
-            hashAnterior: hashAnterior,
-            hashActual: hashActual,
-            productos: snapshotProductos
-          };
-
-          // 5. Escrituras de la transacción (Actualizar contador y crear factura)
-          transaction.set(nuevaFacturaRef, facturaLegal);
-          
-          transaction.update(contadorRef, {
-            ultimoNumero: nuevoNumero,
-            ultimoHash: hashActual
-          });
-
-          // Retornamos el objeto de la factura generada
-          return facturaLegal;
-        })
-      );
-
-      // 6. Marcar comandas como pagadas (fuera de la transacción de factura)
-      await this.finalizarCuentaMesa(idMesa);
-      
-
-      
-      // Asegurarse de retornar el objeto completo como espera la promesa
-      return facturaGenerada as FacturaLegal;
-
-    } catch (error) {
-      console.error('Error al generar la factura con transacción:', error);
-      throw error;
-    }
+  /**
+   * Obtiene todas las comandas activas de una mesa específica.
+   * Usado internamente por FacturacionService y otros servicios administrativos.
+   *
+   * @param idMesa - ID de la mesa
+   * @returns Array de comandas de esa mesa
+   */
+  obtenerComandasPorMesa(idMesa: string): Comanda[] {
+    return this._comandasActivas().filter(c => c.idMesa === idMesa);
   }
 
   /**

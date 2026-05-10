@@ -6,12 +6,6 @@ import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { UserSettingsService } from '../../../core/services/user-settings.service';
 import { ProductoAdminService } from '../../../core/services/producto-admin.service';
 import { updatePassword } from '@angular/fire/auth';
-import { addIcons } from 'ionicons';
-import { 
-  personCircleOutline, settingsOutline, chevronUpOutline, sunnyOutline, 
-  moonOutline, volumeHighOutline, volumeMuteOutline, logOutOutline, 
-  keyOutline, chevronForwardOutline, notificationsOutline, restaurantOutline, barChartOutline, qrCodeOutline, receiptOutline, languageOutline
-} from 'ionicons/icons';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -33,13 +27,7 @@ export class AdminConfigBarComponent implements OnInit {
 
   // Ya no usamos isExpanded, usamos el popover de Ionic
   
-  constructor() {
-    addIcons({
-      personCircleOutline, settingsOutline, chevronUpOutline, sunnyOutline,
-      moonOutline, volumeHighOutline, volumeMuteOutline, logOutOutline,
-      keyOutline, chevronForwardOutline, notificationsOutline, restaurantOutline, barChartOutline, qrCodeOutline, receiptOutline, languageOutline
-    });
-  }
+  constructor() {  }
 
   ngOnInit() {
     // Ejecutar migración de productos antiguos (Fase 10)
@@ -144,4 +132,6 @@ export class AdminConfigBarComponent implements OnInit {
     this.router.navigate(['/admin/cuentas']);
   }
 }
+
+
 

@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { UserSettingsService } from './core/services/user-settings.service';
 import { LanguageService } from './core/services/language.service';
+import { registrarIconosAplicacion } from './core/providers/ionicons-provider';
 
 /**
  * Componente principal de la aplicación.
@@ -20,7 +21,6 @@ export class AppComponent {
   private language = inject(LanguageService);
 
   constructor() {
-
+    registrarIconosAplicacion();
   }
 }
-

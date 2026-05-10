@@ -9,8 +9,6 @@ import { AudioService } from '../../../core/services/audio.service';
 import { Comanda, LineaComanda } from '../../../core/models/comanda.model';
 import { TranslateService } from '@ngx-translate/core';
 import { getTranslation } from '../../../core/models/common.model';
-import { addIcons } from 'ionicons';
-import { trashOutline, addOutline, removeOutline, chatbubbleEllipsesOutline, checkmarkCircleOutline, arrowBackOutline, readerOutline } from 'ionicons/icons';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
@@ -32,9 +30,7 @@ export class ResumenComandaComponent {
   private router = inject(Router);
   private translate = inject(TranslateService);
 
-  constructor() {
-    addIcons({ trashOutline, addOutline, removeOutline, chatbubbleEllipsesOutline, checkmarkCircleOutline, arrowBackOutline, readerOutline });
-  }
+  constructor() {  }
 
   volver() {
     this.router.navigateByUrl('/carta');
@@ -162,3 +158,5 @@ export class ResumenComandaComponent {
   }
 }
 // Forzando recompilación
+
+

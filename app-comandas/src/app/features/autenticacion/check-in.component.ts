@@ -1,83 +1,61 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Auth, signInAnonymously } from '@angular/fire/auth';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { UserSettingsService } from '../../core/services/user-settings.service';
+import { MesaAccessValidatorService } from '../../core/services/mesa-access-validator.service';
 import { PerfilUsuario } from '../../core/models/perfil-usuario.model';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { addIcons } from 'ionicons';
-import {
-  nutritionOutline, waterOutline, leafOutline, eggOutline, fishOutline,
-  restaurantOutline, personOutline, scanOutline, arrowForwardOutline,
-  lockClosedOutline, qrCodeOutline, moonOutline, sunnyOutline,
-  checkmarkOutline, closeOutline
-} from 'ionicons/icons';
+import { TranslateModule } from '@ngx-translate/core';
 import { Alergeno } from '../../core/models/producto.model';
 
 @Component({
   selector: 'app-check-in',
   standalone: true,
-  imports: [IonicModule, FormsModule, TranslateModule],
+  imports: [IonicModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './check-in.component.html',
   styleUrls: ['./check-in.component.scss']
 })
 export class CheckInComponent {
-  nombre: string = '';
-  mesaId: number | null = null;
-  mesaDesdeQR: boolean = false;
+  mesaDesdeQR = false;
 
-  // Errores de validación inline (sin alert() nativo)
-  errorNombre = signal<string>('');
-  errorMesa = signal<string>('');
-
-  // Lista completa de 14 alérgenos
   todosLosAlergenos: { id: Alergeno; nombre: string; emoji: string }[] = [
-    { id: 'Gluten',       nombre: 'ALERGENOS.gluten',    emoji: '🌾' },
-    { id: 'Crustáceos',   nombre: 'ALERGENOS.crustaceos',emoji: '🦞' },
-    { id: 'Huevos',       nombre: 'ALERGENOS.huevo',     emoji: '🥚' },
-    { id: 'Pescado',      nombre: 'ALERGENOS.pescado',   emoji: '🐟' },
-    { id: 'Cacahuetes',   nombre: 'ALERGENOS.cacahuetes',emoji: '🥜' },
-    { id: 'Soja',         nombre: 'ALERGENOS.soja',      emoji: '🫘' },
-    { id: 'Lácteos',      nombre: 'ALERGENOS.lactosa',   emoji: '🥛' },
+    { id: 'Gluten', nombre: 'ALERGENOS.gluten', emoji: '🌾' },
+    { id: 'Crustáceos', nombre: 'ALERGENOS.crustaceos', emoji: '🦞' },
+    { id: 'Huevos', nombre: 'ALERGENOS.huevo', emoji: '🥚' },
+    { id: 'Pescado', nombre: 'ALERGENOS.pescado', emoji: '🐟' },
+    { id: 'Cacahuetes', nombre: 'ALERGENOS.cacahuetes', emoji: '🥜' },
+    { id: 'Soja', nombre: 'ALERGENOS.soja', emoji: '🫘' },
+    { id: 'Lácteos', nombre: 'ALERGENOS.lactosa', emoji: '🥛' },
     { id: 'Frutos de cáscara', nombre: 'ALERGENOS.frutos-secos', emoji: '🌰' },
-    { id: 'Apio',         nombre: 'ALERGENOS.apio',      emoji: '🥬' },
-    { id: 'Mostaza',      nombre: 'ALERGENOS.mostaza',   emoji: '🌭' },
-    { id: 'Granos de sésamo', nombre: 'ALERGENOS.sesamo',  emoji: '🥯' },
+    { id: 'Apio', nombre: 'ALERGENOS.apio', emoji: '🥬' },
+    { id: 'Mostaza', nombre: 'ALERGENOS.mostaza', emoji: '🌭' },
+    { id: 'Granos de sésamo', nombre: 'ALERGENOS.sesamo', emoji: '🥯' },
     { id: 'Dióxido de azufre y sulfitos', nombre: 'ALERGENOS.sulfitos', emoji: '🍷' },
-    { id: 'Altramuces',   nombre: 'ALERGENOS.altramuces',emoji: '🌼' },
-    { id: 'Moluscos',     nombre: 'ALERGENOS.moluscos',  emoji: '🦪' }
+    { id: 'Altramuces', nombre: 'ALERGENOS.altramuces', emoji: '🌼' },
+    { id: 'Moluscos', nombre: 'ALERGENOS.moluscos', emoji: '🦪' }
   ];
 
-  alergenosSeleccionados: Alergeno[] = [];
-
   private usuarioService = inject(UsuarioService);
+  private mesaValidator = inject(MesaAccessValidatorService);
   public settings = inject(UserSettingsService);
   private auth = inject(Auth);
   private route = inject(ActivatedRoute);
-  private translate = inject(TranslateService);
+  private formBuilder = inject(FormBuilder);
+
+  formulario = this.formBuilder.group({
+    nombre: ['', [Validators.required, Validators.minLength(2)]],
+    mesaId: [null as number | null, [Validators.required, Validators.min(1)]],
+    alergenosSeleccionados: [[] as Alergeno[]]
+  });
 
   constructor(private router: Router) {
-    addIcons({
-      'egg-outline': eggOutline,
-      'fish-outline': fishOutline,
-      'restaurant-outline': restaurantOutline,
-      'person-outline': personOutline,
-      'scan-outline': scanOutline,
-      'arrow-forward-outline': arrowForwardOutline,
-      'lock-closed-outline': lockClosedOutline,
-      'qr-code-outline': qrCodeOutline,
-      'moon-outline': moonOutline,
-      'sunny-outline': sunnyOutline,
-      'checkmark-outline': checkmarkOutline,
-      'close-outline': closeOutline,
-    });
-
     const mesa = this.route.snapshot.queryParamMap.get('mesa');
     if (mesa) {
-      this.mesaId = Number(mesa);
+      this.formulario.patchValue({ mesaId: Number(mesa) });
       this.mesaDesdeQR = true;
+      this.formulario.get('mesaId')?.disable();
     }
 
     if (this.usuarioService.estaAutenticado()) {
@@ -85,52 +63,50 @@ export class CheckInComponent {
     }
   }
 
-
-
-  /** Limpia el error del campo nombre al escribir */
-  onNombreChange() {
-    if (this.nombre.trim()) this.errorNombre.set('');
+  mostrarErrorNombre(): boolean {
+    const control = this.formulario.get('nombre');
+    return !!control && control.invalid && control.touched;
   }
 
-  /** Limpia el error del campo mesa al escribir */
-  onMesaChange() {
-    if (this.mesaId) this.errorMesa.set('');
+  mostrarErrorMesa(): boolean {
+    const control = this.formulario.get('mesaId');
+    return !!control && control.invalid && control.touched;
   }
 
   async acceder() {
-    // Validación inline
-    let valid = true;
-    if (!this.nombre.trim()) {
-      this.errorNombre.set(this.translate.instant('CHECKIN.ERROR_NOMBRE'));
-      valid = false;
-    } else {
-      this.errorNombre.set('');
+    if (this.formulario.invalid) {
+      this.formulario.markAllAsTouched();
+      return;
     }
-    if (!this.mesaId) {
-      this.errorMesa.set(this.translate.instant('CHECKIN.ERROR_MESA'));
-      valid = false;
-    } else {
-      this.errorMesa.set('');
-    }
-    if (!valid) return;
+
+    const valores = this.formulario.getRawValue();
+    const nombre = (valores.nombre ?? '').trim();
+    const mesaId = valores.mesaId;
+    const alergenosSeleccionados = valores.alergenosSeleccionados ?? [];
 
     try {
       const credential = await signInAnonymously(this.auth);
       const uid = credential.user.uid;
 
+      if (!this.mesaValidator.isValidMesaAccess(uid, mesaId)) {
+        this.formulario.get('mesaId')?.setErrors({ mesaInvalida: true });
+        this.formulario.get('mesaId')?.markAsTouched();
+        return;
+      }
+
       const nuevoPerfil: PerfilUsuario = {
         uid,
-        nombre: this.nombre,
-        mesaId: this.mesaId!,
-        alergenos: this.alergenosSeleccionados
+        nombre,
+        mesaId: mesaId!,
+        alergenos: alergenosSeleccionados
       };
 
       this.usuarioService.establecerPerfil(nuevoPerfil);
       this.router.navigate(['/carta']);
-
     } catch (error) {
       console.error('Error en el check-in:', error);
-      this.errorNombre.set(this.translate.instant('CHECKIN.ERROR_CONEXION'));
+      this.formulario.get('nombre')?.setErrors({ conexion: true });
+      this.formulario.get('nombre')?.markAsTouched();
     }
   }
 }

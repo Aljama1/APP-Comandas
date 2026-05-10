@@ -19,14 +19,6 @@ export interface ProductoMaquetado extends Producto {
   alergenosPeligrosos: Alergeno[];
   agotado: boolean;
 }
-import { addIcons } from 'ionicons';
-import {
-  shieldCheckmark, shieldOutline, personCircleOutline, warningOutline,
-  addOutline, cartOutline, logOutOutline, checkmarkOutline, receiptOutline,
-  closeOutline, settingsOutline, moonOutline, sunnyOutline,
-  nutritionOutline, leafOutline, eggOutline, fishOutline, restaurantOutline,
-  chevronForwardOutline, alertCircleOutline, languageOutline, flaskOutline
-} from 'ionicons/icons';
 
 const ETIQUETAS_CATEGORIA: Record<string, string> = {
   'entrante': 'CATEGORIAS.entrante',
@@ -129,15 +121,7 @@ export class CartaComponent {
     return grupos;
   });
 
-  constructor() {
-    addIcons({
-      shieldCheckmark, shieldOutline, personCircleOutline, warningOutline,
-      addOutline, cartOutline, logOutOutline, checkmarkOutline, receiptOutline,
-      closeOutline, settingsOutline, moonOutline, sunnyOutline,
-      nutritionOutline, leafOutline, eggOutline, fishOutline, restaurantOutline,
-      chevronForwardOutline, alertCircleOutline, languageOutline, flaskOutline
-    });
-  }
+  constructor() {}
 
   get idiomaActual(): string {
     return this.translate.currentLang || this.translate.defaultLang || 'es';
@@ -159,11 +143,20 @@ export class CartaComponent {
 
   cerrarProducto(): void {
     this.mostrarModalProducto.set(false);
-    setTimeout(() => {
-      this.productoSeleccionado.set(null);
-      this.varianteSeleccionada.set(null);
-      this.modificadoresSeleccionados.set([]);
-    }, 300);
+  }
+
+  manejarCierreModalProducto(evento: Event): void {
+    const eventoModal = evento as CustomEvent<{ role?: string }>;
+    const rol = eventoModal.detail?.role;
+
+    // Limpieza de estado al cerrar por cualquier vía (botón, backdrop, gesto, etc.)
+    this.productoSeleccionado.set(null);
+    this.varianteSeleccionada.set(null);
+    this.modificadoresSeleccionados.set([]);
+    this.mostrarModalProducto.set(false);
+
+    // Punto de extensión para comportamiento futuro según el rol de cierre
+    if (rol === 'confirmar') return;
   }
 
   seleccionarVariante(variante: VarianteProducto): void {
@@ -282,3 +275,4 @@ export class CartaComponent {
     await alert.present();
   }
 }
+

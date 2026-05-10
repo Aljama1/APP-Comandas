@@ -1,8 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { addIcons } from 'ionicons';
-import { restaurantOutline, shieldCheckmarkOutline, logInOutline, flameOutline, beerOutline, moonOutline, sunnyOutline } from 'ionicons/icons';
 import { UserSettingsService } from '../../../core/services/user-settings.service';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -18,9 +16,7 @@ export class SelectorRolComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  constructor() {
-    addIcons({ restaurantOutline, shieldCheckmarkOutline, logInOutline, flameOutline, beerOutline, moonOutline, sunnyOutline });
-  }
+  constructor() {  }
 
   ngOnInit() {
     // Si entramos con el parámetro ?mesa=X, redirigimos automáticamente al check-in
@@ -39,4 +35,6 @@ export class SelectorRolComponent implements OnInit {
 
   get esModoOscuro() { return this.settings.isDark; }
 }
+
+
 

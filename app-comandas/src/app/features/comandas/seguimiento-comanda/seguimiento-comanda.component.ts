@@ -8,12 +8,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { EstadoComanda, Comanda } from '../../../core/models/comanda.model';
-import { addIcons } from 'ionicons';
-import {
-  timeOutline, flameOutline, checkmarkCircleOutline, restaurantOutline,
-  arrowBackOutline, refreshOutline, alertCircleOutline, addCircleOutline,
-  homeOutline, receiptOutline
-} from 'ionicons/icons';
 
 /**
  * Vista "Mis Pedidos" — muestra TODOS los items pedidos en todas las rondas,
@@ -54,12 +48,6 @@ export class SeguimientoComandaComponent {
   );
 
   constructor() {
-    addIcons({
-      timeOutline, flameOutline, checkmarkCircleOutline, restaurantOutline,
-      arrowBackOutline, refreshOutline, alertCircleOutline, addCircleOutline,
-      homeOutline, receiptOutline
-    });
-
     if (!this.firestoreService.tieneComandas()) {
       this.router.navigateByUrl('/carta');
     }
@@ -97,3 +85,5 @@ export class SeguimientoComandaComponent {
     this.router.navigateByUrl('/check-in');
   }
 }
+
+

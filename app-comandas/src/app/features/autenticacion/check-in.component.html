@@ -27,10 +27,10 @@
     </header>
 
     <!-- FORMULARIO -->
-    <section class="checkin-form" aria-label="Formulario de acceso">
+    <section class="checkin-form" aria-label="Formulario de acceso" [formGroup]="formulario">
 
       <!-- Campo Nombre -->
-      <div class="field-group" [class.field-group--error]="errorNombre()">
+      <div class="field-group" [class.field-group--error]="mostrarErrorNombre()">
         <label class="field-label" for="input-nombre">{{ 'CHECKIN.NOMBRE_LABEL' | translate }}</label>
         <div class="field-wrapper">
           <ion-icon name="person-outline" class="field-icon" aria-hidden="true"></ion-icon>
@@ -39,22 +39,27 @@
             type="text"
             class="field-input"
             [placeholder]="'CHECKIN.NOMBRE_PLACEHOLDER' | translate"
-            [(ngModel)]="nombre"
-            (ngModelChange)="onNombreChange()"
+            formControlName="nombre"
             autocomplete="given-name"
             autocapitalize="words"
           >
         </div>
-        @if (errorNombre()) {
+        @if (mostrarErrorNombre()) {
           <p class="field-error" role="alert" aria-live="polite">
             <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
-            {{ errorNombre() }}
+            @if (formulario.get('nombre')?.hasError('required')) {
+              {{ 'CHECKIN.ERROR_NOMBRE' | translate }}
+            } @else if (formulario.get('nombre')?.hasError('minlength')) {
+              {{ 'CHECKIN.ERROR_NOMBRE' | translate }}
+            } @else {
+              {{ 'CHECKIN.ERROR_CONEXION' | translate }}
+            }
           </p>
         }
       </div>
 
       <!-- Campo Mesa -->
-      <div class="field-group" [class.field-group--error]="errorMesa()" [class.field-group--locked]="mesaDesdeQR">
+      <div class="field-group" [class.field-group--error]="mostrarErrorMesa()" [class.field-group--locked]="mesaDesdeQR">
         <label class="field-label" for="input-mesa">{{ 'CHECKIN.MESA_LABEL' | translate }}</label>
         <div class="field-wrapper">
           <ion-icon [name]="mesaDesdeQR ? 'lock-closed-outline' : 'scan-outline'" class="field-icon" aria-hidden="true"></ion-icon>
@@ -63,8 +68,7 @@
             type="number"
             class="field-input"
             [placeholder]="'CHECKIN.MESA_PLACEHOLDER' | translate"
-            [(ngModel)]="mesaId"
-            (ngModelChange)="onMesaChange()"
+            formControlName="mesaId"
             [readonly]="mesaDesdeQR"
             inputmode="numeric"
           >
@@ -75,10 +79,14 @@
             </span>
           }
         </div>
-        @if (errorMesa()) {
+        @if (mostrarErrorMesa()) {
           <p class="field-error" role="alert" aria-live="polite">
             <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
-            {{ errorMesa() }}
+            @if (formulario.get('mesaId')?.hasError('mesaInvalida')) {
+              {{ 'CHECKIN.ERROR_MESA_INVALIDA' | translate }}
+            } @else {
+              {{ 'CHECKIN.ERROR_MESA' | translate }}
+            }
           </p>
         }
       </div>
@@ -97,7 +105,7 @@
         <ion-select
           [multiple]="true"
           [placeholder]="'CHECKIN.ALERGENOS_DESC' | translate"
-          [(ngModel)]="alergenosSeleccionados"
+          formControlName="alergenosSeleccionados"
           class="custom-select"
           [okText]="'ACCIONES.ACEPTAR' | translate"
           [cancelText]="'ACCIONES.CANCELAR' | translate"

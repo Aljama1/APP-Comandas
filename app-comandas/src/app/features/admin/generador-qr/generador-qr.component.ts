@@ -2,8 +2,6 @@ import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
-import { addIcons } from 'ionicons';
-import { qrCodeOutline, printOutline, downloadOutline, copyOutline, checkmarkOutline, linkOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-generador-qr',
@@ -27,9 +25,7 @@ export class GeneradorQrComponent {
 
   copiado = signal<boolean>(false);
 
-  constructor() {
-    addIcons({ qrCodeOutline, printOutline, downloadOutline, copyOutline, checkmarkOutline, linkOutline });
-  }
+  constructor() {  }
 
   async copiarEnlace() {
     try {
@@ -65,4 +61,6 @@ export class GeneradorQrComponent {
     }, 100);
   }
 }
+
+
 

@@ -5,6 +5,7 @@ import {
   onSnapshot, serverTimestamp, Unsubscribe
 } from '@angular/fire/firestore';
 import { Comanda, EstadoComanda } from '../models/comanda.model';
+import { MesaAccessValidatorService } from './mesa-access-validator.service';
 
 /**
  * Servicio responsable de la comunicación bidireccional con Firestore.
@@ -32,6 +33,7 @@ export class ComandaFirestoreService implements OnDestroy {
   private firestore = inject(Firestore);
   private zone = inject(NgZone);
   private injector = inject(EnvironmentInjector);
+  private mesaValidator = inject(MesaAccessValidatorService);
 
   // ─── Estado reactivo expuesto a la vista ─────────────────────────
 
@@ -93,11 +95,26 @@ export class ComandaFirestoreService implements OnDestroy {
    * Cada invocación crea un documento independiente, permitiendo que
    * una mesa envíe tantas rondas de pedidos como necesite.
    *
+   * VALIDACIÓN DE SEGURIDAD: Verifica que el idCliente (uid) y el idMesa
+   * coincidan con el perfil autenticado del usuario. Esto previene:
+   *  - Que un usuario envíe comandas a otra mesa modificando localStorage
+   *  - Que se intente enviar con un uid falso
+   *
    * Si es la primera comanda de la sesión, activa la escucha por query.
    * Si ya hay una escucha activa, la nueva comanda aparece automáticamente
    * en el array `todasLasComandas` gracias al listener de la query.
+   *
+   * @throws Error si la validación de seguridad falla
    */
   async enviarComanda(comanda: Comanda): Promise<string> {
+    // Validación de seguridad: verificar que uid y mesaId sean válidos
+    const mesaIdNumero = Number(comanda.idMesa);
+    if (!this.mesaValidator.isValidMesaAccess(comanda.idCliente, mesaIdNumero)) {
+      throw new Error(
+        'Acceso denegado: El usuario no tiene permiso para enviar comandas a esta mesa. ' +
+        'Verifique que no ha cambiado el mesaId en localStorage.'
+      );
+    }
     try {
       const comandasCollection = collection(this.firestore, 'comandas');
 
@@ -138,11 +155,25 @@ export class ComandaFirestoreService implements OnDestroy {
    * ordenada por `fechaCreacion` ascendente. Así, con UNA sola
    * suscripción, recibimos actualizaciones de todas las rondas.
    *
+   * VALIDACIÓN DE SEGURIDAD: Verifica que el idCliente y idMesa
+   * correspondan al usuario autenticado antes de abrir el listener.
+   *
    * NOTA: Firestore pedirá crear un índice compuesto la primera vez
    * que se ejecute esta query. Firebase genera un enlace directo
    * en la consola del navegador para crearlo con un clic.
+   *
+   * @throws Error si la validación de seguridad falla
    */
   public escucharComandasDelCliente(idCliente: string, idMesa: string): void {
+    // Validación de seguridad: verificar que uid y mesaId sean válidos
+    const mesaIdNumero = Number(idMesa);
+    if (!this.mesaValidator.isValidMesaAccess(idCliente, mesaIdNumero)) {
+      console.warn(
+        'Acceso denegado a escucha de comandas: El usuario no tiene permiso para esta mesa.'
+      );
+      this.errorEscucha.set('Acceso denegado: No puede acceder a esta mesa.');
+      return;
+    }
     // Cancelamos cualquier escucha previa para evitar fugas de memoria
     this.detenerEscucha();
 
