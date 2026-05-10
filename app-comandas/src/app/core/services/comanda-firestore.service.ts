@@ -109,7 +109,7 @@ export class ComandaFirestoreService implements OnDestroy {
         fechaActualizacion: serverTimestamp()
       });
 
-      console.log('Comanda guardada en Firestore con ID:', docRef.id);
+
 
       // Persistimos los datos de sesión para sobrevivir a recargas (F5)
       this.guardarSesion(comanda.idCliente, comanda.idMesa);

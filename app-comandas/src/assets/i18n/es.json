@@ -11,7 +11,21 @@
     "CONFIRMAR": "Confirmar y Enviar",
     "VOLVER_ARIA": "Volver a la carta",
     "CONFIRMAR_ARIA": "Confirmar y enviar el pedido",
-    "VER_COMANDA": "Ver Comanda"
+    "VER_COMANDA": "Ver Comanda",
+    "NOTA_COCINA": "Nota a cocina",
+    "NOTAS_HEADER": "Notas a cocina",
+    "NOTAS_MSG": "Indica si tienes alguna preferencia (ej. poco hecho, salsa aparte).",
+    "NOTAS_PLACEHOLDER": "Escribe tu nota aquí...",
+    "ERROR_SESION_TITULO": "Error de sesión",
+    "ERROR_SESION_MSG": "No hemos podido identificar tu mesa. Por favor, vuelve a hacer check-in.",
+    "CONFIRMAR_PEDIDO_TITULO": "Confirmar pedido",
+    "CONFIRMAR_PEDIDO_MSG": "¿Quieres enviar tu comanda a cocina?",
+    "ENVIANDO": "Enviando comanda...",
+    "EXITO_TITULO": "¡Pedido enviado!",
+    "EXITO_MSG": "Tu comanda ya está en cocina. Podrás ver su estado en tiempo real.",
+    "VER_SEGUIMIENTO": "Ver seguimiento",
+    "ERROR_ENVIO_TITULO": "Error al enviar",
+    "ERROR_ENVIO_MSG": "No se pudo enviar el pedido. Revisa tu conexión e inténtalo de nuevo."
   },
   "SEGUIMIENTO": {
     "TITULO": "Mis Pedidos",
@@ -99,7 +113,9 @@
       "TIPO_OPCIONAL": "Opcional (Checkbox)",
       "ADD_OPCION": "Añadir opción",
       "OPC_PLACEHOLDER": "Opción (ej: Muy hecha)",
-      "VALIDACION_REQ": "Completa nombre y precio (mayor que 0)."
+      "VALIDACION_REQ": "Completa nombre y precio (mayor que 0).",
+      "ALERGENOS": "Alérgenos e Ingredientes",
+      "ALERGENOS_HINT": "Selecciona los alérgenos presentes en este plato para informar al cliente."
     }
   },
   "CARTA": {
@@ -116,7 +132,45 @@
     "BUSCAR": "Buscar platos...",
     "DETALLE": "Detalle de",
     "ELIJA_UNO": "Elige uno",
-    "NO_DISPONIBLE": "No disponible para ti"
+    "NO_DISPONIBLE": "No disponible para ti",
+    "CARGANDO": "Cargando la carta...",
+    "ERROR": "Hubo un problema al cargar la carta.",
+    "AVISO_CAMARERO": "Por favor, avisa al camarero.",
+    "NO_DISPONIBLE_TITULO": "La carta no está disponible en este momento.",
+    "NO_DISPONIBLE_DESC": "El restaurante aún no ha añadido platos a la carta pública.",
+    "AGOTADO": "AGOTADO",
+    "CONFIGURACION": {
+      "TITULO": "Configuración",
+      "PERFIL": "PERFIL",
+      "APARIENCIA": "APARIENCIA",
+      "MODO_OSCURO": "Modo oscuro",
+      "MODO_CLARO": "Modo claro",
+      "IDIOMA": "IDIOMA / LANGUAGE",
+      "IDIOMA_ACTUAL": "Idioma actual",
+      "MIS_ALERGENOS": "MIS ALÉRGENOS",
+      "MIS_ALERGENOS_DESC": "Actualiza tus alergias para filtrar la carta correctamente."
+    },
+    "CERRAR_SESION_TITULO": "Cerrar sesión",
+    "CERRAR_SESION_MSG": "¿Estás seguro de que deseas salir?"
+  },
+  "LANDING": {
+    "TITULO": "Gestión Inteligente de Comandas y Alérgenos",
+    "COMENSAL": {
+      "TITULO": "Soy Comensal",
+      "DESC": "Explora la carta y realiza tu pedido de forma segura."
+    },
+    "SALA": {
+      "TITULO": "Encargado de Sala",
+      "DESC": "Acepta comandas y gestiona el estado de la sala."
+    },
+    "BARMAN": {
+      "TITULO": "Barman",
+      "DESC": "Bebidas por mesa con checklist en tiempo real."
+    },
+    "COCINA": {
+      "TITULO": "Cocina en vivo",
+      "DESC": "Panel de producción y tickets en tiempo real."
+    }
   },
   "CATEGORIAS": {
     "entrante": "Entrantes",

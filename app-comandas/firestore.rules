@@ -4,11 +4,18 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // Reglas para pedidos (comandas)
-    // - Clientes (sin auth) pueden crear pedidos y leer pedidos de SU mesa (idMesa).
-    // - Admins (con auth) pueden leer y modificar cualquier pedido.
+    // - Clientes (anónimos) pueden crear pedidos si el idCliente coincide con su UID.
+    // - Clientes pueden leer/actualizar pedidos SOLO si su idCliente coincide con su UID.
+    // - Admins (no anónimos) pueden leer y modificar cualquier pedido.
     match /comandas/{comandaId} {
-      allow create: if true;
-      allow read, update, delete: if request.auth != null || resource.data.idMesa == request.resource.data.idMesa;
+      allow create: if request.auth != null && (
+        request.auth.token.firebase.sign_in_provider != 'anonymous' || 
+        request.resource.data.idCliente == request.auth.uid
+      );
+      allow read, update, delete: if request.auth != null && (
+        request.auth.token.firebase.sign_in_provider != 'anonymous' || 
+        resource.data.idCliente == request.auth.uid
+      );
     }
 
     // Reglas para productos (carta)

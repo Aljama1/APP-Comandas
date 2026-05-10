@@ -63,11 +63,11 @@ export class ProductoAdminService implements OnDestroy {
       }
 
       if (necesitaUpdate && prod.id) {
-        console.log(`Migrando producto: ${prod.id}`);
+
         await this.actualizarProducto(prod.id, updates);
       }
     }
-    console.log('Migración completada.');
+
   }
 
   private cargarProductos(): void {

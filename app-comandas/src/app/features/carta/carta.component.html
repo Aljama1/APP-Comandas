@@ -95,19 +95,19 @@
     @if (cartaService.cargando()) {
       <div class="empty-state">
         <ion-spinner name="crescent" color="primary"></ion-spinner>
-        <p>Cargando la carta...</p>
+        <p>{{ 'CARTA.CARGANDO' | translate }}</p>
       </div>
     } @else if (cartaService.error()) {
       <div class="empty-state empty-state--error">
         <ion-icon name="warning-outline"></ion-icon>
-        <p>Hubo un problema al cargar la carta.</p>
-        <span class="sub-text">Por favor, avisa al camarero.</span>
+        <p>{{ 'CARTA.ERROR' | translate }}</p>
+        <span class="sub-text">{{ 'CARTA.AVISO_CAMARERO' | translate }}</span>
       </div>
     } @else if (productosPorCategoria().length === 0) {
       <div class="empty-state">
         <ion-icon name="restaurant-outline"></ion-icon>
-        <p>La carta no está disponible en este momento.</p>
-        <span class="sub-text">El restaurante aún no ha añadido platos a la carta pública.</span>
+        <p>{{ 'CARTA.NO_DISPONIBLE_TITULO' | translate }}</p>
+        <span class="sub-text">{{ 'CARTA.NO_DISPONIBLE_DESC' | translate }}</span>
       </div>
     }
 
@@ -251,7 +251,7 @@
         >
           @if (productoSeleccionado()!.agotado) {
             <ion-icon name="close-circle-outline" aria-hidden="true"></ion-icon>
-            <span>AGOTADO</span>
+            <span>{{ 'CARTA.AGOTADO' | translate }}</span>
           } @else if (!productoSeleccionado()!.esSeguro) {
             <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
             <span>{{ 'CARTA.NO_DISPONIBLE' | translate }}</span>
@@ -274,7 +274,7 @@
       <div class="modal-handle" aria-hidden="true"></div>
 
       <div class="settings-header">
-        <h2 class="settings-title">Configuración</h2>
+        <h2 class="settings-title">{{ 'CARTA.CONFIGURACION.TITULO' | translate }}</h2>
         <button class="modal-close-btn modal-close-btn--inline" (click)="cerrarSettings()" aria-label="Cerrar configuración">
           <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
         </button>
@@ -282,7 +282,7 @@
 
       <!-- Perfil -->
       <div class="settings-section">
-        <p class="settings-label">PERFIL</p>
+        <p class="settings-label">{{ 'CARTA.CONFIGURACION.PERFIL' | translate }}</p>
         <div class="settings-row">
           <div class="settings-row__info">
             <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
@@ -296,11 +296,11 @@
 
       <!-- Dark mode -->
       <div class="settings-section">
-        <p class="settings-label">APARIENCIA</p>
+        <p class="settings-label">{{ 'CARTA.CONFIGURACION.APARIENCIA' | translate }}</p>
         <div class="settings-row settings-row--toggle">
           <div class="settings-row__info">
             <ion-icon [name]="settings.isDark() ? 'moon-outline' : 'sunny-outline'" aria-hidden="true"></ion-icon>
-            <span class="settings-row__title">Modo oscuro</span>
+            <span class="settings-row__title">{{ 'CARTA.CONFIGURACION.MODO_OSCURO' | translate }}</span>
           </div>
           <button
             class="toggle-btn"
@@ -316,11 +316,11 @@
 
       <!-- Idioma -->
       <div class="settings-section">
-        <p class="settings-label">IDIOMA / LANGUAGE</p>
+        <p class="settings-label">{{ 'CARTA.CONFIGURACION.IDIOMA' | translate }}</p>
         <div class="settings-row settings-row--toggle" (click)="toggleIdioma()" style="cursor: pointer;">
           <div class="settings-row__info">
             <ion-icon name="language-outline" aria-hidden="true"></ion-icon>
-            <span class="settings-row__title">Idioma actual</span>
+            <span class="settings-row__title">{{ 'CARTA.CONFIGURACION.IDIOMA_ACTUAL' | translate }}</span>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-weight: bold; color: var(--ion-color-primary);">{{ idiomaActual | uppercase }}</span>
@@ -330,8 +330,8 @@
 
       <!-- Alérgenos -->
       <div class="settings-section">
-        <p class="settings-label">MIS ALÉRGENOS</p>
-        <p class="settings-sublabel">Actualiza tus alergias para filtrar la carta correctamente.</p>
+        <p class="settings-label">{{ 'CARTA.CONFIGURACION.MIS_ALERGENOS' | translate }}</p>
+        <p class="settings-sublabel">{{ 'CARTA.CONFIGURACION.MIS_ALERGENOS_DESC' | translate }}</p>
         <div class="settings-alergenos-grid">
           @for (al of todosLosAlergenos; track al.id) {
             <button
@@ -341,9 +341,8 @@
               [attr.aria-pressed]="estaActivo(al.id)"
               [attr.aria-label]="(estaActivo(al.id) ? 'Desactivar' : 'Activar') + ' ' + al.nombre"
             >
-              <div class="chip-icon">
-                @if (!al.esSvg) { <ion-icon [name]="al.icono" aria-hidden="true"></ion-icon> }
-                @if (al.esSvg)  { <ion-icon [src]="al.icono"  aria-hidden="true"></ion-icon> }
+              <div class="chip-icon" style="font-size: 1.4rem;">
+                {{ al.emoji }}
               </div>
               <span>{{ al.nombre | translate }}</span>
               @if (estaActivo(al.id)) {

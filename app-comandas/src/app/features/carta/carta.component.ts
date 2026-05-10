@@ -78,21 +78,20 @@ export class CartaComponent {
   alergenosEditados = signal<string[]>([]);
 
   readonly todosLosAlergenos = [
-    { id: 'gluten',       nombre: 'ALERGENOS.gluten',    icono: '/assets/icon/gluten.svg',       esSvg: true  },
-    { id: 'lactosa',      nombre: 'ALERGENOS.lactosa',   icono: '/assets/icon/lactosa.svg',      esSvg: true  },
-    { id: 'frutos-secos', nombre: 'ALERGENOS.frutos-secos',  icono: '/assets/icon/frutos-secos.svg', esSvg: true  },
-    { id: 'huevo',        nombre: 'ALERGENOS.huevo',     icono: 'egg-outline',                   esSvg: false },
-    { id: 'pescado',      nombre: 'ALERGENOS.pescado',   icono: 'fish-outline',                  esSvg: false },
-    { id: 'marisco',      nombre: 'ALERGENOS.marisco',   icono: 'restaurant-outline',            esSvg: false },
-    { id: 'crustaceos',   nombre: 'ALERGENOS.crustaceos',icono: 'restaurant-outline',            esSvg: false },
-    { id: 'cacahuetes',   nombre: 'ALERGENOS.cacahuetes',icono: 'nutrition-outline',             esSvg: false },
-    { id: 'soja',         nombre: 'ALERGENOS.soja',      icono: 'leaf-outline',                  esSvg: false },
-    { id: 'apio',         nombre: 'ALERGENOS.apio',      icono: 'leaf-outline',                  esSvg: false },
-    { id: 'mostaza',      nombre: 'ALERGENOS.mostaza',   icono: 'nutrition-outline',             esSvg: false },
-    { id: 'sesamo',       nombre: 'ALERGENOS.sesamo',    icono: 'nutrition-outline',             esSvg: false },
-    { id: 'sulfitos',     nombre: 'ALERGENOS.sulfitos',  icono: 'flask-outline',                 esSvg: false },
-    { id: 'altramuces',   nombre: 'ALERGENOS.altramuces',icono: 'nutrition-outline',             esSvg: false },
-    { id: 'moluscos',     nombre: 'ALERGENOS.moluscos',  icono: 'restaurant-outline',            esSvg: false },
+    { id: 'gluten',       nombre: 'ALERGENOS.gluten',    emoji: '🌾' },
+    { id: 'lactosa',      nombre: 'ALERGENOS.lactosa',   emoji: '🥛' },
+    { id: 'frutos-secos', nombre: 'ALERGENOS.frutos-secos',  emoji: '🌰' },
+    { id: 'huevo',        nombre: 'ALERGENOS.huevo',     emoji: '🥚' },
+    { id: 'pescado',      nombre: 'ALERGENOS.pescado',   emoji: '🐟' },
+    { id: 'crustaceos',   nombre: 'ALERGENOS.crustaceos',emoji: '🦞' },
+    { id: 'cacahuetes',   nombre: 'ALERGENOS.cacahuetes',emoji: '🥜' },
+    { id: 'soja',         nombre: 'ALERGENOS.soja',      emoji: '🫘' },
+    { id: 'apio',         nombre: 'ALERGENOS.apio',      emoji: '🥬' },
+    { id: 'mostaza',      nombre: 'ALERGENOS.mostaza',   emoji: '🌭' },
+    { id: 'sesamo',       nombre: 'ALERGENOS.sesamo',    emoji: '🥯' },
+    { id: 'sulfitos',     nombre: 'ALERGENOS.sulfitos',  emoji: '🍷' },
+    { id: 'altramuces',   nombre: 'ALERGENOS.altramuces',emoji: '🌼' },
+    { id: 'moluscos',     nombre: 'ALERGENOS.moluscos',  emoji: '🦪' },
   ];
 
   // Feedback visual al añadir
@@ -265,13 +264,13 @@ export class CartaComponent {
 
   async confirmarCierreSesion() {
     const alert = await this.alertController.create({
-      header: 'Cerrar sesión',
-      message: '¿Estás seguro de que deseas salir?',
+      header: this.translate.instant('CARTA.CERRAR_SESION_TITULO'),
+      message: this.translate.instant('CARTA.CERRAR_SESION_MSG'),
       mode: 'ios',
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: this.translate.instant('ACCIONES.CANCELAR'), role: 'cancel' },
         {
-          text: 'Salir', role: 'destructive',
+          text: this.translate.instant('SEGUIMIENTO.CERRAR_SESION'), role: 'destructive',
           handler: () => {
             this.usuarioService.limpiarPerfil();
             this.comandaService.vaciarComanda();

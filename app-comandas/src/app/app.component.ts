@@ -20,7 +20,7 @@ export class AppComponent {
   private language = inject(LanguageService);
 
   constructor() {
-    console.log('Trace — Gestión de Comandas inicializada.');
+
   }
 }
 

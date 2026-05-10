@@ -89,21 +89,7 @@
     <!-- ═══════════════════════════════════════════════════
          ALERTAS DE SALA
     ════════════════════════════════════════════════════ -->
-    @if (mesasPidiendoCuenta().length > 0) {
-      <div class="alertas-sala">
-        @for (mesa of mesasPidiendoCuenta(); track mesa) {
-          <div class="alerta-card warning-pulse">
-            <div class="alerta-info">
-              <ion-icon name="notifications-outline" class="icon-pulse"></ion-icon>
-              <span><strong>{{ mesa }}</strong> solicita la cuenta</span>
-            </div>
-            <button class="btn-cobrar" (click)="cobrarMesa(mesa)">
-              Cobrar y Liberar Mesa <ion-icon name="wallet-outline"></ion-icon>
-            </button>
-          </div>
-        }
-      </div>
-    }
+
 
     <!-- ═══════════════════════════════════════════════════
          KANBAN GRID

@@ -221,7 +221,7 @@ export class AdminComandaService implements OnDestroy {
 
     try {
       await Promise.all(promesas);
-      console.log(`Mesa ${idMesa} cerrada y pagada.`);
+
     } catch (error) {
       console.error(`Error al cerrar la mesa ${idMesa}:`, error);
       throw error;
@@ -410,7 +410,7 @@ export class AdminComandaService implements OnDestroy {
       // 6. Marcar comandas como pagadas (fuera de la transacción de factura)
       await this.finalizarCuentaMesa(idMesa);
       
-      console.log(`Factura ${facturaGenerada.id} generada legalmente para Mesa ${idMesa}`);
+
       
       // Asegurarse de retornar el objeto completo como espera la promesa
       return facturaGenerada as FacturaLegal;

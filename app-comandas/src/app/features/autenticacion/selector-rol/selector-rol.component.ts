@@ -4,11 +4,12 @@ import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { restaurantOutline, shieldCheckmarkOutline, logInOutline, flameOutline, beerOutline, moonOutline, sunnyOutline } from 'ionicons/icons';
 import { UserSettingsService } from '../../../core/services/user-settings.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-selector-rol',
   standalone: true,
-  imports: [IonicModule, RouterLink],
+  imports: [IonicModule, RouterLink, TranslateModule],
   templateUrl: './selector-rol.component.html',
   styleUrls: ['./selector-rol.component.scss']
 })

@@ -50,26 +50,26 @@ export class ResumenComandaComponent {
 
   async abrirNotas(linea: LineaComanda) {
     const alert = await this.alertController.create({
-      header: 'Notas a cocina',
+      header: this.translate.instant('COMANDAS.NOTAS_HEADER'),
       subHeader: getTranslation(linea.nombreProducto, this.translate.currentLang),
-      message: 'Indica si tienes alguna preferencia (ej. "poco hecho", "salsa aparte").',
+      message: this.translate.instant('COMANDAS.NOTAS_MSG'),
       cssClass: 'premium-alert',
       mode: 'ios',
       inputs: [
         {
           name: 'nota',
           type: 'text',
-          placeholder: 'Escribe tu nota aquí...',
+          placeholder: this.translate.instant('COMANDAS.NOTAS_PLACEHOLDER'),
           value: linea.notasEspeciales || ''
         }
       ],
       buttons: [
         {
-          text: 'Cancelar',
+          text: this.translate.instant('ACCIONES.CANCELAR'),
           role: 'cancel'
         },
         {
-          text: 'Guardar',
+          text: this.translate.instant('ACCIONES.GUARDAR'),
           handler: (data) => {
             const nuevaNota = data.nota?.trim();
             this.comandaService.actualizarNotasLinea(linea, nuevaNota);
@@ -86,25 +86,25 @@ export class ResumenComandaComponent {
     
     if (!perfil || !perfil.uid) {
       const errorAlert = await this.alertController.create({
-        header: 'Error de sesión',
-        message: 'No hemos podido identificar tu mesa. Por favor, vuelve a hacer check-in.',
-        buttons: ['Aceptar']
+        header: this.translate.instant('COMANDAS.ERROR_SESION_TITULO'),
+        message: this.translate.instant('COMANDAS.ERROR_SESION_MSG'),
+        buttons: [this.translate.instant('ACCIONES.ACEPTAR')]
       });
       await errorAlert.present();
       return;
     }
 
     const confirmAlert = await this.alertController.create({
-      header: 'Confirmar pedido',
-      message: '¿Quieres enviar tu comanda a cocina?',
+      header: this.translate.instant('COMANDAS.CONFIRMAR_PEDIDO_TITULO'),
+      message: this.translate.instant('COMANDAS.CONFIRMAR_PEDIDO_MSG'),
       mode: 'ios',
       buttons: [
         {
-          text: 'Cancelar',
+          text: this.translate.instant('ACCIONES.CANCELAR'),
           role: 'cancel'
         },
         {
-          text: 'Enviar',
+          text: this.translate.instant('ACCIONES.ENVIAR'),
           handler: () => this.enviarAFirestore(perfil)
         }
       ]
@@ -115,7 +115,7 @@ export class ResumenComandaComponent {
 
   private async enviarAFirestore(perfil: any) {
     const loading = await this.loadingController.create({
-      message: 'Enviando comanda...',
+      message: this.translate.instant('COMANDAS.ENVIANDO'),
       mode: 'ios'
     });
     await loading.present();
@@ -137,11 +137,11 @@ export class ResumenComandaComponent {
       await loading.dismiss();
 
       const successAlert = await this.alertController.create({
-        header: '¡Pedido enviado!',
-        message: 'Tu comanda ya está en cocina. Podrás ver su estado en tiempo real.',
+        header: this.translate.instant('COMANDAS.EXITO_TITULO'),
+        message: this.translate.instant('COMANDAS.EXITO_MSG'),
         mode: 'ios',
         buttons: [{
-          text: 'Ver seguimiento',
+          text: this.translate.instant('COMANDAS.VER_SEGUIMIENTO'),
           handler: () => {
             this.comandaService.vaciarComanda();
             this.router.navigateByUrl('/seguimiento-comanda');
@@ -153,9 +153,9 @@ export class ResumenComandaComponent {
     } catch (error) {
       await loading.dismiss();
       const errorAlert = await this.alertController.create({
-        header: 'Error al enviar',
-        message: 'No se pudo enviar el pedido. Revisa tu conexión e inténtalo de nuevo.',
-        buttons: ['Aceptar']
+        header: this.translate.instant('COMANDAS.ERROR_ENVIO_TITULO'),
+        message: this.translate.instant('COMANDAS.ERROR_ENVIO_MSG'),
+        buttons: [this.translate.instant('ACCIONES.ACEPTAR')]
       });
       await errorAlert.present();
     }

@@ -44,7 +44,7 @@ export class AdminConfigBarComponent implements OnInit {
   ngOnInit() {
     // Ejecutar migración de productos antiguos (Fase 10)
     this.productoAdminService.migrarProductosAntiguos().then(() => {
-      console.log('Script de migración ejecutado correctamente.');
+
     }).catch(err => {
       console.error('Error en migración:', err);
     });

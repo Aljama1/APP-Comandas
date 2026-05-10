@@ -5,7 +5,9 @@ $neon-blue-dim: rgba(0, 210, 255, 0.15);
 $neon-orange-dim: rgba(255, 107, 0, 0.15);
 $neon-green-dim: rgba(0, 255, 136, 0.15);
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 ion-content.dashboard-bg {
   --background: var(--dash-bg);
@@ -40,7 +42,11 @@ ion-content.dashboard-bg {
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  ion-icon { font-size: 1.2rem; }
+
+  ion-icon {
+    font-size: 1.2rem;
+  }
+
   &:hover {
     background: rgba(0, 210, 255, 0.08);
     border-color: rgba(0, 210, 255, 0.3);
@@ -73,7 +79,9 @@ ion-content.dashboard-bg {
   box-shadow: var(--dash-card-shadow);
   margin-bottom: 16px;
 
-  &:last-child { margin-bottom: 0; }
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   .panel-title {
     display: flex;
@@ -84,7 +92,10 @@ ion-content.dashboard-bg {
     font-weight: 800;
     color: var(--dash-title);
     letter-spacing: -0.3px;
-    ion-icon { font-size: 1.3rem; }
+
+    ion-icon {
+      font-size: 1.3rem;
+    }
   }
 
   .panel-hint {
@@ -132,8 +143,14 @@ ion-content.dashboard-bg {
     padding: 0;
     box-shadow: 0 2px 8px rgba(255, 69, 58, 0.5);
     transition: transform 0.15s;
-    ion-icon { font-size: 1.1rem; }
-    &:hover { transform: scale(1.1); }
+
+    ion-icon {
+      font-size: 1.1rem;
+    }
+
+    &:hover {
+      transform: scale(1.1);
+    }
   }
 }
 
@@ -152,7 +169,9 @@ ion-content.dashboard-bg {
   cursor: pointer;
   transition: all 0.2s ease;
 
-  ion-icon { font-size: 2.5rem; }
+  ion-icon {
+    font-size: 2.5rem;
+  }
 
   .upload-label {
     font-size: 0.9rem;
@@ -171,7 +190,9 @@ ion-content.dashboard-bg {
     color: $neon-blue;
   }
 
-  .file-input { display: none; }
+  .file-input {
+    display: none;
+  }
 }
 
 /* ── URL SECTION ── */
@@ -233,7 +254,10 @@ ion-content.dashboard-bg {
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
-  &:last-child { margin-bottom: 0; }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .campo-label {
@@ -243,7 +267,10 @@ ion-content.dashboard-bg {
   text-transform: uppercase;
   letter-spacing: 0.06em;
 
-  .req { color: $neon-orange; margin-left: 2px; }
+  .req {
+    color: $neon-orange;
+    margin-left: 2px;
+  }
 
   &.small {
     font-size: 0.7rem;
@@ -311,7 +338,9 @@ ion-content.dashboard-bg {
   cursor: pointer;
   transition: all 0.15s ease;
 
-  .al-icon { font-size: 1.1rem; }
+  .al-icon {
+    font-size: 1.1rem;
+  }
 
   &:hover {
     border-color: rgba(255, 107, 107, 0.4);
@@ -327,25 +356,46 @@ ion-content.dashboard-bg {
 }
 
 /* ── NEON HELPERS ── */
-.neon-text-blue   { color: $neon-blue; }
-.neon-text-orange { color: $neon-orange; }
-.neon-text-amber  { color: #f59e0b; }
+.neon-text-blue {
+  color: $neon-blue;
+}
+
+.neon-text-orange {
+  color: $neon-orange;
+}
+
+.neon-text-amber {
+  color: #f59e0b;
+}
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .form-layout {
     grid-template-columns: 1fr;
   }
-  .form-col-imagen { order: -1; }
+
+  .form-col-imagen {
+    order: -1;
+  }
 }
 
 @media (max-width: 480px) {
-  .form-row-2col { grid-template-columns: 1fr; }
+  .form-row-2col {
+    grid-template-columns: 1fr;
+  }
+
   .top-bar {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
-    .actions { width: 100%; ion-button { width: 100%; } }
+
+    .actions {
+      width: 100%;
+
+      ion-button {
+        width: 100%;
+      }
+    }
   }
 }
 
@@ -372,6 +422,7 @@ ion-content.dashboard-bg {
       color: white;
       box-shadow: 0 0 15px rgba($neon-blue, 0.2);
     }
+
     &:hover:not(.activo) {
       border-color: rgba(255, 255, 255, 0.3);
     }
@@ -393,8 +444,14 @@ ion-content.dashboard-bg {
     gap: 5px;
     font-size: 0.85rem;
     cursor: pointer;
-    ion-icon { font-size: 1.1rem; }
-    &:hover { filter: brightness(1.2); }
+
+    ion-icon {
+      font-size: 1.1rem;
+    }
+
+    &:hover {
+      filter: brightness(1.2);
+    }
   }
 }
 
@@ -409,22 +466,34 @@ ion-content.dashboard-bg {
   gap: 10px;
   align-items: flex-start;
   padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-  &:last-child { border-bottom: none; }
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 
-  .price-small { flex: 0 0 100px; }
-  .btn-remove { 
-    background: rgba(255, 69, 58, 0.1); 
-    color: #ff453a; 
-    border-radius: 8px; 
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .price-small {
+    flex: 0 0 100px;
+  }
+
+  .btn-remove {
+    background: rgba(255, 69, 58, 0.1);
+    color: #ff453a;
+    border-radius: 8px;
     padding: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid rgba(255, 69, 58, 0.2);
     cursor: pointer;
-    ion-icon { font-size: 1.2rem; }
-    &:hover { background: rgba(255, 69, 58, 0.2); }
+
+    ion-icon {
+      font-size: 1.2rem;
+    }
+
+    &:hover {
+      background: rgba(255, 69, 58, 0.2);
+    }
   }
 }
 
@@ -440,7 +509,11 @@ ion-content.dashboard-bg {
     gap: 10px;
     margin-bottom: 15px;
     align-items: flex-start;
-    .select-small { flex: 0 0 180px; --background: rgba(255,255,255,0.05); }
+
+    .select-small {
+      flex: 0 0 180px;
+      --background: rgba(255, 255, 255, 0.05);
+    }
   }
 }
 
@@ -458,16 +531,25 @@ ion-content.dashboard-bg {
   gap: 8px;
   align-items: center;
 
-  .price-tiny { flex: 0 0 85px; }
-  .btn-remove-small { 
-    background: transparent; 
+  .price-tiny {
+    flex: 0 0 85px;
+  }
+
+  .btn-remove-small {
+    background: transparent;
     color: rgba(255, 69, 58, 0.5);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    ion-icon { font-size: 1.1rem; }
-    &:hover { color: #ff453a; }
+
+    ion-icon {
+      font-size: 1.1rem;
+    }
+
+    &:hover {
+      color: #ff453a;
+    }
   }
 }
 
@@ -482,7 +564,10 @@ ion-content.dashboard-bg {
   font-weight: 600;
   cursor: pointer;
   padding: 4px 0;
-  &:hover { color: $neon-blue; }
+
+  &:hover {
+    color: $neon-blue;
+  }
 }
 
 .empty-hint {
@@ -493,8 +578,13 @@ ion-content.dashboard-bg {
   opacity: 0.6;
 }
 
-.neon-text-purple { color: #bf7fff; }
-.neon-text-green  { color: $neon-green; }
+.neon-text-purple {
+  color: #bf7fff;
+}
+
+.neon-text-green {
+  color: $neon-green;
+}
 
 /* ── MULTI-IDIOMA STYLES ── */
 .inputs-stacked {

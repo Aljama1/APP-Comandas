@@ -33,21 +33,21 @@ export class CheckInComponent {
   errorMesa = signal<string>('');
 
   // Lista completa de 14 alérgenos
-  todosLosAlergenos: { id: Alergeno; nombre: string }[] = [
-    { id: 'Gluten',       nombre: 'ALERGENOS.gluten' },
-    { id: 'Crustáceos',   nombre: 'ALERGENOS.crustaceos' },
-    { id: 'Huevos',       nombre: 'ALERGENOS.huevo' },
-    { id: 'Pescado',      nombre: 'ALERGENOS.pescado' },
-    { id: 'Cacahuetes',   nombre: 'ALERGENOS.cacahuetes' },
-    { id: 'Soja',         nombre: 'ALERGENOS.soja' },
-    { id: 'Lácteos',      nombre: 'ALERGENOS.lactosa' },
-    { id: 'Frutos de cáscara', nombre: 'ALERGENOS.frutos-secos' },
-    { id: 'Apio',         nombre: 'ALERGENOS.apio' },
-    { id: 'Mostaza',      nombre: 'ALERGENOS.mostaza' },
-    { id: 'Granos de sésamo', nombre: 'ALERGENOS.sesamo' },
-    { id: 'Dióxido de azufre y sulfitos', nombre: 'ALERGENOS.sulfitos' },
-    { id: 'Altramuces',   nombre: 'ALERGENOS.altramuces' },
-    { id: 'Moluscos',     nombre: 'ALERGENOS.moluscos' }
+  todosLosAlergenos: { id: Alergeno; nombre: string; emoji: string }[] = [
+    { id: 'Gluten',       nombre: 'ALERGENOS.gluten',    emoji: '🌾' },
+    { id: 'Crustáceos',   nombre: 'ALERGENOS.crustaceos',emoji: '🦞' },
+    { id: 'Huevos',       nombre: 'ALERGENOS.huevo',     emoji: '🥚' },
+    { id: 'Pescado',      nombre: 'ALERGENOS.pescado',   emoji: '🐟' },
+    { id: 'Cacahuetes',   nombre: 'ALERGENOS.cacahuetes',emoji: '🥜' },
+    { id: 'Soja',         nombre: 'ALERGENOS.soja',      emoji: '🫘' },
+    { id: 'Lácteos',      nombre: 'ALERGENOS.lactosa',   emoji: '🥛' },
+    { id: 'Frutos de cáscara', nombre: 'ALERGENOS.frutos-secos', emoji: '🌰' },
+    { id: 'Apio',         nombre: 'ALERGENOS.apio',      emoji: '🥬' },
+    { id: 'Mostaza',      nombre: 'ALERGENOS.mostaza',   emoji: '🌭' },
+    { id: 'Granos de sésamo', nombre: 'ALERGENOS.sesamo',  emoji: '🥯' },
+    { id: 'Dióxido de azufre y sulfitos', nombre: 'ALERGENOS.sulfitos', emoji: '🍷' },
+    { id: 'Altramuces',   nombre: 'ALERGENOS.altramuces',emoji: '🌼' },
+    { id: 'Moluscos',     nombre: 'ALERGENOS.moluscos',  emoji: '🦪' }
   ];
 
   alergenosSeleccionados: Alergeno[] = [];

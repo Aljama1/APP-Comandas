@@ -34,49 +34,49 @@ export class FormularioProductoComponent implements OnInit {
   productoId = signal<string | null>(null);
 
   // Form state
-  nombreEs    = signal('');
-  nombreEn    = signal('');
-  descEs      = signal('');
-  descEn      = signal('');
-  precio      = signal<number | null>(null);
-  categoria   = signal<CategoriaProducto>('principal');
-  alergenos   = signal<Alergeno[]>([]);
-  disponible  = signal(true);
-  urlImagen   = signal('');
+  nombreEs = signal('');
+  nombreEn = signal('');
+  descEs = signal('');
+  descEn = signal('');
+  precio = signal<number | null>(null);
+  categoria = signal<CategoriaProducto>('principal');
+  alergenos = signal<Alergeno[]>([]);
+  disponible = signal(true);
+  urlImagen = signal('');
   imagenPreview = signal<string | null>(null);
-  imagenFile    = signal<File | null>(null);
-  guardando     = signal(false);
+  imagenFile = signal<File | null>(null);
+  guardando = signal(false);
 
   // Nuevos campos avanzados
-  variantes     = signal<VarianteProducto[]>([]);
+  variantes = signal<VarianteProducto[]>([]);
   modificadores = signal<GrupoModificadores[]>([]);
-  turnos        = signal<Turno[]>([]);
-  orden         = signal<number>(0);
-  stock         = signal<number | null>(null);
+  turnos = signal<Turno[]>([]);
+  orden = signal<number>(0);
+  stock = signal<number | null>(null);
 
   categorias: { clave: CategoriaProducto; etiqueta: string }[] = [
-    { clave: 'entrante',  etiqueta: 'Entrante'  },
+    { clave: 'entrante', etiqueta: 'Entrante' },
     { clave: 'principal', etiqueta: 'Principal' },
-    { clave: 'postre',    etiqueta: 'Postre'    },
-    { clave: 'bebida',    etiqueta: 'Bebida'    },
-    { clave: 'especial',  etiqueta: 'Especial'  }
+    { clave: 'postre', etiqueta: 'Postre' },
+    { clave: 'bebida', etiqueta: 'Bebida' },
+    { clave: 'especial', etiqueta: 'Especial' }
   ];
 
   todosLosAlergenos: { id: Alergeno; label: string; emoji: string }[] = [
-    { id: 'Gluten',       label: 'Gluten',       emoji: '🌾' },
-    { id: 'Crustáceos',   label: 'Crustáceos',   emoji: '🦞' },
-    { id: 'Huevos',       label: 'Huevos',       emoji: '🥚' },
-    { id: 'Pescado',      label: 'Pescado',      emoji: '🐟' },
-    { id: 'Cacahuetes',   label: 'Cacahuetes',   emoji: '🥜' },
-    { id: 'Soja',         label: 'Soja',         emoji: '🫘' },
-    { id: 'Lácteos',      label: 'Lácteos',      emoji: '🥛' },
+    { id: 'Gluten', label: 'Gluten', emoji: '🌾' },
+    { id: 'Crustáceos', label: 'Crustáceos', emoji: '🦞' },
+    { id: 'Huevos', label: 'Huevos', emoji: '🥚' },
+    { id: 'Pescado', label: 'Pescado', emoji: '🐟' },
+    { id: 'Cacahuetes', label: 'Cacahuetes', emoji: '🥜' },
+    { id: 'Soja', label: 'Soja', emoji: '🫘' },
+    { id: 'Lácteos', label: 'Lácteos', emoji: '🥛' },
     { id: 'Frutos de cáscara', label: 'Frutos secos', emoji: '🌰' },
-    { id: 'Apio',         label: 'Apio',         emoji: '🥬' },
-    { id: 'Mostaza',      label: 'Mostaza',      emoji: '🌭' },
-    { id: 'Granos de sésamo', label: 'Sésamo',   emoji: '🥯' },
+    { id: 'Apio', label: 'Apio', emoji: '🥬' },
+    { id: 'Mostaza', label: 'Mostaza', emoji: '🌭' },
+    { id: 'Granos de sésamo', label: 'Sésamo', emoji: '🥯' },
     { id: 'Dióxido de azufre y sulfitos', label: 'Sulfitos', emoji: '🍷' },
-    { id: 'Altramuces',   label: 'Altramuces',   emoji: '🌼' },
-    { id: 'Moluscos',     label: 'Moluscos',     emoji: '🦪' }
+    { id: 'Altramuces', label: 'Altramuces', emoji: '🌼' },
+    { id: 'Moluscos', label: 'Moluscos', emoji: '🦪' }
   ];
 
   ngOnInit() {
@@ -98,7 +98,7 @@ export class FormularioProductoComponent implements OnInit {
       this.descEn.set(getTranslation(encontrado.descripcion || '', 'en'));
       this.precio.set(encontrado.precio);
       this.categoria.set(encontrado.categoria as CategoriaProducto);
-      
+
       // Normalizamos la carga por si hay datos viejos en minúscula
       const alergenosNormalizados = encontrado.alergenos.map(al => {
         const match = this.todosLosAlergenos.find(t => t.id.toLowerCase() === al.toLowerCase());
@@ -109,7 +109,7 @@ export class FormularioProductoComponent implements OnInit {
       this.disponible.set(encontrado.disponible);
       this.urlImagen.set(encontrado.urlImagen || '');
       this.imagenPreview.set(encontrado.urlImagen || null);
-      
+
       // Cargar campos avanzados
       this.variantes.set([...(encontrado.variantes || [])]);
       this.modificadores.set(JSON.parse(JSON.stringify(encontrado.modificadores || []))); // Deep copy
@@ -168,10 +168,10 @@ export class FormularioProductoComponent implements OnInit {
 
   // ── Métodos para Modificadores ──────────────────────────────────
   anadirGrupoModificadores() {
-    this.modificadores.update(m => [...m, { 
-      nombre: { es: '', en: '' }, 
-      tipo: 'EXCLUYENTE', 
-      opciones: [{ nombre: { es: '', en: '' }, precioAdicional: 0 }] 
+    this.modificadores.update(m => [...m, {
+      nombre: { es: '', en: '' },
+      tipo: 'EXCLUYENTE',
+      opciones: [{ nombre: { es: '', en: '' }, precioAdicional: 0 }]
     }]);
   }
 
@@ -215,7 +215,7 @@ export class FormularioProductoComponent implements OnInit {
     this.variantes.update(v => {
       const copy = [...v];
       const nombreActual = copy[i].nombre as LocalizedString;
-      copy[i].nombre = { 
+      copy[i].nombre = {
         es: lang === 'es' ? val : (typeof nombreActual === 'string' ? nombreActual : nombreActual.es),
         en: lang === 'en' ? val : (typeof nombreActual === 'string' ? '' : nombreActual.en)
       };
@@ -234,7 +234,7 @@ export class FormularioProductoComponent implements OnInit {
     this.modificadores.update(m => {
       const copy = [...m];
       const nombreActual = copy[i].nombre as LocalizedString;
-      copy[i].nombre = { 
+      copy[i].nombre = {
         es: lang === 'es' ? val : (typeof nombreActual === 'string' ? nombreActual : nombreActual.es),
         en: lang === 'en' ? val : (typeof nombreActual === 'string' ? '' : nombreActual.en)
       };
@@ -253,7 +253,7 @@ export class FormularioProductoComponent implements OnInit {
     this.modificadores.update(m => {
       const copy = JSON.parse(JSON.stringify(m));
       const nombreActual = copy[gi].opciones[oi].nombre as LocalizedString;
-      copy[gi].opciones[oi].nombre = { 
+      copy[gi].opciones[oi].nombre = {
         es: lang === 'es' ? val : (typeof nombreActual === 'string' ? nombreActual : nombreActual.es),
         en: lang === 'en' ? val : (typeof nombreActual === 'string' ? '' : nombreActual.en)
       };
@@ -294,18 +294,18 @@ export class FormularioProductoComponent implements OnInit {
       }
 
       const datos: any = {
-        nombre:      { es: this.nombreEs().trim(), en: this.nombreEn().trim() },
+        nombre: { es: this.nombreEs().trim(), en: this.nombreEn().trim() },
         descripcion: { es: this.descEs().trim(), en: this.descEn().trim() },
-        precio:      this.precio()!,
-        categoria:   this.categoria(),
-        alergenos:   this.alergenos(),
-        disponible:  this.disponible(),
+        precio: this.precio()!,
+        categoria: this.categoria(),
+        alergenos: this.alergenos(),
+        disponible: this.disponible(),
         // Campos avanzados
-        variantes:     this.variantes(),
+        variantes: this.variantes(),
         modificadores: this.modificadores(),
-        turnos:        this.turnos(),
-        orden:         this.orden(),
-        stock:         this.stock() ?? undefined
+        turnos: this.turnos(),
+        orden: this.orden(),
+        stock: this.stock() ?? undefined
       };
 
       if (urlFinal) {

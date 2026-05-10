@@ -13,7 +13,21 @@
     "CONFIRMAR_ARIA": "Confirm and send order",
     "VER_COMANDA": "View Order",
     "EDITAR_NOTA": "Edit note",
-    "ADD_NOTA": "Add note"
+    "ADD_NOTA": "Add note",
+    "NOTA_COCINA": "Note to kitchen",
+    "NOTAS_HEADER": "Kitchen Notes",
+    "NOTAS_MSG": "Indicate if you have any preference (e.g. rare, sauce on the side).",
+    "NOTAS_PLACEHOLDER": "Write your note here...",
+    "ERROR_SESION_TITULO": "Session Error",
+    "ERROR_SESION_MSG": "We couldn't identify your table. Please, check-in again.",
+    "CONFIRMAR_PEDIDO_TITULO": "Confirm Order",
+    "CONFIRMAR_PEDIDO_MSG": "Do you want to send your order to the kitchen?",
+    "ENVIANDO": "Sending order...",
+    "EXITO_TITULO": "Order sent!",
+    "EXITO_MSG": "Your order is in the kitchen. You can see its status in real time.",
+    "VER_SEGUIMIENTO": "View Status",
+    "ERROR_ENVIO_TITULO": "Error Sending",
+    "ERROR_ENVIO_MSG": "The order could not be sent. Check your connection and try again."
   },
   "SEGUIMIENTO": {
     "TITULO": "My Orders",
@@ -101,7 +115,9 @@
       "TIPO_OPCIONAL": "Optional (Checkbox)",
       "ADD_OPCION": "Add Option",
       "OPC_PLACEHOLDER": "Option (ex: Well done)",
-      "VALIDACION_REQ": "Complete name and price (greater than 0)."
+      "VALIDACION_REQ": "Complete name and price (greater than 0).",
+      "ALERGENOS": "Allergens & Ingredients",
+      "ALERGENOS_HINT": "Select the allergens present in this dish to inform the customer."
     }
   },
   "CARTA": {
@@ -118,7 +134,45 @@
     "BUSCAR": "Search dishes...",
     "DETALLE": "Details of",
     "ELIJA_UNO": "Choose one",
-    "NO_DISPONIBLE": "Not available for you"
+    "NO_DISPONIBLE": "Not available for you",
+    "CARGANDO": "Loading the menu...",
+    "ERROR": "There was a problem loading the menu.",
+    "AVISO_CAMARERO": "Please, notify the waiter.",
+    "NO_DISPONIBLE_TITULO": "The menu is not available right now.",
+    "NO_DISPONIBLE_DESC": "The restaurant has not added any dishes to the public menu yet.",
+    "AGOTADO": "SOLD OUT",
+    "CONFIGURACION": {
+      "TITULO": "Settings",
+      "PERFIL": "PROFILE",
+      "APARIENCIA": "APPEARANCE",
+      "MODO_OSCURO": "Dark mode",
+      "MODO_CLARO": "Light mode",
+      "IDIOMA": "IDIOMA / LANGUAGE",
+      "IDIOMA_ACTUAL": "Current language",
+      "MIS_ALERGENOS": "MY ALLERGIES",
+      "MIS_ALERGENOS_DESC": "Update your allergies to filter the menu correctly."
+    },
+    "CERRAR_SESION_TITULO": "Sign Out",
+    "CERRAR_SESION_MSG": "Are you sure you want to exit?"
+  },
+  "LANDING": {
+    "TITULO": "Smart Order & Allergen Management",
+    "COMENSAL": {
+      "TITULO": "I'm a Customer",
+      "DESC": "Explore the menu and place your order safely."
+    },
+    "SALA": {
+      "TITULO": "Room Manager",
+      "DESC": "Accept orders and manage the room status."
+    },
+    "BARMAN": {
+      "TITULO": "Bartender",
+      "DESC": "Drinks by table with real-time checklist."
+    },
+    "COCINA": {
+      "TITULO": "Live Kitchen",
+      "DESC": "Production panel and real-time tickets."
+    }
   },
   "CATEGORIAS": {
     "entrante": "Starters",

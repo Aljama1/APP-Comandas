@@ -8,7 +8,7 @@
   </div>
 
   <!-- Botón dark mode (esquina superior derecha) -->
-  <button class="btn-theme-top" (click)="settings.toggleDark()" [attr.aria-label]="settings.isDark() ? 'Activar modo claro' : 'Activar modo oscuro'">
+  <button class="btn-theme-top" (click)="settings.toggleDark()" [attr.aria-label]="settings.isDark() ? ('CARTA.CONFIGURACION.MODO_CLARO' | translate) : ('CARTA.CONFIGURACION.MODO_OSCURO' | translate)">
     <ion-icon [name]="settings.isDark() ? 'sunny-outline' : 'moon-outline'"></ion-icon>
   </button>
 
@@ -99,11 +99,11 @@
           [placeholder]="'CHECKIN.ALERGENOS_DESC' | translate"
           [(ngModel)]="alergenosSeleccionados"
           class="custom-select"
-          okText="Aceptar"
-          cancelText="Cancelar"
+          [okText]="'ACCIONES.ACEPTAR' | translate"
+          [cancelText]="'ACCIONES.CANCELAR' | translate"
         >
           @for (al of todosLosAlergenos; track al.id) {
-            <ion-select-option [value]="al.id">{{ al.nombre | translate }}</ion-select-option>
+            <ion-select-option [value]="al.id">{{ al.emoji }} {{ al.nombre | translate }}</ion-select-option>
           }
         </ion-select>
       </div>

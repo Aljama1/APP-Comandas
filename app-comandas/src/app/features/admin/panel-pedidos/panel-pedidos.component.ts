@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController, LoadingController, AlertController } from '@ionic/angular';
@@ -39,6 +39,7 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
   private loadingCtrl = inject(LoadingController);
   private alertCtrl = inject(AlertController);
   private translate = inject(TranslateService);
+  private ngZone = inject(NgZone);
 
   // Reloj interno para cronómetros en vivo
   ahora = signal<number>(Date.now());
@@ -170,8 +171,7 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
     return filtro ? pedidos.filter(p => p.idMesa === filtro) : pedidos;
   });
 
-  // Peticiones de cuenta activas (Se poblarán mediante eventos o Firestore)
-  mesasPidiendoCuenta = signal<string[]>([]);
+
 
   constructor() {
     addIcons({
@@ -186,9 +186,11 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.adminComandaService.iniciarEscuchaPedidosEntrantes();
-    this.intervalId = setInterval(() => {
-      this.ahora.set(Date.now());
-    }, 10000);
+    this.ngZone.runOutsideAngular(() => {
+      this.intervalId = setInterval(() => {
+        this.ahora.set(Date.now());
+      }, 10000);
+    });
   }
 
   ngOnDestroy() {
@@ -294,7 +296,6 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
             await loading.present();
             try {
               await this.adminComandaService.finalizarCuentaMesa(idMesa);
-              this.mesasPidiendoCuenta.update(mesas => mesas.filter(m => m !== idMesa));
               this.cerrarTimeline(); // Si estaba el modal abierto, lo cerramos
               
               const toast = await this.toastCtrl.create({
