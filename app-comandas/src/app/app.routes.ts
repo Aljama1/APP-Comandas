@@ -63,9 +63,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/dashboard-metricas/dashboard-metricas.component').then((m) => m.DashboardMetricasComponent),
   },
   {
+    path: 'admin/cuentas',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/gestion-cuentas/gestion-cuentas.component').then((m) => m.GestionCuentasComponent),
+  },
+  {
     path: 'admin/qr',
     canActivate: [adminGuard],
     loadComponent: () => import('./features/admin/generador-qr/generador-qr.component').then((m) => m.GeneradorQrComponent),
+  },
+  {
+    path: 'admin/facturas',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/historial-facturas/historial-facturas.component').then((m) => m.HistorialFacturasComponent),
   },
 
   {

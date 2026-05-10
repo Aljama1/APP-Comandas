@@ -1,10 +1,11 @@
 import { Injectable, inject, signal, computed, NgZone, runInInjectionContext, EnvironmentInjector, OnDestroy } from '@angular/core';
-import { Firestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, runTransaction } from '@angular/fire/firestore';
 import { Comanda, EstadoComanda } from '../models/comanda.model';
 import { UserSettingsService } from './user-settings.service';
 import { AudioService } from './audio.service';
 import { ProductoAdminService } from './producto-admin.service';
 import { getTranslation } from '../models/common.model';
+import { FacturaLegal, ContadorFacturas, calcularDesgloseIva, generarHashFactura } from '../models/factura.model';
 
 @Injectable({
   providedIn: 'root'
@@ -132,19 +133,18 @@ export class AdminComandaService implements OnDestroy {
       return;
     }
 
-    const comandasRef = collection(this.firestore, 'comandas');
-    
-    // Consulta: Traemos 4 estados a la vez. 
-    // Al usar 'in', aprovechamos el mismo índice compuesto (estado + fechaCreacion) que ya creaste.
-    const q = query(
-      comandasRef,
-      where('estado', 'in', ['PENDIENTE', 'PREPARANDO', 'LISTO', 'SERVIDO']),
-      orderBy('fechaCreacion', 'asc')
-    );
-
-    let isInitialLoad = true;
-
     runInInjectionContext(this.injector, () => {
+      const comandasRef = collection(this.firestore, 'comandas');
+      
+      // Consulta: Traemos 4 estados a la vez. 
+      const q = query(
+        comandasRef,
+        where('estado', 'in', ['PENDIENTE', 'PREPARANDO', 'LISTO', 'SERVIDO']),
+        orderBy('fechaCreacion', 'asc')
+      );
+
+      let isInitialLoad = true;
+
       this.unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
         this.zone.run(() => {
           // Lógica de notificaciones sonoras para pedidos nuevos
@@ -271,6 +271,152 @@ export class AdminComandaService implements OnDestroy {
       }
     } catch (error) {
       console.error('Error al marcar plato preparado:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Edita una línea específica de una comanda y recalcula el total.
+   */
+  async editarLineaComanda(idComanda: string, indexLinea: number, nuevosDatos: { cantidad?: number; precioUnitario?: number }): Promise<void> {
+    const comanda = this._comandasActivas().find(c => c.id === idComanda);
+    if (!comanda) throw new Error('Comanda no encontrada');
+
+    const nuevasLineas = [...comanda.lineasComanda];
+    const linea = { ...nuevasLineas[indexLinea] };
+
+    if (nuevosDatos.cantidad !== undefined) linea.cantidad = nuevosDatos.cantidad;
+    if (nuevosDatos.precioUnitario !== undefined) linea.precioUnitario = nuevosDatos.precioUnitario;
+    
+    linea.subtotal = linea.cantidad * linea.precioUnitario;
+    nuevasLineas[indexLinea] = linea;
+
+    const nuevoTotal = nuevasLineas.reduce((sum, l) => sum + l.subtotal, 0);
+
+    const docRef = doc(this.firestore, `comandas/${idComanda}`);
+    await updateDoc(docRef, {
+      lineasComanda: nuevasLineas,
+      precioTotal: nuevoTotal,
+      fechaActualizacion: Date.now()
+    });
+  }
+
+  /**
+   * Elimina una línea de una comanda y recalcula el total.
+   */
+  async eliminarLineaComanda(idComanda: string, indexLinea: number): Promise<void> {
+    const comanda = this._comandasActivas().find(c => c.id === idComanda);
+    if (!comanda) throw new Error('Comanda no encontrada');
+
+    const nuevasLineas = [...comanda.lineasComanda];
+    nuevasLineas.splice(indexLinea, 1);
+
+    const nuevoTotal = nuevasLineas.reduce((sum, l) => sum + l.subtotal, 0);
+    const docRef = doc(this.firestore, `comandas/${idComanda}`);
+
+    if (nuevasLineas.length === 0) {
+      // Si no quedan líneas, podríamos cancelar la comanda o dejarla vacía. 
+      // Por ahora la dejamos vacía con total 0.
+      await updateDoc(docRef, {
+        lineasComanda: [],
+        precioTotal: 0,
+        estado: 'CANCELADO',
+        fechaActualizacion: Date.now()
+      });
+    } else {
+      await updateDoc(docRef, {
+        lineasComanda: nuevasLineas,
+        precioTotal: nuevoTotal,
+        fechaActualizacion: Date.now()
+      });
+    }
+  }
+
+  /**
+   * Genera una factura para todas las comandas activas de una mesa y las marca como pagadas.
+   * Utiliza transacciones para garantizar correlatividad y encadenamiento (Veri*factu).
+   */
+  async generarFactura(idMesa: string, metodoPago: string): Promise<FacturaLegal> {
+    const comandasMesa = this._comandasActivas().filter(c => c.idMesa === idMesa);
+    if (comandasMesa.length === 0) throw new Error('No hay consumiciones para esta mesa');
+
+    const totalConIva = comandasMesa.reduce((sum, c) => sum + (c.precioTotal || 0), 0);
+    const productos = comandasMesa.map((c: Comanda) => c.lineasComanda).reduce((acc, val) => acc.concat(val), []);
+
+    const desglose = calcularDesgloseIva(totalConIva, 10);
+
+    const snapshotProductos = productos.map((p: any) => ({
+      idProducto: p.idProducto,
+      nombre: getTranslation(p.nombreProducto, 'es'),
+      cantidad: p.cantidad,
+      precioUnitario: p.precioUnitario,
+      subtotal: p.subtotal
+    }));
+
+    // Referencias a los documentos implicados
+    const contadorRef = doc(this.firestore, 'metadatos/contadores_facturas');
+    const nuevaFacturaRef = doc(collection(this.firestore, 'facturas')); // Generamos el ID antes de la transacción
+
+    try {
+      const facturaGenerada = await runInInjectionContext(this.injector, () => 
+        runTransaction(this.firestore, async (transaction) => {
+          // 1. Leer el contador actual (debe ser el primer paso de la transacción)
+          const contadorDoc = await transaction.get(contadorRef);
+          
+          if (!contadorDoc.exists()) {
+            throw new Error('El contador de facturas no existe. Por favor, crea el documento inicial en metadatos/contadores_facturas');
+          }
+
+          const datosContador = contadorDoc.data() as ContadorFacturas;
+          
+          // 2. Incrementar contador y preparar datos de la nueva factura
+          const nuevoNumero = datosContador.ultimoNumero + 1;
+          const numeroFormateado = `${datosContador.serieActual}-${nuevoNumero.toString().padStart(6, '0')}`;
+          const fechaExpedicion = Date.now();
+          const hashAnterior = datosContador.ultimoHash;
+
+          // 3. Generar el nuevo Hash de encadenamiento
+          const hashActual = await generarHashFactura(numeroFormateado, fechaExpedicion, totalConIva, hashAnterior);
+
+          // 4. Construir la factura legal
+          const facturaLegal: FacturaLegal = {
+            id: nuevaFacturaRef.id,
+            idMesa: idMesa,
+            numeroFactura: numeroFormateado,
+            fechaExpedicion: fechaExpedicion,
+            baseImponible: desglose.baseImponible,
+            cuotaIva: desglose.cuotaIva,
+            porcentajeIva: 10,
+            importeTotal: totalConIva,
+            metodoPago: metodoPago,
+            hashAnterior: hashAnterior,
+            hashActual: hashActual,
+            productos: snapshotProductos
+          };
+
+          // 5. Escrituras de la transacción (Actualizar contador y crear factura)
+          transaction.set(nuevaFacturaRef, facturaLegal);
+          
+          transaction.update(contadorRef, {
+            ultimoNumero: nuevoNumero,
+            ultimoHash: hashActual
+          });
+
+          // Retornamos el objeto de la factura generada
+          return facturaLegal;
+        })
+      );
+
+      // 6. Marcar comandas como pagadas (fuera de la transacción de factura)
+      await this.finalizarCuentaMesa(idMesa);
+      
+      console.log(`Factura ${facturaGenerada.id} generada legalmente para Mesa ${idMesa}`);
+      
+      // Asegurarse de retornar el objeto completo como espera la promesa
+      return facturaGenerada as FacturaLegal;
+
+    } catch (error) {
+      console.error('Error al generar la factura con transacción:', error);
       throw error;
     }
   }

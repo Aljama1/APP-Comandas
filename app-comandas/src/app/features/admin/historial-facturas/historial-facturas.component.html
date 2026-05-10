@@ -1,0 +1,78 @@
+<ion-content class="dashboard-bg">
+  <div class="historial-container">
+    
+    <header class="top-bar glass-panel">
+      <div class="brand">
+        <button class="btn-back" (click)="volver()">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <div class="title-wrap">
+          <ion-icon name="document-text-outline" class="title-icon"></ion-icon>
+          <h1>{{ 'HISTORIAL_FACTURAS.TITULO' | translate }}</h1>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-layout">
+      @if (cargando) {
+        <div class="loading-state">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p>{{ 'HISTORIAL_FACTURAS.CARGANDO' | translate }}</p>
+        </div>
+      } @else if (facturas.length === 0) {
+        <div class="empty-state">
+          <ion-icon name="document-text-outline"></ion-icon>
+          <p>{{ 'HISTORIAL_FACTURAS.SIN_FACTURAS' | translate }}</p>
+        </div>
+      } @else {
+        <div class="facturas-grid">
+          @for (factura of facturas; track factura.id) {
+            <ion-card class="factura-card glass-panel">
+              <ion-card-header>
+                <div class="card-top">
+                  <ion-card-subtitle>{{ factura.fechaExpedicion | date: (idiomaActual === 'es' ? 'dd/MM/yyyy HH:mm' : 'MM/dd/yyyy h:mm a') }}</ion-card-subtitle>
+                  <ion-badge [color]="factura.metodoPago === 'efectivo' ? 'success' : (factura.metodoPago === 'tarjeta' ? 'primary' : 'tertiary')">
+                    {{ factura.metodoPago | uppercase }}
+                  </ion-badge>
+                </div>
+                <ion-card-title>{{ factura.numeroFactura }}</ion-card-title>
+              </ion-card-header>
+
+              <ion-card-content>
+                <div class="factura-details">
+                  <div class="detail-row">
+                    <span>{{ 'HISTORIAL_FACTURAS.MESA' | translate }}</span>
+                    <strong>{{ factura.idMesa }}</strong>
+                  </div>
+                  <div class="detail-row">
+                    <span>{{ 'HISTORIAL_FACTURAS.BASE_IMPONIBLE' | translate }}</span>
+                    <span>{{ factura.baseImponible | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span>{{ 'HISTORIAL_FACTURAS.IVA' | translate }}</span>
+                    <span>{{ factura.cuotaIva | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</span>
+                  </div>
+                  <div class="detail-row total-row">
+                    <span>{{ 'HISTORIAL_FACTURAS.TOTAL' | translate }}</span>
+                    <strong>{{ factura.importeTotal | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</strong>
+                  </div>
+                </div>
+
+                <div class="hash-section">
+                  <small class="hash-label">{{ 'HISTORIAL_FACTURAS.HASH' | translate }}</small>
+                  <code class="hash-value" [title]="factura.hashActual">{{ factura.hashActual | slice:0:16 }}...</code>
+                </div>
+
+                <ion-button expand="block" fill="outline" class="btn-print" (click)="imprimirFactura(factura)">
+                  <ion-icon name="print-outline" slot="start"></ion-icon>
+                  {{ 'HISTORIAL_FACTURAS.IMPRIMIR' | translate }}
+                </ion-button>
+              </ion-card-content>
+            </ion-card>
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+</ion-content>

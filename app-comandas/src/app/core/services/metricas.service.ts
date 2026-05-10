@@ -74,6 +74,17 @@ export class MetricasService {
       .sort((a, b) => b.cantidad - a.cantidad)
       .slice(0, 10); // Top 10
   });
+  
+  // 3. Resumen Diario (Hoy)
+  public totalHoy = computed(() => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const inicioHoy = hoy.getTime();
+    
+    return this.comandasHistoricas()
+      .filter(c => c.fechaCreacion >= inicioHoy)
+      .reduce((acc, c) => acc + (c.precioTotal || 0), 0);
+  });
 
   constructor() {
     this.iniciarEscuchaMetricas();

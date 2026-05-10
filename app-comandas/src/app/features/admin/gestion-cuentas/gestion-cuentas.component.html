@@ -1,0 +1,229 @@
+<ion-content [fullscreen]="true" class="dashboard-bg">
+  <div class="dashboard-container">
+    
+    <!-- Header Principal -->
+    <header class="top-bar glass-panel">
+      <div class="brand" style="display: flex; align-items: center; gap: 10px;">
+        <ion-button fill="clear" (click)="irAPanel()" class="back-btn" color="medium" style="margin: 0; --padding-start: 0; --padding-end: 8px;">
+          <ion-icon name="arrow-back-outline" slot="icon-only" style="font-size: 1.5rem;"></ion-icon>
+        </ion-button>
+        <div class="logo-pulse"></div>
+        <h1>{{ 'GESTION_CUENTAS.TITULO' | translate }}</h1>
+      </div>
+
+      <div class="search-container">
+        <ion-searchbar 
+          [placeholder]="'GESTION_CUENTAS.BUSCAR' | translate"
+          (ionInput)="actualizarFiltro($event)"
+          class="custom-search"
+          [debounce]="300">
+        </ion-searchbar>
+      </div>
+
+      <div class="actions">
+      </div>
+    </header>
+
+    <!-- Resumen Diario (KPIs) -->
+    <section class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-info">
+          <span class="kpi-label">{{ 'GESTION_CUENTAS.RECAUDACION_HOY' | translate }}</span>
+          <span class="kpi-value" style="color: var(--dash-accent-green)">{{ metricasService.totalHoy() | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</span>
+        </div>
+        <ion-icon name="trending-up-outline" class="kpi-icon icon-green"></ion-icon>
+      </div>
+      
+      <div class="kpi-card">
+        <div class="kpi-info">
+          <span class="kpi-label">{{ 'GESTION_CUENTAS.MESAS_ACTIVAS' | translate }}</span>
+          <span class="kpi-value">{{ mesasAgrupadas().length }}</span>
+        </div>
+        <ion-icon name="restaurant-outline" class="kpi-icon icon-blue"></ion-icon>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-info">
+          <span class="kpi-label">{{ 'GESTION_CUENTAS.TICKET_MEDIO' | translate }}</span>
+          <span class="kpi-value">{{ metricasService.kpis().ticketMedio | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</span>
+        </div>
+        <ion-icon name="wallet-outline" class="kpi-icon icon-purple"></ion-icon>
+      </div>
+    </section>
+
+    <!-- Grid de Mesas -->
+    @if (mesasFiltradas().length === 0) {
+      <div class="empty-state-centered">
+        <ion-icon name="restaurant-outline"></ion-icon>
+        <h2>{{ 'GESTION_CUENTAS.SIN_MESAS' | translate }}</h2>
+        <p>{{ 'GESTION_CUENTAS.SIN_MESAS_DESC' | translate }}</p>
+      </div>
+    } @else {
+      <div class="mesas-grid">
+        @for (mesa of mesasFiltradas(); track mesa.idMesa) {
+          <article class="mesa-card" (click)="abrirDetalle(mesa)">
+            <div class="mesa-header">
+              <div class="mesa-badge">{{ mesa.idMesa.replace('Mesa ', '') }}</div>
+              <div class="mesa-status">
+                <div class="dot"></div>
+                <span>{{ 'GESTION_CUENTAS.EN_SERVICIO' | translate }}</span>
+              </div>
+            </div>
+
+            <div class="mesa-info">
+              <div class="label">{{ 'GESTION_CUENTAS.RESPONSABLE' | translate }}</div>
+              <div class="value">{{ mesa.idMesa }} - {{ mesa.nombresClientes }}</div>
+            </div>
+
+            <div class="mesa-footer">
+              <div>
+                <div class="total-label">{{ 'GESTION_CUENTAS.TOTAL_ACUMULADO' | translate }}</div>
+                <div class="total-value">{{ mesa.total | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</div>
+              </div>
+              <div class="mesa-info" style="text-align: right;">
+                <div class="label">{{ mesa.productos.length }} {{ 'GESTION_CUENTAS.PRODUCTOS' | translate }}</div>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+
+  </div>
+</ion-content>
+
+<!-- Modal Detalle Cuenta -->
+@if (mesaSeleccionada()) {
+  <div class="modal-overlay" (click)="cerrarDetalle()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      
+      <header class="modal-header">
+        <div class="title-group">
+          <div class="icon-box">
+            <ion-icon name="restaurant-outline"></ion-icon>
+          </div>
+          <div>
+            <h2>{{ mesaSeleccionada()?.idMesa }}</h2>
+            <p>{{ mesaSeleccionada()?.nombreCliente }}</p>
+          </div>
+        </div>
+        <button class="btn-close" (click)="cerrarDetalle()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </header>
+
+      <main class="modal-body">
+        @for (producto of obtenerTodosLosProductos(); track producto.idComanda + '-' + producto.indexComanda) {
+          <div class="producto-item">
+            <div class="prod-info">
+              <h4>{{ producto.nombreProducto['es'] || producto.nombreProducto }}</h4>
+              <div class="meta">
+                @if (lineaEnEdicion()?.index === producto.indexComanda && lineaEnEdicion()?.linea.idComanda === producto.idComanda) {
+                  <span style="color: var(--dash-accent-blue)">{{ 'GESTION_CUENTAS.EDITANDO' | translate }}</span>
+                } @else {
+                  {{ producto.cantidad }} UND × {{ producto.precioUnitario | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}
+                }
+              </div>
+            </div>
+
+            <div class="prod-actions">
+              @if (lineaEnEdicion()?.index === producto.indexComanda && lineaEnEdicion()?.linea.idComanda === producto.idComanda) {
+                <div class="edit-box">
+                  <input type="number" [(ngModel)]="cantidadEditando" />
+                  <span style="color: #666">×</span>
+                  <input type="number" [(ngModel)]="precioEditando" step="0.1" />
+                </div>
+                <button class="btn-mini btn-save" (click)="confirmarEdicion()">
+                  <ion-icon name="checkmark-outline"></ion-icon>
+                </button>
+                <button class="btn-mini btn-cancel" (click)="cancelarEdicionLinea()">
+                  <ion-icon name="close-outline"></ion-icon>
+                </button>
+              } @else {
+                <span class="price-val">{{ producto.subtotal | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</span>
+                <button class="btn-mini btn-edit" (click)="iniciarEdicionLinea(producto, $event)">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+                <button class="btn-mini btn-delete" (click)="eliminarLinea(producto, $event)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </main>
+
+      <section class="modal-payment-modern">
+        <ion-card class="checkout-card" mode="ios">
+          <ion-card-header>
+            <ion-card-subtitle>{{ 'GESTION_CUENTAS.RESUMEN' | translate }}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item lines="none" class="price-breakdown">
+              <ion-label color="medium">{{ 'GESTION_CUENTAS.BASE_IMPONIBLE' | translate }}</ion-label>
+              <ion-note slot="end" color="dark">{{ (totalAcumuladoMesa() / 1.1) | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</ion-note>
+            </ion-item>
+            <ion-item lines="none" class="price-breakdown">
+              <ion-label color="medium">{{ 'GESTION_CUENTAS.IVA' | translate }}</ion-label>
+              <ion-note slot="end" color="dark">{{ (totalAcumuladoMesa() - (totalAcumuladoMesa() / 1.1)) | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</ion-note>
+            </ion-item>
+            <ion-item lines="none" class="total-item">
+              <ion-label><strong>{{ 'GESTION_CUENTAS.TOTAL_COBRAR' | translate }}</strong></ion-label>
+              <ion-text color="success" slot="end">
+                <h2 style="margin: 0; font-weight: bold;">{{ totalAcumuladoMesa() | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</h2>
+              </ion-text>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+
+        <div class="payment-grid-modern">
+          <button 
+            class="payment-tile" 
+            [class.active]="metodoPagoSeleccionado() === 'EFECTIVO'"
+            (click)="metodoPagoSeleccionado.set('EFECTIVO')">
+            <div class="icon-circle cash"><ion-icon name="cash-outline"></ion-icon></div>
+            <span>{{ 'GESTION_CUENTAS.EFECTIVO' | translate }}</span>
+          </button>
+          <button 
+            class="payment-tile" 
+            [class.active]="metodoPagoSeleccionado() === 'TARJETA'"
+            (click)="metodoPagoSeleccionado.set('TARJETA')">
+            <div class="icon-circle card"><ion-icon name="card-outline"></ion-icon></div>
+            <span>{{ 'GESTION_CUENTAS.TARJETA' | translate }}</span>
+          </button>
+          <button 
+            class="payment-tile" 
+            [class.active]="metodoPagoSeleccionado() === 'TPV_VIRTUAL'"
+            (click)="metodoPagoSeleccionado.set('TPV_VIRTUAL')">
+            <div class="icon-circle tpv"><ion-icon name="qr-code-outline"></ion-icon></div>
+            <span>{{ 'GESTION_CUENTAS.TPV' | translate }}</span>
+          </button>
+        </div>
+        
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 15px; margin-bottom: 5px;">
+          <ion-icon name="shield-checkmark-outline" color="success" style="font-size: 1.2rem;"></ion-icon>
+          <ion-note color="medium" style="font-size: 0.85rem;">{{ 'GESTION_CUENTAS.VERIFACTU' | translate }}</ion-note>
+        </div>
+      </section>
+
+      <footer class="modal-footer-modern" style="padding: 16px; background: transparent; border-top: none;">
+        <ion-button 
+          expand="block" 
+          color="primary" 
+          fill="solid" 
+          shape="round" 
+          style="height: 50px;"
+          (click)="finalizarCobro()" 
+          [disabled]="isProcessing() || totalAcumuladoMesa() === 0">
+          @if (isProcessing()) {
+            <ion-spinner name="crescent" color="light"></ion-spinner>
+            <span style="margin-left: 10px;">{{ 'GESTION_CUENTAS.GENERANDO' | translate }}</span>
+          } @else {
+            <span style="font-size: 1.1rem; font-weight: bold;">{{ 'GESTION_CUENTAS.COBRAR_MESA' | translate }}</span>
+          }
+        </ion-button>
+      </footer>
+
+    </div>
+  </div>
+}

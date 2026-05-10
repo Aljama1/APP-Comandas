@@ -43,6 +43,33 @@ export class ProductoAdminService implements OnDestroy {
     }
   }
 
+  /**
+   * UTILIDAD PARA MIGRAR PRODUCTOS ANTIGUOS
+   * Convierte nombres y descripciones tipo string a {es: '...', en: ''}
+   */
+  async migrarProductosAntiguos(): Promise<void> {
+    const lista = this.productos();
+    for (const prod of lista) {
+      let necesitaUpdate = false;
+      const updates: Partial<Producto> = {};
+
+      if (typeof prod.nombre === 'string') {
+        updates.nombre = { es: prod.nombre, en: '' };
+        necesitaUpdate = true;
+      }
+      if (typeof prod.descripcion === 'string') {
+        updates.descripcion = { es: prod.descripcion, en: '' };
+        necesitaUpdate = true;
+      }
+
+      if (necesitaUpdate && prod.id) {
+        console.log(`Migrando producto: ${prod.id}`);
+        await this.actualizarProducto(prod.id, updates);
+      }
+    }
+    console.log('Migración completada.');
+  }
+
   private cargarProductos(): void {
     this.detenerEscucha();
     this.cargando.set(true);
