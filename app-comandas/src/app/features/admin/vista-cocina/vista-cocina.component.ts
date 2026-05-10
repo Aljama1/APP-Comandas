@@ -8,11 +8,12 @@ import { addIcons } from 'ionicons';
 import { flameOutline, timeOutline, warningOutline, restaurantOutline, checkmarkDoneOutline, logOutOutline, cafeOutline, beerOutline, gridOutline } from 'ionicons/icons';
 
 import { AdminConfigBarComponent } from '../../../shared/components/admin-config-bar/admin-config-bar.component';
+import { TranslateAlergenosPipe } from '../../../core/pipes/translate-alergenos.pipe';
 
 @Component({
   selector: 'app-vista-cocina',
   standalone: true,
-  imports: [CommonModule, IonicModule, AdminConfigBarComponent],
+  imports: [CommonModule, IonicModule, AdminConfigBarComponent, TranslateAlergenosPipe],
   templateUrl: './vista-cocina.component.html',
   styleUrls: ['./vista-cocina.component.scss']
 })

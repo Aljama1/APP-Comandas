@@ -123,7 +123,7 @@
               <ion-icon name="warning-outline"></ion-icon>
               <div class="texto-alerta">
                 <strong>¡ALERGIAS!</strong>
-                <p>{{ comanda.alergenosUsuario.join(', ') | uppercase }}</p>
+                <p>{{ comanda.alergenosUsuario | translateAlergenos | uppercase }}</p>
               </div>
             </div>
             }

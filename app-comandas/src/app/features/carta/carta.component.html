@@ -18,6 +18,7 @@
     </div>
 
     <div class="header-right">
+
       @if (firestoreService.tieneComandas()) {
         <button class="btn-icon" (click)="irAMisPedidos()" aria-label="Ver mis pedidos">
           <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
@@ -40,7 +41,7 @@
   @if (perfil()?.alergenos?.length) {
     <div class="alergenos-pill" role="status">
       <ion-icon name="shield-checkmark" aria-hidden="true"></ion-icon>
-      <span>Filtro activo: {{ perfil()?.alergenos?.join(', ') }}</span>
+      <span>Filtro activo: {{ perfil()?.alergenos | translateAlergenos }}</span>
     </div>
   }
 
@@ -59,9 +60,10 @@
             <button
               class="menu-item"
               [class.menu-item--danger]="!producto.esSeguro"
-              (click)="abrirProducto(producto)"
+              [class.menu-item--soldout]="producto.agotado"
+              (click)="!producto.agotado && abrirProducto(producto)"
               role="listitem"
-              [attr.aria-label]="(producto.nombre | translateContent) + ' · ' + (producto.precio | currency:'EUR') + (producto.esSeguro ? '' : ' · CONTIENE ALÉRGENOS')"
+              [attr.aria-label]="(producto.nombre | translateContent) + ' · ' + (producto.precio | currency:'EUR') + (producto.agotado ? ' · AGOTADO' : '') + (producto.esSeguro ? '' : ' · CONTIENE ALÉRGENOS')"
             >
               <div class="menu-item__info">
                 <div class="menu-item__name-row">
@@ -69,9 +71,12 @@
                     <ion-icon name="alert-circle-outline" class="danger-icon" aria-label="Contiene tus alérgenos"></ion-icon>
                   }
                   <span class="menu-item__name">{{ producto.nombre | translateContent }}</span>
+                  @if (producto.agotado) {
+                    <span class="badge-agotado" style="color: var(--ion-color-danger); font-size: 0.75rem; margin-left: 8px; font-weight: bold;">AGOTADO</span>
+                  }
                 </div>
                 @if (producto.alergenosPeligrosos.length > 0) {
-                  <span class="menu-item__danger-text">Contiene: {{ producto.alergenosPeligrosos.join(', ') }}</span>
+                  <span class="menu-item__danger-text">Contiene: {{ producto.alergenosPeligrosos | translateAlergenos }}</span>
                 }
                 @else {
                   <span class="menu-item__desc">{{ producto.descripcion | translateContent }}</span>
@@ -176,7 +181,7 @@
                 class="alergeno-pill"
                 [class.alergeno-pill--danger]="productoSeleccionado()!.alergenosPeligrosos.includes(al)"
               >
-                {{ al }}
+                {{ al | translateAlergenos }}
               </span>
             }
           </div>
@@ -244,7 +249,10 @@
           (click)="agregarDesdeModal(productoSeleccionado()!)"
           [attr.aria-label]="('CARTA.ADD_AL_PEDIDO' | translate) + ' ' + (productoSeleccionado()!.nombre | translateContent)"
         >
-          @if (!productoSeleccionado()!.esSeguro) {
+          @if (productoSeleccionado()!.agotado) {
+            <ion-icon name="close-circle-outline" aria-hidden="true"></ion-icon>
+            <span>AGOTADO</span>
+          } @else if (!productoSeleccionado()!.esSeguro) {
             <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
             <span>{{ 'CARTA.NO_DISPONIBLE' | translate }}</span>
           } @else {
@@ -303,6 +311,20 @@
           >
             <div class="toggle-thumb"></div>
           </button>
+        </div>
+      </div>
+
+      <!-- Idioma -->
+      <div class="settings-section">
+        <p class="settings-label">IDIOMA / LANGUAGE</p>
+        <div class="settings-row settings-row--toggle" (click)="toggleIdioma()" style="cursor: pointer;">
+          <div class="settings-row__info">
+            <ion-icon name="language-outline" aria-hidden="true"></ion-icon>
+            <span class="settings-row__title">Idioma actual</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-weight: bold; color: var(--ion-color-primary);">{{ idiomaActual | uppercase }}</span>
+          </div>
         </div>
       </div>
 

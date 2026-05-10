@@ -14,6 +14,7 @@ import {
   lockClosedOutline, qrCodeOutline, moonOutline, sunnyOutline,
   checkmarkOutline, closeOutline
 } from 'ionicons/icons';
+import { Alergeno } from '../../core/models/producto.model';
 
 @Component({
   selector: 'app-check-in',
@@ -31,15 +32,25 @@ export class CheckInComponent {
   errorNombre = signal<string>('');
   errorMesa = signal<string>('');
 
-  // Lista de alérgenos del TFG (siguiendo normativa europea)
-  alergenos = [
-    { id: 'gluten',       nombre: 'ALERGENOS.gluten',    icono: '/assets/icon/gluten.svg',        activo: false, esSvg: true  },
-    { id: 'lactosa',      nombre: 'ALERGENOS.lactosa',   icono: '/assets/icon/lactosa.svg',       activo: false, esSvg: true  },
-    { id: 'frutos-secos', nombre: 'ALERGENOS.frutos-secos',  icono: '/assets/icon/frutos-secos.svg',  activo: false, esSvg: true  },
-    { id: 'huevo',        nombre: 'ALERGENOS.huevo',     icono: 'egg-outline',                    activo: false, esSvg: false },
-    { id: 'pescado',      nombre: 'ALERGENOS.pescado',   icono: 'fish-outline',                   activo: false, esSvg: false },
-    { id: 'marisco',      nombre: 'ALERGENOS.marisco',   icono: 'restaurant-outline',             activo: false, esSvg: false }
+  // Lista completa de 14 alérgenos
+  todosLosAlergenos: { id: Alergeno; nombre: string }[] = [
+    { id: 'Gluten',       nombre: 'ALERGENOS.gluten' },
+    { id: 'Crustáceos',   nombre: 'ALERGENOS.crustaceos' },
+    { id: 'Huevos',       nombre: 'ALERGENOS.huevo' },
+    { id: 'Pescado',      nombre: 'ALERGENOS.pescado' },
+    { id: 'Cacahuetes',   nombre: 'ALERGENOS.cacahuetes' },
+    { id: 'Soja',         nombre: 'ALERGENOS.soja' },
+    { id: 'Lácteos',      nombre: 'ALERGENOS.lactosa' },
+    { id: 'Frutos de cáscara', nombre: 'ALERGENOS.frutos-secos' },
+    { id: 'Apio',         nombre: 'ALERGENOS.apio' },
+    { id: 'Mostaza',      nombre: 'ALERGENOS.mostaza' },
+    { id: 'Granos de sésamo', nombre: 'ALERGENOS.sesamo' },
+    { id: 'Dióxido de azufre y sulfitos', nombre: 'ALERGENOS.sulfitos' },
+    { id: 'Altramuces',   nombre: 'ALERGENOS.altramuces' },
+    { id: 'Moluscos',     nombre: 'ALERGENOS.moluscos' }
   ];
+
+  alergenosSeleccionados: Alergeno[] = [];
 
   private usuarioService = inject(UsuarioService);
   public settings = inject(UserSettingsService);
@@ -74,10 +85,7 @@ export class CheckInComponent {
     }
   }
 
-  toggleAlergeno(id: string) {
-    const alergeno = this.alergenos.find(a => a.id === id);
-    if (alergeno) alergeno.activo = !alergeno.activo;
-  }
+
 
   /** Limpia el error del campo nombre al escribir */
   onNombreChange() {
@@ -114,7 +122,7 @@ export class CheckInComponent {
         uid,
         nombre: this.nombre,
         mesaId: this.mesaId!,
-        alergenos: this.alergenos.filter(a => a.activo).map(a => a.id)
+        alergenos: this.alergenosSeleccionados
       };
 
       this.usuarioService.establecerPerfil(nuevoPerfil);

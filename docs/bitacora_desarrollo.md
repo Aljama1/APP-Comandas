@@ -216,4 +216,32 @@ Aplicación Híbrida con dos verticales:
     - **UI Administrativa**: Adición de botones de acción con feedback visual (hover, active, disabled) y estados de carga para evitar exportaciones inconsistentes si no hay datos.
 
 ---
-*Última actualización: 9 de mayo de 2026 - Avance Fase 9*
+
+### Fase 9: Gestión de Stock y Auto-Sold-Out (Completado)
+
+#### Día 20: Control de Inventario y Experiencia del Cliente
+- **Hito**: Implementación de la lógica de stock en el panel B2B y su reflejo reactivo en el B2C.
+- **Detalles técnicos**:
+    - **Agotado Dinámico (Auto-Sold-Out)**: Integración del campo `stock` en `Producto`. Cuando un producto llega a 0 de stock, su propiedad `agotado` se activa dinámicamente en el `CartaComponent`.
+    - **Feedback Visual**: Los productos agotados en la vista del cliente muestran un badge "AGOTADO" y se deshabilita el botón de añadir a la comanda, previniendo errores de sincronización y mejorando la satisfacción del comensal.
+
+---
+
+### Fase 10: Robustez, Seguridad y Resiliencia (Completado)
+
+#### Día 21: Internacionalización y Estándares Empresariales
+- **Hito**: Transformación de la aplicación en un producto Enterprise-Ready.
+- **Detalles técnicos**:
+    - **Traducciones Reactivas (i18n)**: Normalización final de todos los literales de la app usando `@ngx-translate/core`. Los pipes `currency` y `date` ahora son dinámicos y responden a los cambios de idioma (`es` vs `en`).
+    - **Refinamiento de Copywriting**: Ajuste del tono de voz ("Table Billing", "Invoice") en los diccionarios JSON para lograr un carácter profesional.
+    - **Limpieza de Control Flow**: Migración completa y exhaustiva a las directivas `@if` y `@for` de Angular 17.
+
+#### Día 22: Seguridad Firestore y PWA
+- **Hito**: Blindaje de la base de datos y mejoras de infraestructura de red.
+- **Detalles técnicos**:
+    - **Firestore Rules**: Desarrollo e implementación de `firestore.rules` garantizando que los clientes anónimos solo pueden leer/escribir comandas asociadas a su mesa (`idMesa`), mientras que los productos del menú son de solo lectura pública. El staff (con auth) tiene privilegios CRUD completos.
+    - **Progressive Web App (PWA)**: Integración de `@angular/pwa` y Service Workers. La aplicación ahora soporta modo offline parcial, cacheo de recursos (CSS, JS, iconos) e instalación directa en dispositivos (iOS/Android), mitigando problemas en restaurantes con redes Wi-Fi inestables.
+    - **Script de Migración**: Ejecución exitosa de `migrarProductosAntiguos()` para compatibilidad retroactiva de datos en Firestore (nombres y descripciones internacionales).
+
+---
+*Última actualización: 9 de mayo de 2026 - Proyecto completado al 100% (Fase Final)*

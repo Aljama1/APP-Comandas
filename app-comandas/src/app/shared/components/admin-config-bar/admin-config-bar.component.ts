@@ -1,16 +1,18 @@
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, signal, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController, ToastController, IonPopover } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { UserSettingsService } from '../../../core/services/user-settings.service';
+import { ProductoAdminService } from '../../../core/services/producto-admin.service';
 import { updatePassword } from '@angular/fire/auth';
 import { addIcons } from 'ionicons';
 import { 
   personCircleOutline, settingsOutline, chevronUpOutline, sunnyOutline, 
   moonOutline, volumeHighOutline, volumeMuteOutline, logOutOutline, 
-  keyOutline, chevronForwardOutline, notificationsOutline, restaurantOutline, barChartOutline, qrCodeOutline
+  keyOutline, chevronForwardOutline, notificationsOutline, restaurantOutline, barChartOutline, qrCodeOutline, receiptOutline, languageOutline
 } from 'ionicons/icons';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin-config-bar',
@@ -19,12 +21,14 @@ import {
   templateUrl: './admin-config-bar.component.html',
   styleUrls: ['./admin-config-bar.component.scss']
 })
-export class AdminConfigBarComponent {
+export class AdminConfigBarComponent implements OnInit {
   authService = inject(AdminAuthService);
   settingsService = inject(UserSettingsService);
+  productoAdminService = inject(ProductoAdminService);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
   private router = inject(Router);
+  private translate = inject(TranslateService);
   @ViewChild('configPopover') popover!: IonPopover;
 
   // Ya no usamos isExpanded, usamos el popover de Ionic
@@ -33,8 +37,27 @@ export class AdminConfigBarComponent {
     addIcons({
       personCircleOutline, settingsOutline, chevronUpOutline, sunnyOutline,
       moonOutline, volumeHighOutline, volumeMuteOutline, logOutOutline,
-      keyOutline, chevronForwardOutline, notificationsOutline, restaurantOutline, barChartOutline, qrCodeOutline
+      keyOutline, chevronForwardOutline, notificationsOutline, restaurantOutline, barChartOutline, qrCodeOutline, receiptOutline, languageOutline
     });
+  }
+
+  ngOnInit() {
+    // Ejecutar migración de productos antiguos (Fase 10)
+    this.productoAdminService.migrarProductosAntiguos().then(() => {
+      console.log('Script de migración ejecutado correctamente.');
+    }).catch(err => {
+      console.error('Error en migración:', err);
+    });
+  }
+
+  get idiomaActual(): string {
+    return this.translate.currentLang || this.translate.defaultLang || 'es';
+  }
+
+  toggleIdioma(): void {
+    const nuevoIdioma = this.idiomaActual === 'es' ? 'en' : 'es';
+    this.translate.use(nuevoIdioma);
+    localStorage.setItem('app_lang', nuevoIdioma);
   }
 
   async changePassword() {
@@ -115,6 +138,10 @@ export class AdminConfigBarComponent {
   irAGeneradorQr() { 
     this.popover.dismiss();
     this.router.navigate(['/admin/qr']); 
+  }
+  irACuentas() {
+    this.popover.dismiss();
+    this.router.navigate(['/admin/cuentas']);
   }
 }
 

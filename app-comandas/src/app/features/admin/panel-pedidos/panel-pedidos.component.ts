@@ -13,10 +13,10 @@ import {
   fastFoodOutline, flashOutline, searchOutline, cafeOutline, closeCircleOutline,
   notificationsOutline, walletOutline, listOutline, createOutline, chevronDownOutline,
   chevronUpOutline, warningOutline, checkmarkCircle, trendingUpOutline, peopleOutline,
-  analyticsOutline, checkmarkOutline
+  analyticsOutline, checkmarkOutline, documentTextOutline, languageOutline
 } from 'ionicons/icons';
 import { DatePipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
 import { Turno } from '../../../core/models/producto.model';
 import { LocalizedString, Translatable } from '../../../core/models/common.model';
@@ -38,6 +38,7 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
   private toastCtrl = inject(ToastController);
   private loadingCtrl = inject(LoadingController);
   private alertCtrl = inject(AlertController);
+  private translate = inject(TranslateService);
 
   // Reloj interno para cronómetros en vivo
   ahora = signal<number>(Date.now());
@@ -169,8 +170,8 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
     return filtro ? pedidos.filter(p => p.idMesa === filtro) : pedidos;
   });
 
-  // Mock de peticiones de cuenta para la Demo
-  mesasPidiendoCuenta = signal<string[]>(['Mesa 7']);
+  // Peticiones de cuenta activas (Se poblarán mediante eventos o Firestore)
+  mesasPidiendoCuenta = signal<string[]>([]);
 
   constructor() {
     addIcons({
@@ -179,7 +180,7 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
       fastFoodOutline, flashOutline, searchOutline, cafeOutline, closeCircleOutline,
       notificationsOutline, walletOutline, listOutline, createOutline, chevronDownOutline,
       chevronUpOutline, warningOutline, checkmarkCircle, trendingUpOutline, peopleOutline,
-      analyticsOutline, checkmarkOutline
+      analyticsOutline, checkmarkOutline, documentTextOutline, languageOutline
     });
   }
 
@@ -240,9 +241,9 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
 
     let mensajeExito = '';
     switch (nuevoEstado) {
-      case 'PREPARANDO': mensajeExito = 'Comanda validada. En marcha.'; break;
-      case 'LISTO':      mensajeExito = 'Marcado como listo.'; break;
-      case 'SERVIDO':    mensajeExito = '¡Comanda servida!'; break;
+      case 'PREPARANDO': mensajeExito = this.translate.instant('TOASTS.COMANDA_VALIDADA'); break;
+      case 'LISTO':      mensajeExito = this.translate.instant('TOASTS.MARCADO_LISTO'); break;
+      case 'SERVIDO':    mensajeExito = this.translate.instant('TOASTS.COMANDA_SERVIDA'); break;
     }
 
     const loading = await this.loadingCtrl.create({ message: 'Actualizando...', spinner: 'crescent' });
@@ -256,7 +257,7 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
     } catch (error) {
       await loading.dismiss();
       console.error(error);
-      const toast = await this.toastCtrl.create({ message: 'Error al actualizar.', duration: 3000, position: 'top', color: 'danger' });
+      const toast = await this.toastCtrl.create({ message: this.translate.instant('TOASTS.ERROR_ACTUALIZAR'), duration: 3000, position: 'top', color: 'danger' });
       await toast.present();
     }
   }
@@ -264,15 +265,15 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
   async anularComanda(idComanda: string | undefined) {
     if (!idComanda) return;
     const alert = await this.alertCtrl.create({
-      header: '¿Anular comanda?',
-      message: 'Esto descartará la comanda y no se enviará a producción.',
+      header: this.translate.instant('ALERTAS.ANULAR_TITULO'),
+      message: this.translate.instant('ALERTAS.ANULAR_MENSAJE'),
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: this.translate.instant('ACCIONES.CANCELAR'), role: 'cancel' },
         {
-          text: 'Anular', role: 'destructive',
+          text: this.translate.instant('ALERTAS.ANULAR'), role: 'destructive',
           handler: () => {
             this.adminComandaService.actualizarEstado(idComanda, 'CANCELADO');
-            this.toastCtrl.create({ message: 'Comanda anulada.', duration: 2000, color: 'medium', icon: 'close-circle-outline' }).then(t => t.present());
+            this.toastCtrl.create({ message: this.translate.instant('TOASTS.COMANDA_ANULADA'), duration: 2000, color: 'medium', icon: 'close-circle-outline' }).then(t => t.present());
           }
         }
       ]
@@ -282,14 +283,14 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
 
   async cobrarMesa(idMesa: string) {
     const alert = await this.alertCtrl.create({
-      header: `Cobrar Mesa ${idMesa}`,
-      message: `¿Confirmas que la mesa ${idMesa} ha pagado la cuenta? Esto cerrará todas sus comandas activas.`,
+      header: this.translate.instant('ALERTAS.COBRAR_TITULO', { mesa: idMesa }),
+      message: this.translate.instant('ALERTAS.COBRAR_MENSAJE', { mesa: idMesa }),
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: this.translate.instant('ACCIONES.CANCELAR'), role: 'cancel' },
         {
-          text: 'Confirmar Pago',
+          text: this.translate.instant('ALERTAS.CONFIRMAR_PAGO'),
           handler: async () => {
-            const loading = await this.loadingCtrl.create({ message: 'Procesando pago...' });
+            const loading = await this.loadingCtrl.create({ message: '...' });
             await loading.present();
             try {
               await this.adminComandaService.finalizarCuentaMesa(idMesa);
@@ -297,7 +298,7 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
               this.cerrarTimeline(); // Si estaba el modal abierto, lo cerramos
               
               const toast = await this.toastCtrl.create({
-                message: `Mesa ${idMesa} cobrada y liberada.`,
+                message: this.translate.instant('TOASTS.MESA_COBRADA', { mesa: idMesa }),
                 duration: 2000,
                 color: 'success',
                 icon: 'wallet-outline'
@@ -318,5 +319,16 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
   irACocina() { this.router.navigate(['/admin/cocina']); }
   irABarra()  { this.router.navigate(['/admin/barra']); }
   irAGestionProductos() { this.router.navigate(['/admin/productos']); }
+  irAHistorialFacturas() { this.router.navigate(['/admin/facturas']); }
   cerrarSesion() { this.adminAuth.logout(); }
+
+  get idiomaActual(): string {
+    return this.translate.currentLang || this.translate.defaultLang || 'es';
+  }
+
+  toggleIdioma(): void {
+    const nuevoIdioma = this.idiomaActual === 'es' ? 'en' : 'es';
+    this.translate.use(nuevoIdioma);
+    localStorage.setItem('app_lang', nuevoIdioma);
+  }
 }

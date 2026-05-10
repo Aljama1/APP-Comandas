@@ -8,14 +8,16 @@ import { ComandaService } from '../../core/services/comanda.service';
 import { ComandaFirestoreService } from '../../core/services/comanda-firestore.service';
 import { UserSettingsService } from '../../core/services/user-settings.service';
 import { AudioService } from '../../core/services/audio.service';
-import { Producto, VarianteProducto, OpcionModificador, Alergeno } from '../../core/models/producto.model';
+import { Producto, VarianteProducto, OpcionModificador, Alergeno, MAPA_ALERGENOS } from '../../core/models/producto.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TranslateContentPipe } from '../../core/pipes/translate-content.pipe';
+import { TranslateAlergenosPipe } from '../../core/pipes/translate-alergenos.pipe';
 import { areTranslatableEqual } from '../../core/models/common.model';
 
 export interface ProductoMaquetado extends Producto {
   esSeguro: boolean;
   alergenosPeligrosos: Alergeno[];
+  agotado: boolean;
 }
 import { addIcons } from 'ionicons';
 import {
@@ -23,7 +25,7 @@ import {
   addOutline, cartOutline, logOutOutline, checkmarkOutline, receiptOutline,
   closeOutline, settingsOutline, moonOutline, sunnyOutline,
   nutritionOutline, leafOutline, eggOutline, fishOutline, restaurantOutline,
-  chevronForwardOutline, alertCircleOutline
+  chevronForwardOutline, alertCircleOutline, languageOutline, flaskOutline
 } from 'ionicons/icons';
 
 const ETIQUETAS_CATEGORIA: Record<string, string> = {
@@ -43,7 +45,7 @@ const ORDEN_CATEGORIAS = ['entrante', 'principal', 'postre', 'bebida', 'especial
 @Component({
   selector: 'app-carta',
   standalone: true,
-  imports: [CommonModule, IonicModule, TranslateModule, TranslateContentPipe],
+  imports: [CommonModule, IonicModule, TranslateModule, TranslateContentPipe, TranslateAlergenosPipe],
   templateUrl: './carta.component.html',
   styleUrls: ['./carta.component.scss']
 })
@@ -57,6 +59,7 @@ export class CartaComponent {
   private router = inject(Router);
   private alertController = inject(AlertController);
   private translate = inject(TranslateService);
+  protected readonly MAPA_ALERGENOS = MAPA_ALERGENOS;
 
   perfil = this.usuarioService.perfil;
 
@@ -81,6 +84,15 @@ export class CartaComponent {
     { id: 'huevo',        nombre: 'ALERGENOS.huevo',     icono: 'egg-outline',                   esSvg: false },
     { id: 'pescado',      nombre: 'ALERGENOS.pescado',   icono: 'fish-outline',                  esSvg: false },
     { id: 'marisco',      nombre: 'ALERGENOS.marisco',   icono: 'restaurant-outline',            esSvg: false },
+    { id: 'crustaceos',   nombre: 'ALERGENOS.crustaceos',icono: 'restaurant-outline',            esSvg: false },
+    { id: 'cacahuetes',   nombre: 'ALERGENOS.cacahuetes',icono: 'nutrition-outline',             esSvg: false },
+    { id: 'soja',         nombre: 'ALERGENOS.soja',      icono: 'leaf-outline',                  esSvg: false },
+    { id: 'apio',         nombre: 'ALERGENOS.apio',      icono: 'leaf-outline',                  esSvg: false },
+    { id: 'mostaza',      nombre: 'ALERGENOS.mostaza',   icono: 'nutrition-outline',             esSvg: false },
+    { id: 'sesamo',       nombre: 'ALERGENOS.sesamo',    icono: 'nutrition-outline',             esSvg: false },
+    { id: 'sulfitos',     nombre: 'ALERGENOS.sulfitos',  icono: 'flask-outline',                 esSvg: false },
+    { id: 'altramuces',   nombre: 'ALERGENOS.altramuces',icono: 'nutrition-outline',             esSvg: false },
+    { id: 'moluscos',     nombre: 'ALERGENOS.moluscos',  icono: 'restaurant-outline',            esSvg: false },
   ];
 
   // Feedback visual al añadir
@@ -95,10 +107,13 @@ export class CartaComponent {
         alergiasUsuarioIds.some(id => id.toLowerCase() === al.toLowerCase())
       );
       
+      const agotado = producto.stock !== undefined && producto.stock !== null && producto.stock <= 0;
+      
       return { 
         ...producto, 
         esSeguro: alergenosPeligrosos.length === 0, 
-        alergenosPeligrosos 
+        alergenosPeligrosos,
+        agotado
       } as ProductoMaquetado;
     });
   });
@@ -121,8 +136,18 @@ export class CartaComponent {
       addOutline, cartOutline, logOutOutline, checkmarkOutline, receiptOutline,
       closeOutline, settingsOutline, moonOutline, sunnyOutline,
       nutritionOutline, leafOutline, eggOutline, fishOutline, restaurantOutline,
-      chevronForwardOutline, alertCircleOutline
+      chevronForwardOutline, alertCircleOutline, languageOutline, flaskOutline
     });
+  }
+
+  get idiomaActual(): string {
+    return this.translate.currentLang || this.translate.defaultLang || 'es';
+  }
+
+  toggleIdioma(): void {
+    const nuevoIdioma = this.idiomaActual === 'es' ? 'en' : 'es';
+    this.translate.use(nuevoIdioma);
+    localStorage.setItem('app_lang', nuevoIdioma);
   }
 
   // ── Producto Modal ──────────────────────────────────────────────
@@ -172,7 +197,7 @@ export class CartaComponent {
 
   puedeAnadir(): boolean {
     const p = this.productoSeleccionado();
-    if (!p || !p.esSeguro) return false;
+    if (!p || !p.esSeguro || p.agotado) return false;
 
     // Si tiene variantes, una debe estar seleccionada
     if (p.variantes && p.variantes.length > 0 && !this.varianteSeleccionada()) {

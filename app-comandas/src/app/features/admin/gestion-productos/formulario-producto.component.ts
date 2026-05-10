@@ -40,7 +40,7 @@ export class FormularioProductoComponent implements OnInit {
   descEn      = signal('');
   precio      = signal<number | null>(null);
   categoria   = signal<CategoriaProducto>('principal');
-  alergenos   = signal<string[]>([]);
+  alergenos   = signal<Alergeno[]>([]);
   disponible  = signal(true);
   urlImagen   = signal('');
   imagenPreview = signal<string | null>(null);
@@ -62,14 +62,21 @@ export class FormularioProductoComponent implements OnInit {
     { clave: 'especial',  etiqueta: 'Especial'  }
   ];
 
-  todosLosAlergenos: { id: string; label: string; emoji: string }[] = [
-    { id: 'gluten',       label: 'Gluten',       emoji: '🌾' },
-    { id: 'lactosa',      label: 'Lácteos',      emoji: '🥛' },
-    { id: 'frutos-secos', label: 'Frutos secos', emoji: '🥜' },
-    { id: 'huevo',        label: 'Huevo',        emoji: '🥚' },
-    { id: 'pescado',      label: 'Pescado',      emoji: '🐟' },
-    { id: 'marisco',      label: 'Marisco',      emoji: '🦐' },
-    { id: 'sulfitos',     label: 'Sulfitos',     emoji: '🍷' }
+  todosLosAlergenos: { id: Alergeno; label: string; emoji: string }[] = [
+    { id: 'Gluten',       label: 'Gluten',       emoji: '🌾' },
+    { id: 'Crustáceos',   label: 'Crustáceos',   emoji: '🦞' },
+    { id: 'Huevos',       label: 'Huevos',       emoji: '🥚' },
+    { id: 'Pescado',      label: 'Pescado',      emoji: '🐟' },
+    { id: 'Cacahuetes',   label: 'Cacahuetes',   emoji: '🥜' },
+    { id: 'Soja',         label: 'Soja',         emoji: '🫘' },
+    { id: 'Lácteos',      label: 'Lácteos',      emoji: '🥛' },
+    { id: 'Frutos de cáscara', label: 'Frutos secos', emoji: '🌰' },
+    { id: 'Apio',         label: 'Apio',         emoji: '🥬' },
+    { id: 'Mostaza',      label: 'Mostaza',      emoji: '🌭' },
+    { id: 'Granos de sésamo', label: 'Sésamo',   emoji: '🥯' },
+    { id: 'Dióxido de azufre y sulfitos', label: 'Sulfitos', emoji: '🍷' },
+    { id: 'Altramuces',   label: 'Altramuces',   emoji: '🌼' },
+    { id: 'Moluscos',     label: 'Moluscos',     emoji: '🦪' }
   ];
 
   ngOnInit() {
@@ -91,7 +98,14 @@ export class FormularioProductoComponent implements OnInit {
       this.descEn.set(getTranslation(encontrado.descripcion || '', 'en'));
       this.precio.set(encontrado.precio);
       this.categoria.set(encontrado.categoria as CategoriaProducto);
-      this.alergenos.set([...encontrado.alergenos]);
+      
+      // Normalizamos la carga por si hay datos viejos en minúscula
+      const alergenosNormalizados = encontrado.alergenos.map(al => {
+        const match = this.todosLosAlergenos.find(t => t.id.toLowerCase() === al.toLowerCase());
+        return match ? match.id : (al as Alergeno);
+      });
+      this.alergenos.set(alergenosNormalizados);
+
       this.disponible.set(encontrado.disponible);
       this.urlImagen.set(encontrado.urlImagen || '');
       this.imagenPreview.set(encontrado.urlImagen || null);
@@ -113,7 +127,7 @@ export class FormularioProductoComponent implements OnInit {
     });
   }
 
-  toggleAlergeno(id: string): void {
+  toggleAlergeno(id: Alergeno): void {
     const actual = this.alergenos();
     const idx = actual.indexOf(id);
     if (idx === -1) {
@@ -123,7 +137,7 @@ export class FormularioProductoComponent implements OnInit {
     }
   }
 
-  tieneAlergeno(id: string): boolean {
+  tieneAlergeno(id: Alergeno): boolean {
     return this.alergenos().includes(id);
   }
 

@@ -1,3 +1,4 @@
+@use "sass:color";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800;900&display=swap');
 
 $font-display: 'Outfit', -apple-system, sans-serif;
@@ -143,7 +144,7 @@ $success: #34c759;
   border-bottom: 1px solid rgba(255, 59, 48, 0.1);
   font-size: 0.8rem;
   font-weight: 500;
-  color: darken($danger, 10%);
+  color: color.scale($danger, $lightness: -10%);
 
   ion-icon { font-size: 16px; flex-shrink: 0; }
 }
@@ -525,7 +526,7 @@ $success: #34c759;
   color: rgba(0, 0, 0, 0.5);
 
   &--danger { background: rgba(255, 59, 48, 0.1); color: $danger; }
-  &--safe   { background: rgba(52, 199, 89, 0.1); color: darken($success, 10%); }
+  &--safe   { background: rgba(52, 199, 89, 0.1); color: color.scale($success, $lightness: -10%); }
 }
 
 .btn-anadir-modal {

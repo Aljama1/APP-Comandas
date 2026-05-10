@@ -296,63 +296,26 @@ $success: #34c759;
   padding-left: 18px;
 }
 
-.alergenos-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+.alergenos-select-group {
+  margin-top: 10px;
 }
 
-.alergeno-chip {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 8px;
+.custom-select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
   border-radius: 16px;
-  border: 1.5px solid transparent;
-  background: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 12px 16px;
+  font-family: $font-body;
+  font-size: 0.95rem;
+  color: #1a1a1a;
   backdrop-filter: blur(8px);
+  --placeholder-color: rgba(0, 0, 0, 0.4);
+  --placeholder-opacity: 1;
 
-  &:active { transform: scale(0.93); }
-
-  &--activo {
-    background: rgba(255, 59, 48, 0.07);
-    border-color: rgba(255, 59, 48, 0.35);
-
-    .alergeno-icon ion-icon { color: $error; }
-    .alergeno-label { color: $error; font-weight: 700; }
+  &::part(icon) {
+    color: rgba(0, 0, 0, 0.4);
   }
-}
-
-.alergeno-icon {
-  width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.04);
-  transition: background 0.2s;
-
-  ion-icon { font-size: 22px; color: rgba(0, 0, 0, 0.45); }
-}
-
-.alergeno-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.5);
-  transition: color 0.2s;
-}
-
-.alergeno-check {
-  position: absolute;
-  top: 6px; right: 6px;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: $error;
-  display: flex; align-items: center; justify-content: center;
-
-  ion-icon { font-size: 12px; color: white; }
 }
 
 // ── CTA ────────────────────────────────────────────────────────────
@@ -424,20 +387,16 @@ $success: #34c759;
   .alergenos-title { color: rgba(255, 255, 255, 0.4); }
   .alergenos-desc  { color: rgba(255, 255, 255, 0.45); }
 
-  .alergeno-chip {
+  .custom-select {
     background: rgba(255, 255, 255, 0.05);
-    &--activo {
-      background: rgba(255, 59, 48, 0.1);
-      border-color: rgba(255, 59, 48, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    --placeholder-color: rgba(255, 255, 255, 0.3);
+
+    &::part(icon) {
+      color: rgba(255, 255, 255, 0.35);
     }
   }
-
-  .alergeno-icon {
-    background: rgba(255, 255, 255, 0.06);
-    ion-icon { color: rgba(255, 255, 255, 0.5); }
-  }
-
-  .alergeno-label { color: rgba(255, 255, 255, 0.5); }
 
   .btn-acceder {
     background: #fff;

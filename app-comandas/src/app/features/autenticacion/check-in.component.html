@@ -93,27 +93,19 @@
       </div>
       <p class="alergenos-desc">{{ 'CHECKIN.ALERGENOS_DESC' | translate }}</p>
 
-      <div class="alergenos-grid" role="group" aria-label="Alérgenos">
-        @for (item of alergenos; track item.id) {
-          <button
-            class="alergeno-chip"
-            [class.alergeno-chip--activo]="item.activo"
-            (click)="toggleAlergeno(item.id)"
-            [attr.aria-pressed]="item.activo"
-            [attr.aria-label]="((item.activo ? 'ACCIONES.DESACTIVAR' : 'ACCIONES.ACTIVAR') | translate) + ' ' + (item.nombre | translate)"
-          >
-            <div class="alergeno-icon">
-              @if (!item.esSvg) { <ion-icon [name]="item.icono" aria-hidden="true"></ion-icon> }
-              @if (item.esSvg)  { <ion-icon [src]="item.icono"  aria-hidden="true"></ion-icon> }
-            </div>
-            <span class="alergeno-label">{{ item.nombre | translate }}</span>
-            @if (item.activo) {
-              <div class="alergeno-check" aria-hidden="true">
-                <ion-icon name="checkmark-outline"></ion-icon>
-              </div>
-            }
-          </button>
-        }
+      <div class="field-group alergenos-select-group">
+        <ion-select
+          [multiple]="true"
+          [placeholder]="'CHECKIN.ALERGENOS_DESC' | translate"
+          [(ngModel)]="alergenosSeleccionados"
+          class="custom-select"
+          okText="Aceptar"
+          cancelText="Cancelar"
+        >
+          @for (al of todosLosAlergenos; track al.id) {
+            <ion-select-option [value]="al.id">{{ al.nombre | translate }}</ion-select-option>
+          }
+        </ion-select>
       </div>
     </section>
 

@@ -129,12 +129,18 @@
               </ion-input>
             </div>
             <div class="campo-grupo">
-              <label class="campo-label">{{ 'ADMIN.FORM.NOMBRE' | translate }} (EN)</label>
+              <label class="campo-label" style="display: flex; align-items: center;">
+                {{ 'ADMIN.FORM.NOMBRE' | translate }} (EN)
+                @if (!nombreEn() || nombreEn().trim() === '') {
+                  <ion-icon name="warning-outline" color="warning" title="Falta traducción" style="margin-left: 6px; font-size: 1.2em;"></ion-icon>
+                }
+              </label>
               <ion-input
                 placeholder="Name in English"
                 [ngModel]="nombreEn()"
                 (ngModelChange)="nombreEn.set($event)"
-                class="campo-input">
+                class="campo-input"
+                [style.border]="!nombreEn() || nombreEn().trim() === '' ? '1px solid var(--ion-color-warning)' : ''">
               </ion-input>
             </div>
           </div>
@@ -151,13 +157,19 @@
               </ion-textarea>
             </div>
             <div class="campo-grupo">
-              <label class="campo-label">{{ 'ADMIN.FORM.DESCRIPCION' | translate }} (EN)</label>
+              <label class="campo-label" style="display: flex; align-items: center;">
+                {{ 'ADMIN.FORM.DESCRIPCION' | translate }} (EN)
+                @if (!descEn() || descEn().trim() === '') {
+                  <ion-icon name="warning-outline" color="warning" title="Falta traducción" style="margin-left: 6px; font-size: 1.2em;"></ion-icon>
+                }
+              </label>
               <ion-textarea
                 placeholder="English description"
                 [ngModel]="descEn()"
                 (ngModelChange)="descEn.set($event)"
                 [rows]="2"
-                class="campo-input">
+                class="campo-input"
+                [style.border]="!descEn() || descEn().trim() === '' ? '1px solid var(--ion-color-warning)' : ''">
               </ion-textarea>
             </div>
           </div>
