@@ -1,12 +1,18 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { MetricasService } from '../../../core/services/metricas.service';
 import { addIcons } from 'ionicons';
-import { 
-  barChartOutline, trendingUpOutline, timeOutline, walletOutline, 
-  statsChartOutline, chevronBackOutline, medalOutline, alertCircleOutline,
-  printOutline
+import {
+  alertCircleOutline,
+  barChartOutline,
+  chevronBackOutline,
+  medalOutline,
+  printOutline,
+  statsChartOutline,
+  timeOutline,
+  trendingUpOutline,
+  walletOutline
 } from 'ionicons/icons';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -19,21 +25,22 @@ import { Router } from '@angular/router';
   templateUrl: './dashboard-metricas.component.html',
   styleUrls: ['./dashboard-metricas.component.scss']
 })
-export class DashboardMetricasComponent implements OnDestroy {
+export class DashboardMetricasComponent {
   public metricasService = inject(MetricasService);
   private router = inject(Router);
 
   constructor() {
-    addIcons({ 
-      barChartOutline, trendingUpOutline, timeOutline, walletOutline, 
-      statsChartOutline, chevronBackOutline, medalOutline, alertCircleOutline,
-      printOutline
+    addIcons({
+      alertCircleOutline,
+      barChartOutline,
+      chevronBackOutline,
+      medalOutline,
+      printOutline,
+      statsChartOutline,
+      timeOutline,
+      trendingUpOutline,
+      walletOutline
     });
-  }
-
-  ngOnDestroy(): void {
-    // Podríamos detener la escucha si quisiéramos ahorrar lecturas cuando no se ve el dashboard
-    // this.metricasService.detenerEscucha();
   }
 
   volver() {
@@ -51,21 +58,21 @@ export class DashboardMetricasComponent implements OnDestroy {
     const kpis = this.metricasService.kpis();
     const productos = this.metricasService.rankingProductos();
 
-    // Título y Cabecera
+    // Titulo y cabecera
     doc.setFontSize(22);
     doc.setTextColor(40, 40, 40);
     doc.text('Cierre de Caja (Informe Z)', 14, 20);
 
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
-    doc.text(`Fecha de exportación: ${new Date().toLocaleString('es-ES')}`, 14, 28);
-    doc.text(`Generado por: Trace Sistema de Comandas`, 14, 33);
+    doc.text(`Fecha de exportacion: ${new Date().toLocaleString('es-ES')}`, 14, 28);
+    doc.text('Generado por: Trace Sistema de Comandas', 14, 33);
 
-    // Línea separadora
+    // Linea separadora
     doc.setDrawColor(200, 200, 200);
     doc.line(14, 38, 196, 38);
 
-    // KPIs Generales
+    // KPIs generales
     doc.setFontSize(14);
     doc.setTextColor(40, 40, 40);
     doc.text('Resumen de Operativa', 14, 48);
@@ -77,21 +84,21 @@ export class DashboardMetricasComponent implements OnDestroy {
     doc.text(`Ticket Medio: ${kpis.ticketMedio.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}`, 100, 58);
     doc.text(`T. Medio Servicio: ${kpis.tiempoMedioServicio.toFixed(1)} min`, 100, 65);
 
-    // Tabla de Ranking de Productos
+    // Tabla de ranking de productos
     doc.setFontSize(14);
     doc.setTextColor(40, 40, 40);
     doc.text('Ranking de Productos Vendidos', 14, 80);
 
-    const bodyData = productos.map((p, index) => [
+    const bodyData = productos.map((producto, index) => [
       index + 1,
-      p.nombre,
-      p.cantidad.toString(),
-      p.totalRecaudado.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })
+      producto.nombre,
+      producto.cantidad.toString(),
+      producto.totalRecaudado.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })
     ]);
 
     autoTable(doc, {
       startY: 85,
-      head: [['#', 'Producto', 'Unidades', 'Recaudación']],
+      head: [['#', 'Producto', 'Unidades', 'Recaudacion']],
       body: bodyData,
       theme: 'grid',
       headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255] },
@@ -104,16 +111,15 @@ export class DashboardMetricasComponent implements OnDestroy {
       }
     });
 
-    // Pie de página
-    const pageCount = (doc as any).internal.getNumberOfPages();
+    // Pie de pagina
+    const pageCount = (doc as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
-      doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+      doc.text(`Pagina ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
     }
 
-    // Nombre del archivo
     const fechaArchivo = new Date().toISOString().split('T')[0];
     doc.save(`cierre_z_${fechaArchivo}.pdf`);
   }

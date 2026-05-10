@@ -9,7 +9,7 @@
         </button>
         <div class="title-group">
           <h1>Analisis Empresarial</h1>
-          <span class="subtitle">Últimos 7 días de operativa</span>
+          <span class="subtitle">Ultimos 7 dias de operativa</span>
         </div>
       </div>
       <div class="header-right">
@@ -27,7 +27,7 @@
     @if (metricasService.cargando()) {
     <div class="loading-state">
       <ion-spinner name="crescent"></ion-spinner>
-      <p>Procesando métricas avanzadas...</p>
+      <p>Procesando metricas avanzadas...</p>
     </div>
     } @else if (metricasService.error()) {
     <div class="error-state">
@@ -35,7 +35,6 @@
       <p>{{ metricasService.error() }}</p>
     </div>
     } @else {
-    <!-- KPI Strips -->
     <div class="kpi-grid animar-entrada-arriba">
       <div class="kpi-card card-blue">
         <div class="kpi-icon"><ion-icon name="wallet-outline"></ion-icon></div>
@@ -68,7 +67,6 @@
     </div>
 
     <div class="main-stats-row animar-entrada-arriba" style="animation-delay: 0.1s;">
-      <!-- Ranking de Productos -->
       <div class="stats-panel ranking-panel">
         <div class="panel-header">
           <ion-icon name="medal-outline"></ion-icon>
@@ -89,42 +87,38 @@
               </div>
               <div class="rank-footer">
                 <span class="rank-revenue">{{ prod.totalRecaudado | currency:'EUR' }} recaudados</span>
-                <span class="rank-percent">{{ getPorcentajeVenta(prod.totalRecaudado) | number:'1.1-1' }}% del
-                  total</span>
+                <span class="rank-percent">{{ getPorcentajeVenta(prod.totalRecaudado) | number:'1.1-1' }}% del total</span>
               </div>
             </div>
           </div>
           } @empty {
-          <div class="empty-mini">No hay datos de ventas aún.</div>
+          <div class="empty-mini">No hay datos de ventas aun.</div>
           }
         </div>
       </div>
 
-      <!-- Analítica de Tiempo -->
       <div class="stats-panel info-panel">
         <div class="panel-header">
           <ion-icon name="bar-chart-outline"></ion-icon>
-          <h2>Análisis de Operativa</h2>
+          <h2>Analisis de Operativa</h2>
         </div>
         <div class="info-content">
           <div class="info-card">
             <h3>Eficiencia de Cocina</h3>
-            <p>Tu tiempo medio de preparación es de <strong>{{ metricasService.kpis().tiempoMedioServicio |
-                number:'1.1-1' }} minutos</strong> por comanda.</p>
+            <p>Tu tiempo medio de preparacion es de <strong>{{ metricasService.kpis().tiempoMedioServicio | number:'1.1-1' }} minutos</strong> por comanda.</p>
             <div class="efficiency-indicator" [class.fast]="metricasService.kpis().tiempoMedioServicio < 12">
-              {{ metricasService.kpis().tiempoMedioServicio < 12 ? 'Rendimiento Óptimo' : 'Potencial de Mejora' }}
-                </div>
+              {{ metricasService.kpis().tiempoMedioServicio < 12 ? 'Rendimiento Optimo' : 'Potencial de Mejora' }}
             </div>
+          </div>
 
-            <div class="info-card">
-              <h3>Análisis de Ticket</h3>
-              <p>Con un ticket medio de <strong>{{ metricasService.kpis().ticketMedio | currency:'EUR' }}</strong>, 
-                los clientes realizan un gasto medio por servicio.</p>
-            </div>
+          <div class="info-card">
+            <h3>Analisis de Ticket</h3>
+            <p>Con un ticket medio de <strong>{{ metricasService.kpis().ticketMedio | currency:'EUR' }}</strong>, los clientes realizan un gasto medio por servicio.</p>
           </div>
         </div>
       </div>
-      }
-
     </div>
+    }
+
+  </div>
 </ion-content>

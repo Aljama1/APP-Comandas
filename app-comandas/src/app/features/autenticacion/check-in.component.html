@@ -7,7 +7,7 @@
     <div class="bg-orb bg-orb--3"></div>
   </div>
 
-  <!-- Botón dark mode (esquina superior derecha) -->
+  <!-- Boton dark mode (esquina superior derecha) -->
   <button class="btn-theme-top" (click)="settings.toggleDark()" [attr.aria-label]="settings.isDark() ? ('CARTA.CONFIGURACION.MODO_CLARO' | translate) : ('CARTA.CONFIGURACION.MODO_OSCURO' | translate)">
     <ion-icon [name]="settings.isDark() ? 'sunny-outline' : 'moon-outline'"></ion-icon>
   </button>
@@ -73,7 +73,7 @@
             inputmode="numeric"
           >
           @if (mesaDesdeQR) {
-            <span class="field-badge-qr" aria-label="Mesa asignada automáticamente por QR">
+            <span class="field-badge-qr" aria-label="Mesa asignada automaticamente por QR">
               <ion-icon name="qr-code-outline" aria-hidden="true"></ion-icon>
               QR
             </span>
@@ -93,8 +93,8 @@
 
     </section>
 
-    <!-- ALÉRGENOS -->
-    <section class="alergenos-section" aria-label="Selección de alérgenos">
+    <!-- ALERGENOS -->
+    <section class="alergenos-section" aria-label="Seleccion de alergenos">
       <div class="alergenos-header">
         <div class="alergenos-dot" aria-hidden="true"></div>
         <h2 class="alergenos-title">{{ 'CHECKIN.ALERGENOS_TITULO' | translate }}</h2>

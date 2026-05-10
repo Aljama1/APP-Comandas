@@ -37,6 +37,7 @@ export class CheckInComponent {
     { id: 'Moluscos', nombre: 'ALERGENOS.moluscos', emoji: '🦪' }
   ];
 
+  private router = inject(Router);
   private usuarioService = inject(UsuarioService);
   private mesaValidator = inject(MesaAccessValidatorService);
   public settings = inject(UserSettingsService);
@@ -50,7 +51,7 @@ export class CheckInComponent {
     alergenosSeleccionados: [[] as Alergeno[]]
   });
 
-  constructor(private router: Router) {
+  constructor() {
     const mesa = this.route.snapshot.queryParamMap.get('mesa');
     if (mesa) {
       this.formulario.patchValue({ mesaId: Number(mesa) });
@@ -103,8 +104,7 @@ export class CheckInComponent {
 
       this.usuarioService.establecerPerfil(nuevoPerfil);
       this.router.navigate(['/carta']);
-    } catch (error) {
-      console.error('Error en el check-in:', error);
+    } catch {
       this.formulario.get('nombre')?.setErrors({ conexion: true });
       this.formulario.get('nombre')?.markAsTouched();
     }
