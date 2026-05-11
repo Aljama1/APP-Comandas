@@ -13,7 +13,8 @@ import { addIcons } from 'ionicons';
 import {
   walletOutline, searchOutline, closeOutline, trashOutline, createOutline,
   checkmarkOutline, restaurantOutline, timeOutline, cardOutline, cashOutline,
-  qrCodeOutline, trendingUpOutline, gridOutline, shieldCheckmarkOutline, arrowBackOutline
+  qrCodeOutline, trendingUpOutline, gridOutline, shieldCheckmarkOutline, arrowBackOutline,
+  addCircleOutline, removeCircleOutline, informationCircleOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -37,6 +38,11 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
   filtroMesa = signal<string>('');
   mesaSeleccionada = signal<Comanda | null>(null);
   metodoPagoSeleccionado = signal<'EFECTIVO' | 'TARJETA' | 'TPV_VIRTUAL'>('EFECTIVO');
+
+  // Límite de líneas visibles en el modal sin scroll. Si la cuenta supera
+  // este umbral, se muestra un botón "+ Ver N más" que expande la lista.
+  readonly UMBRAL_PRODUCTOS_VISIBLES = 4;
+  mostrarTodosProductos = signal<boolean>(false);
 
   get idiomaActual(): string {
     return this.translate.currentLang || this.translate.defaultLang || 'es';
@@ -99,7 +105,8 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
   constructor() {
     addIcons({
       walletOutline, searchOutline, closeOutline, trashOutline, createOutline,
-      checkmarkOutline, restaurantOutline, timeOutline, cardOutline, cashOutline, qrCodeOutline, trendingUpOutline, gridOutline, shieldCheckmarkOutline, arrowBackOutline
+      checkmarkOutline, restaurantOutline, timeOutline, cardOutline, cashOutline, qrCodeOutline, trendingUpOutline, gridOutline, shieldCheckmarkOutline, arrowBackOutline,
+      addCircleOutline, removeCircleOutline, informationCircleOutline
     });
   }
 
@@ -123,6 +130,24 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
   cerrarDetalle() {
     this.mesaSeleccionada.set(null);
     this.lineaEnEdicion.set(null);
+    this.mostrarTodosProductos.set(false);
+  }
+
+  toggleMostrarTodos() {
+    this.mostrarTodosProductos.update(v => !v);
+  }
+
+  productosVisibles(): any[] {
+    const todos = this.obtenerTodosLosProductos();
+    if (this.mostrarTodosProductos() || todos.length <= this.UMBRAL_PRODUCTOS_VISIBLES) {
+      return todos;
+    }
+    return todos.slice(0, this.UMBRAL_PRODUCTOS_VISIBLES);
+  }
+
+  productosOcultos(): number {
+    const total = this.obtenerTodosLosProductos().length;
+    return Math.max(0, total - this.UMBRAL_PRODUCTOS_VISIBLES);
   }
 
   obtenerLineasPorComanda(comanda: Comanda): any[] {

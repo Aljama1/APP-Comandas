@@ -289,6 +289,7 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
   irABarra()  { this.router.navigate(['/admin/barra']); }
   irAGestionProductos() { this.router.navigate(['/admin/productos']); }
   irAHistorialFacturas() { this.router.navigate(['/admin/facturas']); }
+  irACuentas() { this.router.navigate(['/admin/cuentas']); }
   cerrarSesion() { this.adminAuth.logout(); }
 
   get idiomaActual(): string {

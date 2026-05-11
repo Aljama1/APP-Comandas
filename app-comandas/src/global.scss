@@ -43,14 +43,17 @@
   /* LIGHT THEME */
   --dash-bg: #f0f2f5;
   --dash-panel: #ffffff;
-  --dash-border: rgba(0, 0, 0, 0.06);
+  --dash-panel-2: #f7f9fc;            // panel ligeramente diferenciado del bg
+  --dash-border: rgba(0, 0, 0, 0.08);
   --dash-text-main: #1a1a1a;
   --dash-text-sec: #64748b;
+  --dash-text-on-accent: #ffffff;     // texto sobre fondos accent (siempre blanco)
   --dash-title: #0f172a;
   --dash-accent-blue: #0061ff;
   --dash-accent-orange: #f59e0b;
   --dash-accent-green: #10b981;
-  --dash-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --dash-overlay: rgba(15, 23, 42, 0.55);
+  --dash-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 
   /* Shared Sass Variables (as CSS for global access if needed) */
   --neon-blue: #00d2ff;
@@ -62,13 +65,16 @@ body.dark {
   /* DARK THEME */
   --dash-bg: #0b0e14;
   --dash-panel: #1a1f2b;
+  --dash-panel-2: #232a39;
   --dash-border: rgba(255, 255, 255, 0.08);
   --dash-text-main: #f8fafc;
   --dash-text-sec: #94a3b8;
+  --dash-text-on-accent: #ffffff;
   --dash-title: #ffffff;
   --dash-accent-blue: #00d2ff;
   --dash-accent-orange: #ff6b00;
   --dash-accent-green: #00ff88;
+  --dash-overlay: rgba(0, 0, 0, 0.85);
   --dash-card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 

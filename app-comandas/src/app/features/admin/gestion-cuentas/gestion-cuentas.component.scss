@@ -190,7 +190,7 @@ ion-content.dashboard-bg {
 }
 
 .modal-header {
-  padding: 32px;
+  padding: 20px 28px;
   background: rgba(100, 116, 139, 0.03);
   border-bottom: 1px solid var(--dash-border);
   display: flex;
@@ -222,11 +222,19 @@ ion-content.dashboard-bg {
 }
 
 .modal-body {
-  padding: 32px;
-  flex: 1;
+  padding: 18px 28px 8px;
+  flex: 0 1 auto;
   min-height: 0;
-  overflow-y: auto;
-  
+  overflow: hidden;
+
+  // Cuando el usuario pulsa "Mostrar cuenta completa" permitimos scroll
+  // interno sólo en esta sección, dejando resumen y footer siempre visibles.
+  &.modal-body--expandido {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    max-height: 38vh;
+  }
+
   &::-webkit-scrollbar { width: 6px; }
   &::-webkit-scrollbar-thumb { background: var(--dash-border); border-radius: 10px; }
 
@@ -234,18 +242,18 @@ ion-content.dashboard-bg {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
+    padding: 10px 14px;
     background: rgba(100, 116, 139, 0.03);
     border: 1px solid var(--dash-border);
-    border-radius: 16px;
-    margin-bottom: 12px;
+    border-radius: 12px;
+    margin-bottom: 8px;
     transition: all 0.2s;
 
     &:hover { border-color: rgba(0, 210, 255, 0.2); background: rgba(100, 116, 139, 0.05); }
 
     .prod-info {
-      h4 { margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--dash-text-main); }
-      .meta { font-size: 0.7rem; font-weight: 700; color: var(--dash-text-sec); text-transform: uppercase; margin-top: 4px; }
+      h4 { margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--dash-text-main); }
+      .meta { font-size: 0.68rem; font-weight: 700; color: var(--dash-text-sec); text-transform: uppercase; margin-top: 2px; }
     }
 
     .prod-actions {
@@ -271,6 +279,95 @@ ion-content.dashboard-bg {
       }
     }
   }
+
+  .btn-expandir-cuenta {
+    width: 100%;
+    margin: 4px 0 2px;
+    padding: 10px 14px;
+    background: rgba(0, 210, 255, 0.06);
+    border: 1px dashed rgba(0, 210, 255, 0.35);
+    border-radius: 12px;
+    color: $neon-blue;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    ion-icon { font-size: 1.1rem; }
+
+    &:hover {
+      background: rgba(0, 210, 255, 0.12);
+      border-style: solid;
+    }
+  }
+}
+
+/* Bloque de resumen + métodos de pago + disclaimer dentro del modal */
+.modal-payment-modern {
+  padding: 8px 28px 4px;
+  flex: 0 0 auto;
+
+  .checkout-card {
+    margin: 0 0 10px;
+    box-shadow: none;
+    border: 1px solid var(--dash-border);
+    border-radius: 14px;
+
+    ion-card-header { padding: 8px 14px 0; }
+    ion-card-content { padding: 6px 14px 10px; }
+    ion-card-subtitle { font-size: 0.72rem; letter-spacing: 0.4px; }
+
+    .price-breakdown { --min-height: 28px; --padding-top: 2px; --padding-bottom: 2px; font-size: 0.85rem; }
+    .total-item { --min-height: 36px; --padding-top: 4px; --padding-bottom: 4px; }
+    .total-item h2 { font-size: 1.25rem !important; }
+  }
+
+  .payment-grid-modern {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+
+    .payment-tile {
+      padding: 10px 8px;
+      border-radius: 14px;
+      border: 1px solid var(--dash-border);
+      background: var(--dash-panel);
+      color: var(--dash-text-sec);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      .icon-circle {
+        width: 34px; height: 34px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(100, 116, 139, 0.08);
+        ion-icon { font-size: 1.1rem; }
+      }
+      span { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+
+      &.active {
+        background: $neon-blue-dim;
+        border-color: $neon-blue;
+        color: $neon-blue;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
+      }
+      &:hover:not(.active) { background: rgba(100, 116, 139, 0.05); }
+    }
+  }
+}
+
+.modal-footer-modern {
+  padding: 10px 28px 16px !important;
+  flex: 0 0 auto;
 }
 
 .modal-payment {

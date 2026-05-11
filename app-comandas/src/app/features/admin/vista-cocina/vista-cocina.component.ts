@@ -6,7 +6,7 @@ import { AdminComandaService } from '../../../core/services/admin-comanda.servic
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { getTranslation } from '../../../core/models/common.model';
 import { addIcons } from 'ionicons';
-import { flameOutline, timeOutline, warningOutline, restaurantOutline, checkmarkDoneOutline, logOutOutline, cafeOutline, beerOutline, gridOutline } from 'ionicons/icons';
+import { flameOutline, timeOutline, warningOutline, restaurantOutline, checkmarkDoneOutline, logOutOutline, cafeOutline, beerOutline, gridOutline, listOutline, closeOutline, checkmarkCircleOutline } from 'ionicons/icons';
 
 import { AdminConfigBarComponent } from '../../../shared/components/admin-config-bar/admin-config-bar.component';
 import { TranslateAlergenosPipe } from '../../../core/pipes/translate-alergenos.pipe';
@@ -39,8 +39,9 @@ export class VistaCocinaComponent implements OnInit, OnDestroy {
     return { platosCocina, platosBarra };
   });
 
-  // Controla qué vista estamos usando en la cocina
-  // Por defecto usamos la vista agrupada, ya que es la forma real de trabajar en hostelería
+  completandoIds = signal<Set<string>>(new Set());
+  mostrarHistorial = signal(false);
+
   modoVista = signal<'mesas' | 'agrupada'>('agrupada');
 
   // Filtrado de tickets por mesa
@@ -66,9 +67,10 @@ export class VistaCocinaComponent implements OnInit, OnDestroy {
   }
 
   constructor() {
-    addIcons({ 
-      flameOutline, timeOutline, warningOutline, 
-      restaurantOutline, checkmarkDoneOutline, logOutOutline, cafeOutline, beerOutline, gridOutline
+    addIcons({
+      flameOutline, timeOutline, warningOutline,
+      restaurantOutline, checkmarkDoneOutline, logOutOutline, cafeOutline, beerOutline, gridOutline,
+      listOutline, closeOutline, checkmarkCircleOutline
     });
   }
 
@@ -103,8 +105,36 @@ export class VistaCocinaComponent implements OnInit, OnDestroy {
     return Math.max(0, Math.floor(diff / 60000));
   }
 
+  tieneProgresoCocina(comanda: any): boolean {
+    return comanda.lineasComanda.some((l: any) => l.destino === 'COCINA' && !!l.preparado);
+  }
+
+  getDuracionMinutos(comanda: any): number {
+    if (!comanda.fechaActualizacion || !comanda.fechaCreacion) return 0;
+    return Math.max(0, Math.floor((comanda.fechaActualizacion - comanda.fechaCreacion) / 60000));
+  }
+
+  formatHora(ts: number): string {
+    if (!ts) return '--:--';
+    return new Date(ts).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  }
+
   async alternarPlatoPreparado(idComanda: string | undefined, indexOriginal: number, estadoActual: boolean) {
     if (!idComanda) return;
+
+    if (!estadoActual) {
+      const comanda = this.adminComandaService.pedidosCocina().find(c => c.id === idComanda);
+      if (comanda) {
+        const pendientes = comanda.lineasComanda.filter((l: any) => l.destino === 'COCINA' && !l.preparado);
+        if (pendientes.length === 1) {
+          this.completandoIds.update(ids => new Set([...ids, idComanda]));
+          setTimeout(() => {
+            this.completandoIds.update(ids => { const s = new Set(ids); s.delete(idComanda!); return s; });
+          }, 900);
+        }
+      }
+    }
+
     try {
       await this.adminComandaService.marcarLineaPreparada(idComanda, indexOriginal, !estadoActual);
     } catch (error) {

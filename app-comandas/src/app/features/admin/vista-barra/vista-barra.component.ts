@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { AdminComandaService } from '../../../core/services/admin-comanda.service';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { addIcons } from 'ionicons';
-import { beerOutline, timeOutline, warningOutline, cafeOutline, checkmarkDoneOutline, logOutOutline, flameOutline, checkmarkOutline, gridOutline } from 'ionicons/icons';
+import { beerOutline, timeOutline, warningOutline, cafeOutline, checkmarkDoneOutline, logOutOutline, flameOutline, checkmarkOutline, gridOutline, listOutline, closeOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import { getTranslation } from '../../../core/models/common.model';
 
 /**
@@ -41,6 +41,8 @@ export class VistaBarraComponent implements OnInit, OnDestroy {
   private intervalId: any;
   ahora = signal<number>(Date.now());
   filtroMesa = signal<string>('');
+  completandoIds = signal<Set<string>>(new Set());
+  mostrarHistorial = signal(false);
 
   // Filtrado de tickets por mesa
   pedidosBarraFiltrados = computed(() => {
@@ -68,7 +70,8 @@ export class VistaBarraComponent implements OnInit, OnDestroy {
   constructor() {
     addIcons({
       beerOutline, timeOutline, warningOutline,
-      cafeOutline, checkmarkDoneOutline, logOutOutline, flameOutline, checkmarkOutline, gridOutline
+      cafeOutline, checkmarkDoneOutline, logOutOutline, flameOutline, checkmarkOutline, gridOutline,
+      listOutline, closeOutline, checkmarkCircleOutline
     });
   }
 
@@ -100,9 +103,37 @@ export class VistaBarraComponent implements OnInit, OnDestroy {
     return Math.max(0, Math.floor((this.ahora() - fechaCreacion) / 60000));
   }
 
+  tieneProgresoBarra(comanda: any): boolean {
+    return comanda.lineasComanda.some((l: any) => l.destino === 'BARRA' && !!l.preparado);
+  }
+
+  getDuracionMinutos(comanda: any): number {
+    if (!comanda.fechaActualizacion || !comanda.fechaCreacion) return 0;
+    return Math.max(0, Math.floor((comanda.fechaActualizacion - comanda.fechaCreacion) / 60000));
+  }
+
+  formatHora(ts: number): string {
+    if (!ts) return '--:--';
+    return new Date(ts).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  }
+
   /** Alterna el estado preparado de una bebida concreta. */
   async alternarBebidaServida(idComanda: string | undefined, indexOriginal: number, estadoActual: boolean) {
     if (!idComanda) return;
+
+    if (!estadoActual) {
+      const comanda = this.adminComandaService.pedidosBarra().find(c => c.id === idComanda);
+      if (comanda) {
+        const pendientes = comanda.lineasComanda.filter((l: any) => l.destino === 'BARRA' && !l.preparado);
+        if (pendientes.length === 1) {
+          this.completandoIds.update(ids => new Set([...ids, idComanda]));
+          setTimeout(() => {
+            this.completandoIds.update(ids => { const s = new Set(ids); s.delete(idComanda!); return s; });
+          }, 900);
+        }
+      }
+    }
+
     try {
       await this.adminComandaService.marcarLineaPreparada(idComanda, indexOriginal, !estadoActual);
     } catch (error) {

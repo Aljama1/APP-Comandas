@@ -26,6 +26,10 @@
           </span>
         </div>
 
+        <ion-button (click)="mostrarHistorial.set(true)" class="btn-historial">
+          <ion-icon name="list-outline" slot="start"></ion-icon>
+          <span class="btn-text">Historial</span>
+        </ion-button>
         <ion-button (click)="irABarra()" class="btn-neon-blue">
           <ion-icon name="beer-outline" slot="start"></ion-icon>
           <span class="btn-text">Barra</span>
@@ -105,7 +109,11 @@
 
         <div class="grid-tickets-masonry">
           @for (comanda of pedidosCocinaFiltrados(); track comanda.id) {
-          <div class="ticket" [ngClass]="{'urgente': getMinutosTranscurridos(comanda.fechaCreacion) >= 15}">
+          <div class="ticket" [ngClass]="{
+            'urgente': getMinutosTranscurridos(comanda.fechaCreacion) >= 15,
+            'con-progreso': tieneProgresoCocina(comanda),
+            'completando': completandoIds().has(comanda.id!)
+          }">
 
             <div class="ticket-header">
               <div class="info-principal">
@@ -169,4 +177,55 @@
 
     </div>
   </div>
+
+  @if (mostrarHistorial()) {
+  <div class="historial-overlay">
+    <div class="historial-backdrop" (click)="mostrarHistorial.set(false)"></div>
+    <div class="historial-panel">
+      <div class="historial-header">
+        <div class="historial-titulo">
+          <ion-icon name="list-outline"></ion-icon>
+          <h2>Historial de Comandas</h2>
+        </div>
+        <ion-button fill="clear" color="light" (click)="mostrarHistorial.set(false)">
+          <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="historial-lista">
+        @if (adminComandaService.pedidosHistorial().length === 0) {
+          <div class="historial-vacio">
+            <ion-icon name="time-outline"></ion-icon>
+            <p>Sin comandas servidas aún</p>
+          </div>
+        }
+        @for (comanda of adminComandaService.pedidosHistorial(); track comanda.id) {
+          <div class="historial-item">
+            <div class="historial-item-header">
+              <div class="historial-mesa-info">
+                <span class="h-mesa">MESA {{ comanda.idMesa }}</span>
+                <span class="h-cliente">{{ comanda.nombreCliente }}</span>
+              </div>
+              <div class="historial-meta">
+                <span class="h-hora">{{ formatHora(comanda.fechaActualizacion) }}</span>
+                <span class="h-dur">{{ getDuracionMinutos(comanda) }} min</span>
+              </div>
+            </div>
+            <ul class="historial-productos">
+              @for (linea of comanda.lineasComanda; track linea.idProducto + $index) {
+                <li>
+                  <span class="hp-qty">{{ linea.cantidad }}x</span>
+                  <span class="hp-nom">{{ getNombreProducto(linea.nombreProducto) }}</span>
+                  @if (linea.notasEspeciales) {
+                    <span class="hp-nota">{{ linea.notasEspeciales }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  }
 </ion-content>

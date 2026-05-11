@@ -112,8 +112,8 @@
         </button>
       </header>
 
-      <main class="modal-body">
-        @for (producto of obtenerTodosLosProductos(); track producto.idComanda + '-' + producto.indexComanda) {
+      <main class="modal-body" [class.modal-body--expandido]="mostrarTodosProductos()">
+        @for (producto of productosVisibles(); track producto.idComanda + '-' + producto.indexComanda) {
           <div class="producto-item">
             <div class="prod-info">
               <h4>{{ producto.nombreProducto['es'] || producto.nombreProducto }}</h4>
@@ -150,6 +150,18 @@
               }
             </div>
           </div>
+        }
+
+        @if (productosOcultos() > 0 || mostrarTodosProductos()) {
+          <button type="button" class="btn-expandir-cuenta" (click)="toggleMostrarTodos()">
+            @if (mostrarTodosProductos()) {
+              <ion-icon name="remove-circle-outline" aria-hidden="true"></ion-icon>
+              <span>Mostrar menos</span>
+            } @else {
+              <ion-icon name="add-circle-outline" aria-hidden="true"></ion-icon>
+              <span>Mostrar cuenta completa ({{ productosOcultos() }} producto{{ productosOcultos() === 1 ? '' : 's' }} más)</span>
+            }
+          </button>
         }
       </main>
 

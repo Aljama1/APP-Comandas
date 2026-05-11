@@ -127,9 +127,9 @@ export class AdminConfigBarComponent implements OnInit {
     this.popover.dismiss();
     this.router.navigate(['/admin/qr']); 
   }
-  irACuentas() {
+  irAHistorialFacturas() {
     this.popover.dismiss();
-    this.router.navigate(['/admin/cuentas']);
+    this.router.navigate(['/admin/facturas']);
   }
 }
 

@@ -262,12 +262,39 @@ ion-content.dashboard-bg {
         font-size: 1.2rem;
         font-weight: 800;
         color: var(--dash-text-main);
-        cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 8px;
-        .icon-timeline { font-size: 0.9rem; color: var(--dash-text-sec); }
-        &:hover .icon-timeline { color: var(--dash-accent-blue); }
+        gap: 10px;
+
+        // Botón claro y pulsable que abre el timeline de la mesa.
+        .btn-timeline {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          border: 1px solid var(--dash-accent-blue);
+          background: rgba(0, 210, 255, 0.12);
+          color: var(--dash-accent-blue);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          padding: 0;
+          transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+
+          ion-icon { font-size: 1rem; }
+
+          &:hover {
+            background: var(--dash-accent-blue);
+            color: #fff;
+            transform: scale(1.08);
+            box-shadow: 0 0 0 4px rgba(0, 210, 255, 0.18);
+          }
+          &:active { transform: scale(0.96); }
+          &:focus-visible {
+            outline: 2px solid var(--dash-accent-blue);
+            outline-offset: 2px;
+          }
+        }
       }
       .cliente-name {
         font-size: 0.8rem;
@@ -572,12 +599,12 @@ ion-content.dashboard-bg {
   --max-width: 580px;
   --border-radius: 16px;
 
-  .bg-dark-modal { --background: #0f1117; color: #fff; }
+  .bg-dark-modal { --background: var(--dash-bg); color: var(--dash-text-main); }
 
   ion-toolbar {
-    --background: #1a1a2e;
-    --color: #fff;
-    ion-icon { margin-right: 8px; color: $neon-blue; }
+    --background: var(--dash-panel);
+    --color: var(--dash-title);
+    ion-icon { margin-right: 8px; color: var(--dash-accent-blue); }
   }
 
   .timeline-header-stats {
@@ -585,17 +612,18 @@ ion-content.dashboard-bg {
     gap: 12px;
     margin-bottom: 20px;
     padding: 16px;
-    background: rgba(0,210,255,0.05);
-    border: 1px solid rgba(0,210,255,0.1);
+    background: var(--dash-panel);
+    border: 1px solid var(--dash-border);
     border-radius: 12px;
+    box-shadow: var(--dash-card-shadow);
 
     .tl-stat {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      .tl-stat-val   { font-size: 1.3rem; font-weight: 800; color: #fff; }
-      .tl-stat-label { font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-top: 2px; }
+      .tl-stat-val   { font-size: 1.3rem; font-weight: 800; color: var(--dash-title); }
+      .tl-stat-label { font-size: 0.7rem; color: var(--dash-text-sec); text-transform: uppercase; margin-top: 2px; }
     }
   }
 
@@ -606,15 +634,16 @@ ion-content.dashboard-bg {
     margin-bottom: 20px;
 
     .tl-ronda {
-      background: #1a1a2e;
+      background: var(--dash-panel);
       border-radius: 12px;
       padding: 16px;
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid var(--dash-border);
+      box-shadow: var(--dash-card-shadow);
 
       .tl-ronda-badge {
         display: inline-block;
         background: rgba(0,210,255,0.15);
-        color: $neon-blue;
+        color: var(--dash-accent-blue);
         font-size: 0.7rem;
         font-weight: 700;
         padding: 2px 10px;
@@ -634,12 +663,12 @@ ion-content.dashboard-bg {
           font-weight: 700;
           padding: 3px 10px;
           border-radius: 10px;
-          &.estado-pendiente  { background: rgba(255,107,0,0.2); color: $neon-orange; }
-          &.estado-preparando { background: rgba(0,210,255,0.2); color: $neon-blue; }
-          &.estado-servido    { background: rgba(0,255,136,0.2); color: $neon-green; }
-          &.estado-cancelado  { background: rgba(255,0,0,0.15); color: #ff6b6b; }
+          &.estado-pendiente  { background: rgba(245, 158, 11, 0.18); color: var(--dash-accent-orange); }
+          &.estado-preparando { background: rgba(0, 210, 255, 0.18); color: var(--dash-accent-blue); }
+          &.estado-servido    { background: rgba(16, 185, 129, 0.18); color: var(--dash-accent-green); }
+          &.estado-cancelado  { background: rgba(220, 38, 38, 0.15); color: #dc2626; }
         }
-        .tl-hora { font-size: 0.8rem; color: rgba(255,255,255,0.35); }
+        .tl-hora { font-size: 0.8rem; color: var(--dash-text-sec); }
       }
 
       .tl-alergenos {
@@ -647,7 +676,7 @@ ion-content.dashboard-bg {
         align-items: center;
         gap: 6px;
         background: rgba(255,59,48,0.12);
-        color: #ff6b6b;
+        color: #ff4a4a;
         border-radius: 8px;
         padding: 6px 10px;
         font-size: 0.78rem;
@@ -666,7 +695,7 @@ ion-content.dashboard-bg {
           align-items: flex-start;
           gap: 10px;
           padding: 6px 0;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
+          border-bottom: 1px solid var(--dash-border);
           &:last-child { border-bottom: none; }
 
           &.tl-listo { opacity: 0.6; }
@@ -678,23 +707,23 @@ ion-content.dashboard-bg {
             align-items: center;
             justify-content: center;
             border-radius: 5px;
-            background: rgba(255,107,0,0.2);
-            color: $neon-orange;
+            background: rgba(245, 158, 11, 0.18);
+            color: var(--dash-accent-orange);
             font-size: 0.7rem;
             font-weight: 900;
             flex-shrink: 0;
-            &.barra { background: rgba(0,210,255,0.2); color: $neon-blue; }
+            &.barra { background: rgba(0, 210, 255, 0.18); color: var(--dash-accent-blue); }
           }
 
           .tl-linea-info {
             flex: 1;
             font-size: 0.88rem;
-            .tl-cant { font-weight: 800; color: #fff; margin-right: 4px; }
-            .tl-nom  { color: #ccc; }
-            .tl-nota { color: #ffcc00; font-size: 0.78rem; display: block; margin-top: 2px; }
+            .tl-cant { font-weight: 800; color: var(--dash-title); margin-right: 4px; }
+            .tl-nom  { color: var(--dash-text-main); }
+            .tl-nota { color: var(--dash-accent-orange); font-size: 0.78rem; display: block; margin-top: 2px; }
           }
 
-          .tl-precio { font-size: 0.82rem; color: rgba(255,255,255,0.35); white-space: nowrap; }
+          .tl-precio { font-size: 0.82rem; color: var(--dash-text-sec); white-space: nowrap; }
         }
       }
 
@@ -703,10 +732,10 @@ ion-content.dashboard-bg {
         justify-content: space-between;
         margin-top: 10px;
         padding-top: 8px;
-        border-top: 1px solid rgba(255,255,255,0.06);
+        border-top: 1px solid var(--dash-border);
         font-size: 0.85rem;
-        color: rgba(255,255,255,0.4);
-        strong { color: #fff; }
+        color: var(--dash-text-sec);
+        strong { color: var(--dash-title); }
       }
     }
   }
@@ -715,14 +744,14 @@ ion-content.dashboard-bg {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(0,255,136,0.08);
-    border: 1px solid rgba(0,255,136,0.2);
+    background: rgba(16, 185, 129, 0.10);
+    border: 1px solid rgba(16, 185, 129, 0.25);
     border-radius: 12px;
     padding: 16px 20px;
     font-size: 1rem;
-    color: rgba(255,255,255,0.6);
+    color: var(--dash-text-main);
     letter-spacing: 0.5px;
-    strong { font-size: 1.4rem; color: $neon-green; font-weight: 800; }
+    strong { font-size: 1.4rem; color: var(--dash-accent-green); font-weight: 800; }
   }
 }
 
@@ -733,17 +762,18 @@ ion-content.dashboard-bg {
   --max-width: 500px;
   --border-radius: 12px;
 
-  .bg-dark-modal { --background: #0f1117; color: #fff; }
+  .bg-dark-modal { --background: var(--dash-bg); color: var(--dash-text-main); }
 
-  ion-toolbar { --background: #1e1e1e; --color: #fff; }
+  ion-toolbar { --background: var(--dash-panel); --color: var(--dash-title); }
 
   .modal-cliente-info {
     margin-bottom: 20px;
-    background: #1a1a1a;
+    background: var(--dash-panel);
     padding: 16px;
     border-radius: 12px;
-    border-left: 4px solid $neon-blue;
-    h3 { margin: 0 0 10px 0; color: #fff; font-size: 1.1rem; }
+    border-left: 4px solid var(--dash-accent-blue);
+    box-shadow: var(--dash-card-shadow);
+    h3 { margin: 0 0 10px 0; color: var(--dash-title); font-size: 1.1rem; }
     .alerta-alergenos {
       background: rgba(255,59,48,0.15); color: #ff4a4a; padding: 10px 12px;
       border-radius: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
@@ -754,30 +784,31 @@ ion-content.dashboard-bg {
   .lista-detalles {
     display: flex; flex-direction: column; gap: 12px;
     .item-detalle {
-      background: #1e1e1e; border-radius: 12px; padding: 14px;
+      background: var(--dash-panel); border-radius: 12px; padding: 14px;
       display: flex; align-items: center; gap: 16px;
-      border: 1px solid rgba(255,255,255,0.05);
-      &.completado { background: #162b16; border-color: rgba(0,255,136,0.2); opacity: 0.85;
-        .info-plato .nom-plato { text-decoration: line-through; color: #aaa; }
+      border: 1px solid var(--dash-border);
+      box-shadow: var(--dash-card-shadow);
+      &.completado { background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.25); opacity: 0.85;
+        .info-plato .nom-plato { text-decoration: line-through; color: var(--dash-text-sec); }
       }
       .badge-destino {
         width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-        border-radius: 8px; background: rgba(255,107,0,0.2); color: $neon-orange; font-weight: 900; font-size: 1.1rem;
-        &.barra { background: rgba(0,210,255,0.2); color: $neon-blue; }
+        border-radius: 8px; background: rgba(245, 158, 11, 0.18); color: var(--dash-accent-orange); font-weight: 900; font-size: 1.1rem;
+        &.barra { background: rgba(0, 210, 255, 0.18); color: var(--dash-accent-blue); }
       }
       .info-plato {
         flex: 1;
         .header-plato { display: flex; align-items: flex-start; gap: 8px;
-          .qty-plato { font-weight: 800; color: #fff; font-size: 1.1rem; }
-          .nom-plato  { font-weight: 600; color: #fff; font-size: 1.1rem; }
+          .qty-plato { font-weight: 800; color: var(--dash-title); font-size: 1.1rem; }
+          .nom-plato  { font-weight: 600; color: var(--dash-title); font-size: 1.1rem; }
         }
         .nota-especial {
-          color: #ffcc00; margin-top: 6px; display: flex; align-items: flex-start; gap: 6px;
-          font-size: 0.85rem; background: rgba(255,204,0,0.1); padding: 6px 10px; border-radius: 6px;
+          color: var(--dash-accent-orange); margin-top: 6px; display: flex; align-items: flex-start; gap: 6px;
+          font-size: 0.85rem; background: rgba(245, 158, 11, 0.12); padding: 6px 10px; border-radius: 6px;
           ion-icon { font-size: 1.1rem; }
         }
       }
-      .icon-check { font-size: 1.8rem; color: $neon-green; }
+      .icon-check { font-size: 1.8rem; color: var(--dash-accent-green); }
     }
   }
 }
@@ -853,126 +884,6 @@ ion-content.dashboard-bg {
   100% { transform: rotate(0deg); }
 }
 
-/* MODAL COMANDA */
-.modal-comanda {
-  --height: 80%;
-  --width: 90%;
-  --max-width: 500px;
-  --border-radius: 12px;
-
-  ion-toolbar {
-    --background: #1e1e1e;
-    --color: #ffffff;
-  }
-
-  .bg-dark {
-    --background: #121212;
-    color: white;
-  }
-
-  .modal-cliente-info {
-    margin-bottom: 20px;
-    background: #1a1a1a;
-    padding: 16px;
-    border-radius: 12px;
-    border-left: 4px solid $neon-blue;
-    
-    h3 {
-      margin: 0 0 10px 0;
-      color: #fff;
-      font-size: 1.2rem;
-    }
-
-    .alerta-alergenos {
-      background: rgba(255, 59, 48, 0.15);
-      color: #ff4a4a;
-      padding: 10px 12px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      border: 1px solid rgba(255, 59, 48, 0.3);
-      
-      ion-icon { font-size: 1.2rem; }
-    }
-  }
-
-  .lista-detalles {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    
-    .item-detalle {
-      background: #1e1e1e;
-      border-radius: 12px;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-
-      &.completado {
-        background: #162b16;
-        border-color: rgba(0, 255, 136, 0.2);
-        opacity: 0.85;
-
-        .info-plato .nom-plato { text-decoration: line-through; color: #aaa; }
-      }
-
-      .badge-destino {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        background: rgba(255, 107, 0, 0.2);
-        color: $neon-orange;
-        font-weight: 900;
-        font-size: 1.1rem;
-
-        &.barra {
-          background: rgba(0, 210, 255, 0.2);
-          color: $neon-blue;
-        }
-      }
-
-      .info-plato {
-        flex: 1;
-
-        .header-plato {
-          display: flex;
-          align-items: flex-start;
-          gap: 8px;
-
-          .qty-plato { font-weight: 800; color: #fff; font-size: 1.1rem; }
-          .nom-plato { font-weight: 600; color: #fff; font-size: 1.1rem; }
-        }
-
-        .nota-especial {
-          color: #ffcc00;
-          margin-top: 6px;
-          display: flex;
-          align-items: flex-start;
-          gap: 6px;
-          font-size: 0.85rem;
-          background: rgba(255, 204, 0, 0.1);
-          padding: 6px 10px;
-          border-radius: 6px;
-          
-          ion-icon { font-size: 1.1rem; }
-        }
-      }
-
-      .icon-check {
-        font-size: 1.8rem;
-        color: $neon-green;
-      }
-    }
-  }
-}
-
 /* RESPONSIVE */
 @media (max-width: 992px) {
   .kanban-grid {
@@ -984,25 +895,6 @@ ion-content.dashboard-bg {
     padding: 16px;
     .search-container { margin: 12px 0; width: 100%; }
     .actions { width: 100%; justify-content: space-between; }
-  }
-}
-
-/* MODALS ADAPTIVE */
-.modal-timeline, .modal-comanda {
-  --height: 85%;
-  --width: 95%;
-  --max-width: 580px;
-  --border-radius: 20px;
-
-  ion-toolbar {
-    --background: var(--dash-panel);
-    --color: var(--dash-title);
-    border-bottom: 1px solid var(--dash-border);
-  }
-
-  .bg-dark-modal { 
-    --background: var(--dash-bg); 
-    color: var(--dash-text-main); 
   }
 }
 
