@@ -24,10 +24,12 @@ export class LoginAdminComponent {
   private loadingCtrl = inject(LoadingController);
   private toastCtrl = inject(ToastController);
 
-  // Detectamos si el usuario viene de intentar entrar a Cocina o a Barra
-  get rolAdmin(): 'barra' | 'cocina' {
+  // Detectamos de qué panel viene el usuario para personalizar la pantalla de login
+  get rolAdmin(): 'cocina' | 'barra' | 'sala' {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
-    return returnUrl.includes('cocina') ? 'cocina' : 'barra';
+    if (returnUrl.includes('cocina')) return 'cocina';
+    if (returnUrl.includes('barra')) return 'barra';
+    return 'sala';
   }
 
   constructor() {

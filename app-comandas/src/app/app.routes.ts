@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
+import { authGuard } from './core/guards/auth.guard';
 
 // Definición de las rutas principales de nuestra aplicación de Comandas
 export const routes: Routes = [
@@ -9,14 +10,17 @@ export const routes: Routes = [
   },
   {
     path: 'carta',
+    canActivate: [authGuard],
     loadComponent: () => import('./features/carta/carta.component').then((m) => m.CartaComponent),
   },
   {
     path: 'resumen-comanda',
+    canActivate: [authGuard],
     loadComponent: () => import('./features/comandas/resumen-comanda/resumen-comanda.component').then((m) => m.ResumenComandaComponent),
   },
   {
     path: 'seguimiento-comanda',
+    canActivate: [authGuard],
     loadComponent: () => import('./features/comandas/seguimiento-comanda/seguimiento-comanda.component').then((m) => m.SeguimientoComandaComponent),
   },
 
@@ -82,5 +86,9 @@ export const routes: Routes = [
     path: '',
     loadComponent: () => import('./features/autenticacion/selector-rol/selector-rol.component').then((m) => m.SelectorRolComponent),
     pathMatch: 'full',
+  },
+  {
+    path: '**',
+    redirectTo: '',
   },
 ];

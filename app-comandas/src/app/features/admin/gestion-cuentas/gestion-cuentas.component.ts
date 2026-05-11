@@ -50,11 +50,12 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
   // Estado de procesamiento de factura
   isProcessing = signal<boolean>(false);
 
-  // Todas las comandas activas (no pagadas)
+  // Todas las comandas activas (no pagadas): incluye SERVIDO porque ya preparado ≠ cobrado
   todasLasComandas = computed(() => {
     const pendientes = this.adminComandaService.pedidosPendientes();
     const enCurso = this.adminComandaService.pedidosEnCurso();
-    return [...pendientes, ...enCurso];
+    const servidos = this.adminComandaService.pedidosHistorial();
+    return [...pendientes, ...enCurso, ...servidos];
   });
 
   // Agrupar por mesa
@@ -131,26 +132,28 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
   obtenerTodosLosProductos(): any[] {
     const mesa = this.mesaSeleccionada();
     if (!mesa) return [];
-    
+
     const pendientes = this.adminComandaService.pedidosPendientes().filter(c => c.idMesa === mesa.idMesa);
     const enCurso = this.adminComandaService.pedidosEnCurso().filter(c => c.idMesa === mesa.idMesa);
-    
+    const servidos = this.adminComandaService.pedidosHistorial().filter(c => c.idMesa === mesa.idMesa);
+
     let productos: any[] = [];
-    [...pendientes, ...enCurso].forEach(c => {
+    [...pendientes, ...enCurso, ...servidos].forEach(c => {
       productos = productos.concat(c.lineasComanda.map((l, i) => ({ ...l, idComanda: c.id, indexComanda: i })));
     });
-    
+
     return productos;
   }
 
   totalAcumuladoMesa(): number {
     const mesa = this.mesaSeleccionada();
     if (!mesa) return 0;
-    
+
     const pendientes = this.adminComandaService.pedidosPendientes().filter(c => c.idMesa === mesa.idMesa);
     const enCurso = this.adminComandaService.pedidosEnCurso().filter(c => c.idMesa === mesa.idMesa);
-    
-    return [...pendientes, ...enCurso].reduce((sum, c) => sum + (c.precioTotal || 0), 0);
+    const servidos = this.adminComandaService.pedidosHistorial().filter(c => c.idMesa === mesa.idMesa);
+
+    return [...pendientes, ...enCurso, ...servidos].reduce((sum, c) => sum + (c.precioTotal || 0), 0);
   }
 
   iniciarEdicionLinea(linea: any, event: Event) {
@@ -208,7 +211,7 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
     
     const alert = await this.alertCtrl.create({
       header: '¿Eliminar producto?',
-      message: `¿Estás seguro de que quieres eliminar "${linea.nombreProducto['es'] || linea.nombreProducto}"?`,
+      message: `¿Estás seguro de que quieres eliminar "${linea.nombreProducto?.[this.idiomaActual] ?? linea.nombreProducto?.['es'] ?? linea.nombreProducto}"?`,
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {
@@ -285,7 +288,7 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
     }
   }
 
-  irAPanel() { this.router.navigate(['/admin/panel']); }
+  irAPanel() { this.router.navigate(['/admin/panel-pedidos']); }
   irACocina() { this.router.navigate(['/admin/cocina']); }
   irABarra() { this.router.navigate(['/admin/barra']); }
   cerrarSesion() { this.adminAuth.logout(); }

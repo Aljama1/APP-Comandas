@@ -123,12 +123,14 @@
                       [class.tachado]="linea.preparado"
                       (click)="alternarBebidaServida(comanda.id, linea.originalIndex, !!linea.preparado)">
                       <div class="checkbox-visual">
-                        <ion-icon name="checkmark-outline" *ngIf="linea.preparado"></ion-icon>
+                        @if (linea.preparado) {
+                          <ion-icon name="checkmark-outline"></ion-icon>
+                        }
                       </div>
                       <div class="contenido-bebida">
                         <div class="linea-superior">
                           <span class="cantidad">{{ linea.cantidad }}x</span>
-                          <span class="nombre">{{ linea.nombreProducto }}</span>
+                          <span class="nombre">{{ getTranslation(linea.nombreProducto, 'es') }}</span>
                         </div>
                         @if (linea.notasEspeciales) {
                           <div class="nota-ticket">{{ linea.notasEspeciales }}</div>

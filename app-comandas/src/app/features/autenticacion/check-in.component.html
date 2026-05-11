@@ -13,7 +13,7 @@
   </button>
 
   <!-- Contenido principal -->
-  <div class="checkin-container">
+  <div class="checkin-container" [formGroup]="formulario">
 
     <!-- HERO: Logo + Headline -->
     <header class="checkin-hero" aria-label="Bienvenida">
@@ -27,7 +27,7 @@
     </header>
 
     <!-- FORMULARIO -->
-    <section class="checkin-form" aria-label="Formulario de acceso" [formGroup]="formulario">
+    <section class="checkin-form" aria-label="Formulario de acceso">
 
       <!-- Campo Nombre -->
       <div class="field-group" [class.field-group--error]="mostrarErrorNombre()">

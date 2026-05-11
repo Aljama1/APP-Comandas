@@ -193,10 +193,15 @@ export class ComandaFirestoreService implements OnDestroy {
         (snapshot) => {
           // Usamos zone.run para asegurar que Angular detecte el cambio en dispositivos móviles
           this.zone.run(() => {
-            const comandas: Comanda[] = snapshot.docs.map(doc => ({
-              ...(doc.data() as Comanda),
-              id: doc.id
-            }));
+            const comandas: Comanda[] = snapshot.docs.map(doc => {
+              const data = doc.data() as any;
+              return {
+                ...data,
+                id: doc.id,
+                fechaCreacion: data.fechaCreacion?.toMillis?.() ?? data.fechaCreacion ?? 0,
+                fechaActualizacion: data.fechaActualizacion?.toMillis?.() ?? data.fechaActualizacion ?? 0,
+              } as Comanda;
+            });
             this.todasLasComandas.set(comandas);
             this.errorEscucha.set(null);
           });

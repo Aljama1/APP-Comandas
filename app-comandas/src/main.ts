@@ -21,6 +21,13 @@ import { environment } from './environments/environment';
 // Si estamos en producción, habilitamos el modo optimizado
 if (environment.production) {
   enableProdMode();
+  // Silenciamos logs no-críticos en producción para no contaminar la consola
+  // durante la demo. Mantenemos console.error porque sigue siendo útil para
+  // diagnosticar incidencias reales si abrimos DevTools.
+  console.log = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  console.debug = () => {};
 }
 
 import { importProvidersFrom, isDevMode } from '@angular/core';
@@ -67,4 +74,4 @@ bootstrapApplication(AppComponent, {
             registrationStrategy: 'registerWhenStable:30000'
           }), 
   ],
-}).catch((err) => console.log(err));
+}).catch((err) => console.error('Error al arrancar la aplicacion:', err));

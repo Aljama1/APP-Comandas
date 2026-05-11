@@ -1,4 +1,4 @@
-import { Injectable, inject, NgZone, runInInjectionContext, EnvironmentInjector } from '@angular/core';
+import { Injectable, inject, Injector, NgZone, runInInjectionContext, EnvironmentInjector } from '@angular/core';
 import {
   Firestore, collection, doc, runTransaction
 } from '@angular/fire/firestore';
@@ -29,9 +29,19 @@ import { getTranslation } from '../models/common.model';
 })
 export class FacturacionService {
   private firestore = inject(Firestore);
-  private adminComandaService = inject(AdminComandaService);
+  private injector = inject(Injector);
   private zona = inject(NgZone);
   private inyector = inject(EnvironmentInjector);
+
+  /**
+   * Resolución lazy de AdminComandaService para evitar dependencia circular
+   * (AdminComandaService → FacturacionService → AdminComandaService).
+   * El Injector.get sólo se ejecuta cuando se invoca un método, momento en el
+   * que ambos servicios ya están instanciados.
+   */
+  private get adminComandaService(): AdminComandaService {
+    return this.injector.get(AdminComandaService);
+  }
 
   /**
    * Genera una factura legal para todas las comandas activas de una mesa.
@@ -79,6 +89,14 @@ export class FacturacionService {
     // Referencias a documentos Firestore
     const refContador = doc(this.firestore, 'metadatos/contadores_facturas');
     const refNuevaFactura = doc(collection(this.firestore, 'facturas'));
+
+    // Pre-resolvemos las referencias de las comandas a marcar como PAGADO
+    // para incluir el cierre de mesa DENTRO de la misma transacción atómica
+    // que genera la factura. Así evitamos el escenario en que la factura se
+    // emite pero las comandas siguen activas (cobro doble).
+    const refsComandas = comandasDeMesa
+      .filter(c => !!c.id)
+      .map(c => doc(this.firestore, `comandas/${c.id}`));
 
     try {
       const facturaGenerada = await runInInjectionContext(this.inyector, () =>
@@ -132,13 +150,20 @@ export class FacturacionService {
             ultimoHash: hashActual
           });
 
-          // Retornar la factura generada
+          // 6. Cerrar todas las comandas de la mesa como PAGADO en la misma
+          // transacción. Si cualquiera falla, la factura no se persiste y
+          // el contador no avanza.
+          const fechaCierre = Date.now();
+          for (const refComanda of refsComandas) {
+            transaccion.update(refComanda, {
+              estado: 'PAGADO',
+              fechaActualizacion: fechaCierre
+            });
+          }
+
           return facturaLegal;
         })
       );
-
-      // 6. Marcar todas las comandas de la mesa como PAGADO (fuera de transacción)
-      await this.adminComandaService.finalizarCuentaMesa(idMesa);
 
       return facturaGenerada as FacturaLegal;
 

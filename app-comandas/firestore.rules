@@ -2,45 +2,82 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Reglas para pedidos (comandas)
-    // - Clientes (anónimos) pueden crear pedidos si el idCliente coincide con su UID.
-    // - Clientes pueden leer/actualizar pedidos SOLO si su idCliente coincide con su UID.
-    // - Admins (no anónimos) pueden leer y modificar cualquier pedido.
-    match /comandas/{comandaId} {
-      allow create: if request.auth != null && (
-        request.auth.token.firebase.sign_in_provider != 'anonymous' || 
-        request.resource.data.idCliente == request.auth.uid
-      );
-      allow read, update, delete: if request.auth != null && (
-        request.auth.token.firebase.sign_in_provider != 'anonymous' || 
-        resource.data.idCliente == request.auth.uid
-      );
+
+    // ─── Helpers ──────────────────────────────────────────────────────
+    function isAuth() {
+      return request.auth != null;
+    }
+    function isStaff() {
+      return isAuth() && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+    function isCliente() {
+      return isAuth() && request.auth.token.firebase.sign_in_provider == 'anonymous';
     }
 
-    // Reglas para productos (carta)
-    // - Todos pueden leer (para ver el menú).
-    // - Solo admins (con auth) pueden crear, actualizar o eliminar productos.
+    // ─── Comandas ─────────────────────────────────────────────────────
+    // - Cliente anónimo: crea su propia comanda (idCliente == uid) y la lee.
+    //   Solo puede ACTUALIZAR mientras la comanda está en PENDIENTE y
+    //   exclusivamente para añadir notas (no puede tocar precio, estado,
+    //   líneas críticas ni reasignar la comanda a otra mesa/cliente).
+    //   El cliente NO puede borrar comandas.
+    // - Staff (no anónimo): control total sobre las comandas.
+    match /comandas/{comandaId} {
+      allow create: if isStaff() || (
+        isCliente() && request.resource.data.idCliente == request.auth.uid
+      );
+
+      allow read: if isStaff() || (
+        isCliente() && resource.data.idCliente == request.auth.uid
+      );
+
+      allow update: if isStaff() || (
+        isCliente()
+        && resource.data.idCliente == request.auth.uid
+        && resource.data.estado == 'PENDIENTE'
+        && request.resource.data.idCliente == resource.data.idCliente
+        && request.resource.data.idMesa == resource.data.idMesa
+        && request.resource.data.estado == resource.data.estado
+        && request.resource.data.precioTotal == resource.data.precioTotal
+        && request.resource.data.lineasComanda == resource.data.lineasComanda
+      );
+
+      allow delete: if isStaff();
+    }
+
+    // ─── Productos (carta) ────────────────────────────────────────────
     match /productos/{productoId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
-    }
-    
-    // Reglas para facturas
-    // - Solo admins pueden leer o crear facturas.
-    match /facturas/{facturaId} {
-      allow read, write: if request.auth != null;
+      allow create, update, delete: if isStaff();
     }
 
-    // Reglas para configuración
-    // - Todos pueden leer.
-    // - Solo admins pueden escribir.
+    // ─── Facturas ─────────────────────────────────────────────────────
+    // Solo staff. Append-only: una vez creada, la factura NO se puede
+    // modificar ni borrar (integridad VeriFactu).
+    match /facturas/{facturaId} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update, delete: if false;
+    }
+
+    // ─── Configuración ────────────────────────────────────────────────
     match /configuracion/{configId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isStaff();
     }
 
-    // Bloquear todo lo demás por defecto
+    // ─── Metadatos (contador VeriFactu) ───────────────────────────────
+    // Solo staff. La actualización está restringida a incrementos de +1
+    // del contador, evitando que un admin malicioso rebobine la cadena.
+    match /metadatos/{docId} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update: if isStaff()
+        && request.resource.data.ultimoNumero == resource.data.ultimoNumero + 1
+        && request.resource.data.serieActual == resource.data.serieActual;
+      allow delete: if false;
+    }
+
+    // ─── Default deny ─────────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
     }

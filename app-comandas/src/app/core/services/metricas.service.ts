@@ -1,5 +1,5 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
-import { Firestore, collection, query, where, orderBy, limit, onSnapshot, Unsubscribe } from '@angular/fire/firestore';
+import { Injectable, inject, signal, computed, runInInjectionContext, EnvironmentInjector } from '@angular/core';
+import { Firestore, collection, query, where, orderBy, limit, onSnapshot, Unsubscribe, Timestamp } from '@angular/fire/firestore';
 import { Comanda } from '../models/comanda.model';
 import { getTranslation } from '../models/common.model';
 
@@ -21,6 +21,7 @@ export interface ProductoVendido {
 })
 export class MetricasService {
   private firestore = inject(Firestore);
+  private injector = inject(EnvironmentInjector);
 
   // Señal cruda con las comandas históricas cargadas
   private comandasHistoricas = signal<Comanda[]>([]);
@@ -94,27 +95,37 @@ export class MetricasService {
    * Carga las comandas pagadas de los últimos 7 días.
    */
   private iniciarEscuchaMetricas() {
-    const comandasRef = collection(this.firestore, 'comandas');
-    
-    // Calculamos el timestamp de hace 7 días
-    const haceSieteDias = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    runInInjectionContext(this.injector, () => {
+      const comandasRef = collection(this.firestore, 'comandas');
 
-    const q = query(
-      comandasRef,
-      where('estado', '==', 'PAGADO'),
-      where('fechaCreacion', '>=', haceSieteDias),
-      orderBy('fechaCreacion', 'desc'),
-      limit(200) // Límite de seguridad para no saturar
-    );
+      // Usamos Timestamp de Firestore para comparar contra el campo serverTimestamp
+      const haceSieteDias = Timestamp.fromMillis(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-    this.unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ ...doc.data() as Comanda, id: doc.id }));
-      this.comandasHistoricas.set(data);
-      this.cargando.set(false);
-    }, (err) => {
-      console.error('Error cargando métricas:', err);
-      this.error.set('No se pudieron cargar las métricas históricas.');
-      this.cargando.set(false);
+      const q = query(
+        comandasRef,
+        where('estado', '==', 'PAGADO'),
+        where('fechaCreacion', '>=', haceSieteDias),
+        orderBy('fechaCreacion', 'desc'),
+        limit(200)
+      );
+
+      this.unsubscribe = onSnapshot(q, (snapshot) => {
+        const data = snapshot.docs.map(doc => {
+          const raw = doc.data() as any;
+          return {
+            ...raw,
+            id: doc.id,
+            fechaCreacion: raw.fechaCreacion?.toMillis?.() ?? raw.fechaCreacion ?? 0,
+            fechaActualizacion: raw.fechaActualizacion?.toMillis?.() ?? raw.fechaActualizacion ?? 0,
+          } as Comanda;
+        });
+        this.comandasHistoricas.set(data);
+        this.cargando.set(false);
+      }, (err) => {
+        console.error('Error cargando métricas:', err);
+        this.error.set('No se pudieron cargar las métricas históricas.');
+        this.cargando.set(false);
+      });
     });
   }
 

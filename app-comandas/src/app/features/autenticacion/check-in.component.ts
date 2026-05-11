@@ -1,11 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Auth, signInAnonymously } from '@angular/fire/auth';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { UserSettingsService } from '../../core/services/user-settings.service';
-import { MesaAccessValidatorService } from '../../core/services/mesa-access-validator.service';
 import { PerfilUsuario } from '../../core/models/perfil-usuario.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { Alergeno } from '../../core/models/producto.model';
@@ -17,7 +16,7 @@ import { Alergeno } from '../../core/models/producto.model';
   templateUrl: './check-in.component.html',
   styleUrls: ['./check-in.component.scss']
 })
-export class CheckInComponent {
+export class CheckInComponent implements OnInit {
   mesaDesdeQR = false;
 
   todosLosAlergenos: { id: Alergeno; nombre: string; emoji: string }[] = [
@@ -39,7 +38,6 @@ export class CheckInComponent {
 
   private router = inject(Router);
   private usuarioService = inject(UsuarioService);
-  private mesaValidator = inject(MesaAccessValidatorService);
   public settings = inject(UserSettingsService);
   private auth = inject(Auth);
   private route = inject(ActivatedRoute);
@@ -58,7 +56,9 @@ export class CheckInComponent {
       this.mesaDesdeQR = true;
       this.formulario.get('mesaId')?.disable();
     }
+  }
 
+  ngOnInit(): void {
     if (this.usuarioService.estaAutenticado()) {
       this.router.navigate(['/carta']);
     }
@@ -86,14 +86,14 @@ export class CheckInComponent {
     const alergenosSeleccionados = valores.alergenosSeleccionados ?? [];
 
     try {
-      const credential = await signInAnonymously(this.auth);
-      const uid = credential.user.uid;
-
-      if (!this.mesaValidator.isValidMesaAccess(uid, mesaId)) {
-        this.formulario.get('mesaId')?.setErrors({ mesaInvalida: true });
-        this.formulario.get('mesaId')?.markAsTouched();
-        return;
-      }
+      // Reutilizamos el usuario anónimo existente si Firebase ya lo tiene
+      // en sesión. Crear uno nuevo en cada check-in dejaría huérfanas las
+      // comandas previas (la regla idCliente == uid dejaría de coincidir).
+      const usuarioActual = this.auth.currentUser;
+      const usuario = usuarioActual?.isAnonymous
+        ? usuarioActual
+        : (await signInAnonymously(this.auth)).user;
+      const uid = usuario.uid;
 
       const nuevoPerfil: PerfilUsuario = {
         uid,

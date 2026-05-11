@@ -104,7 +104,7 @@
       <span class="etiqueta">{{ 'COMANDAS.TOTAL' | translate }} ({{ comandaService.totalArticulos() }} ítems)</span>
       <span class="total" aria-live="polite">{{ comandaService.subtotalComanda() | currency:'EUR':'symbol':'1.2-2':'es' }}</span>
     </div>
-    <button class="btn-confirmar" (click)="confirmarPedido()" [attr.aria-label]="'COMANDAS.CONFIRMAR_ARIA' | translate">
+    <button class="btn-confirmar" (click)="confirmarPedido()" [disabled]="enviandoComanda()" [attr.aria-label]="'COMANDAS.CONFIRMAR_ARIA' | translate">
       <span>{{ 'COMANDAS.CONFIRMAR' | translate }}</span>
       <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
     </button>

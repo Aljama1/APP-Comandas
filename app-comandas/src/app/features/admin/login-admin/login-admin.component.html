@@ -7,7 +7,7 @@
           <ion-icon [name]="rolAdmin === 'cocina' ? 'flame-outline' : 'lock-closed-outline'"></ion-icon>
         </div>
         <h1>Trace Admin</h1>
-        <p>{{ rolAdmin === 'cocina' ? 'Panel de Producción y Cocina' : 'Panel de Gestión de Barra y Caja' }}</p>
+        <p>{{ rolAdmin === 'cocina' ? 'Panel de Producción y Cocina' : rolAdmin === 'barra' ? 'Panel de Gestión de Barra y Caja' : 'Panel de Administración' }}</p>
       </div>
 
       <!-- Formulario -->

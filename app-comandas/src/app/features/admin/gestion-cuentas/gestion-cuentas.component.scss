@@ -180,6 +180,7 @@ ion-content.dashboard-bg {
   background: var(--dash-panel);
   width: 100%;
   max-width: 650px;
+  max-height: calc(100vh - 40px);
   border-radius: 28px;
   border: 1px solid var(--dash-border);
   overflow: hidden;
@@ -222,7 +223,8 @@ ion-content.dashboard-bg {
 
 .modal-body {
   padding: 32px;
-  max-height: 40vh;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   
   &::-webkit-scrollbar { width: 6px; }

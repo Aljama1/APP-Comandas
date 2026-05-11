@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
@@ -29,6 +29,9 @@ export class ResumenComandaComponent {
   private loadingController = inject(LoadingController);
   private router = inject(Router);
   private translate = inject(TranslateService);
+
+  // Evita doble envío por doble click o latencia de red.
+  public enviandoComanda = signal(false);
 
   constructor() {  }
 
@@ -78,8 +81,9 @@ export class ResumenComandaComponent {
   }
 
   async confirmarPedido() {
+    if (this.enviandoComanda()) return;
     const perfil = this.usuarioService.perfil();
-    
+
     if (!perfil || !perfil.uid) {
       const errorAlert = await this.alertController.create({
         header: this.translate.instant('COMANDAS.ERROR_SESION_TITULO'),
@@ -110,6 +114,7 @@ export class ResumenComandaComponent {
   }
 
   private async enviarAFirestore(perfil: any) {
+    this.enviandoComanda.set(true);
     const loading = await this.loadingController.create({
       message: this.translate.instant('COMANDAS.ENVIANDO'),
       mode: 'ios'
@@ -121,6 +126,7 @@ export class ResumenComandaComponent {
         idMesa: perfil.mesaId.toString(),
         idCliente: perfil.uid,
         nombreCliente: perfil.nombre,
+        alergenosUsuario: perfil.alergenos ?? [],
         lineasComanda: this.comandaService.lineasComanda(),
         estado: 'PENDIENTE',
         precioTotal: this.comandaService.subtotalComanda(),
@@ -130,6 +136,7 @@ export class ResumenComandaComponent {
 
       await this.firestoreService.enviarComanda(nuevaComanda);
       this.audioService.reproducirExito();
+      this.comandaService.vaciarComanda();
       await loading.dismiss();
 
       const successAlert = await this.alertController.create({
@@ -139,7 +146,6 @@ export class ResumenComandaComponent {
         buttons: [{
           text: this.translate.instant('COMANDAS.VER_SEGUIMIENTO'),
           handler: () => {
-            this.comandaService.vaciarComanda();
             this.router.navigateByUrl('/seguimiento-comanda');
           }
         }]
@@ -154,9 +160,8 @@ export class ResumenComandaComponent {
         buttons: [this.translate.instant('ACCIONES.ACEPTAR')]
       });
       await errorAlert.present();
+    } finally {
+      this.enviandoComanda.set(false);
     }
   }
 }
-// Forzando recompilación
-
-

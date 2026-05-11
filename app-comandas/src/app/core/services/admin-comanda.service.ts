@@ -164,8 +164,13 @@ export class AdminComandaService implements OnDestroy {
 
           const pedidos: Comanda[] = [];
           snapshot.forEach((docSnap) => {
-            const data = docSnap.data() as Comanda;
-            data.id = docSnap.id;
+            const raw = docSnap.data() as any;
+            const data: Comanda = {
+              ...raw,
+              id: docSnap.id,
+              fechaCreacion: raw.fechaCreacion?.toMillis?.() ?? raw.fechaCreacion ?? 0,
+              fechaActualizacion: raw.fechaActualizacion?.toMillis?.() ?? raw.fechaActualizacion ?? 0,
+            };
             pedidos.push(data);
           });
           // Actualiza la señal maestra, Angular recalcula automáticamente pendientes y enCurso

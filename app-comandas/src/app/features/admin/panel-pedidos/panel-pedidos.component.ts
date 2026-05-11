@@ -18,9 +18,6 @@ import {
 import { DatePipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
-import { Turno } from '../../../core/models/producto.model';
-import { LocalizedString, Translatable } from '../../../core/models/common.model';
-
 import { AdminConfigBarComponent } from '../../../shared/components/admin-config-bar/admin-config-bar.component';
 
 @Component({
@@ -283,38 +280,9 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  async cobrarMesa(idMesa: string) {
-    const alert = await this.alertCtrl.create({
-      header: this.translate.instant('ALERTAS.COBRAR_TITULO', { mesa: idMesa }),
-      message: this.translate.instant('ALERTAS.COBRAR_MENSAJE', { mesa: idMesa }),
-      buttons: [
-        { text: this.translate.instant('ACCIONES.CANCELAR'), role: 'cancel' },
-        {
-          text: this.translate.instant('ALERTAS.CONFIRMAR_PAGO'),
-          handler: async () => {
-            const loading = await this.loadingCtrl.create({ message: '...' });
-            await loading.present();
-            try {
-              await this.adminComandaService.finalizarCuentaMesa(idMesa);
-              this.cerrarTimeline(); // Si estaba el modal abierto, lo cerramos
-              
-              const toast = await this.toastCtrl.create({
-                message: this.translate.instant('TOASTS.MESA_COBRADA', { mesa: idMesa }),
-                duration: 2000,
-                color: 'success',
-                icon: 'wallet-outline'
-              });
-              await toast.present();
-            } catch (error) {
-              console.error(error);
-            } finally {
-              await loading.dismiss();
-            }
-          }
-        }
-      ]
-    });
-    await alert.present();
+  cobrarMesa(idMesa: string) {
+    this.cerrarTimeline();
+    this.router.navigate(['/admin/cuentas']);
   }
 
   irACocina() { this.router.navigate(['/admin/cocina']); }

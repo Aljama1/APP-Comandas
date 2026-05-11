@@ -4,6 +4,7 @@ import { IonicModule, ToastController, LoadingController } from '@ionic/angular'
 import { Router } from '@angular/router';
 import { AdminComandaService } from '../../../core/services/admin-comanda.service';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
+import { getTranslation } from '../../../core/models/common.model';
 import { addIcons } from 'ionicons';
 import { flameOutline, timeOutline, warningOutline, restaurantOutline, checkmarkDoneOutline, logOutOutline, cafeOutline, beerOutline, gridOutline } from 'ionicons/icons';
 
@@ -145,6 +146,10 @@ export class VistaCocinaComponent implements OnInit, OnDestroy {
 
   actualizarFiltro(event: any) {
     this.filtroMesa.set(event.detail.value || '');
+  }
+
+  getNombreProducto(nombreProducto: any): string {
+    return getTranslation(nombreProducto, 'es');
   }
 
   cerrarSesion() {

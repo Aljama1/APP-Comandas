@@ -134,12 +134,14 @@
                 <li class="item-checklist" [class.tachado]="linea.preparado"
                   (click)="alternarPlatoPreparado(comanda.id, linea.originalIndex, !!linea.preparado)">
                   <div class="checkbox-visual">
-                    <ion-icon name="checkmark-outline" *ngIf="linea.preparado"></ion-icon>
+                    @if (linea.preparado) {
+                      <ion-icon name="checkmark-outline"></ion-icon>
+                    }
                   </div>
                   <div class="contenido-plato">
                     <div class="linea-superior">
                       <span class="cantidad">{{ linea.cantidad }}x</span>
-                      <span class="nombre">{{ linea.nombreProducto }}</span>
+                      <span class="nombre">{{ getNombreProducto(linea.nombreProducto) }}</span>
                     </div>
                     @if (linea.notasEspeciales) {
                     <div class="nota-ticket">

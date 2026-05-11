@@ -6,6 +6,7 @@ import { AdminComandaService } from '../../../core/services/admin-comanda.servic
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { addIcons } from 'ionicons';
 import { beerOutline, timeOutline, warningOutline, cafeOutline, checkmarkDoneOutline, logOutOutline, flameOutline, checkmarkOutline, gridOutline } from 'ionicons/icons';
+import { getTranslation } from '../../../core/models/common.model';
 
 /**
  * VistaBarra - Panel KDS (Kitchen Display System) adaptado para el Barman.
@@ -35,6 +36,8 @@ export class VistaBarraComponent implements OnInit, OnDestroy {
   private toastCtrl = inject(ToastController);
   private loadingCtrl = inject(LoadingController);
  
+  protected readonly getTranslation = getTranslation;
+
   private intervalId: any;
   ahora = signal<number>(Date.now());
   filtroMesa = signal<string>('');
@@ -113,7 +116,7 @@ export class VistaBarraComponent implements OnInit, OnDestroy {
     const loading = await this.loadingCtrl.create({ message: 'Despachando...', spinner: 'crescent' });
     await loading.present();
     try {
-      await this.adminComandaService.actualizarEstado(idComanda, 'LISTO');
+      await this.adminComandaService.actualizarEstado(idComanda, 'SERVIDO');
       await loading.dismiss();
       const toast = await this.toastCtrl.create({
         message: '¡Mesa despachada!',

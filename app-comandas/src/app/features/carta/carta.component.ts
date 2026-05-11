@@ -69,21 +69,21 @@ export class CartaComponent {
   // Copia editable de alérgenos en el modal de settings
   alergenosEditados = signal<string[]>([]);
 
-  readonly todosLosAlergenos = [
-    { id: 'gluten',       nombre: 'ALERGENOS.gluten',    emoji: '🌾' },
-    { id: 'lactosa',      nombre: 'ALERGENOS.lactosa',   emoji: '🥛' },
-    { id: 'frutos-secos', nombre: 'ALERGENOS.frutos-secos',  emoji: '🌰' },
-    { id: 'huevo',        nombre: 'ALERGENOS.huevo',     emoji: '🥚' },
-    { id: 'pescado',      nombre: 'ALERGENOS.pescado',   emoji: '🐟' },
-    { id: 'crustaceos',   nombre: 'ALERGENOS.crustaceos',emoji: '🦞' },
-    { id: 'cacahuetes',   nombre: 'ALERGENOS.cacahuetes',emoji: '🥜' },
-    { id: 'soja',         nombre: 'ALERGENOS.soja',      emoji: '🫘' },
-    { id: 'apio',         nombre: 'ALERGENOS.apio',      emoji: '🥬' },
-    { id: 'mostaza',      nombre: 'ALERGENOS.mostaza',   emoji: '🌭' },
-    { id: 'sesamo',       nombre: 'ALERGENOS.sesamo',    emoji: '🥯' },
-    { id: 'sulfitos',     nombre: 'ALERGENOS.sulfitos',  emoji: '🍷' },
-    { id: 'altramuces',   nombre: 'ALERGENOS.altramuces',emoji: '🌼' },
-    { id: 'moluscos',     nombre: 'ALERGENOS.moluscos',  emoji: '🦪' },
+  readonly todosLosAlergenos: { id: Alergeno; nombre: string; emoji: string }[] = [
+    { id: 'Gluten',                         nombre: 'ALERGENOS.gluten',        emoji: '🌾' },
+    { id: 'Lácteos',                        nombre: 'ALERGENOS.lactosa',       emoji: '🥛' },
+    { id: 'Frutos de cáscara',              nombre: 'ALERGENOS.frutos-secos',  emoji: '🌰' },
+    { id: 'Huevos',                         nombre: 'ALERGENOS.huevo',         emoji: '🥚' },
+    { id: 'Pescado',                        nombre: 'ALERGENOS.pescado',       emoji: '🐟' },
+    { id: 'Crustáceos',                     nombre: 'ALERGENOS.crustaceos',    emoji: '🦞' },
+    { id: 'Cacahuetes',                     nombre: 'ALERGENOS.cacahuetes',    emoji: '🥜' },
+    { id: 'Soja',                           nombre: 'ALERGENOS.soja',          emoji: '🫘' },
+    { id: 'Apio',                           nombre: 'ALERGENOS.apio',          emoji: '🥬' },
+    { id: 'Mostaza',                        nombre: 'ALERGENOS.mostaza',       emoji: '🌭' },
+    { id: 'Granos de sésamo',               nombre: 'ALERGENOS.sesamo',        emoji: '🥯' },
+    { id: 'Dióxido de azufre y sulfitos',   nombre: 'ALERGENOS.sulfitos',      emoji: '🍷' },
+    { id: 'Altramuces',                     nombre: 'ALERGENOS.altramuces',    emoji: '🌼' },
+    { id: 'Moluscos',                       nombre: 'ALERGENOS.moluscos',      emoji: '🦪' },
   ];
 
   // Feedback visual al añadir
@@ -256,15 +256,21 @@ export class CartaComponent {
   irAMisPedidos() { this.router.navigateByUrl('/seguimiento-comanda'); }
 
   async confirmarCierreSesion() {
+    // Si el cliente tiene pedidos activos en cocina, avisamos explícitamente
+    // de que la comanda seguirá su curso pero perderá el seguimiento.
+    const hayPedidosActivos = this.firestoreService.tieneComandas();
     const alert = await this.alertController.create({
       header: this.translate.instant('CARTA.CERRAR_SESION_TITULO'),
-      message: this.translate.instant('CARTA.CERRAR_SESION_MSG'),
+      message: hayPedidosActivos
+        ? this.translate.instant('CARTA.CERRAR_SESION_MSG_PEDIDOS') || 'Tienes pedidos activos en cocina. Si cierras sesión, no podrás seguir su estado desde este dispositivo. ¿Continuar?'
+        : this.translate.instant('CARTA.CERRAR_SESION_MSG'),
       mode: 'ios',
       buttons: [
         { text: this.translate.instant('ACCIONES.CANCELAR'), role: 'cancel' },
         {
           text: this.translate.instant('SEGUIMIENTO.CERRAR_SESION'), role: 'destructive',
           handler: () => {
+            this.firestoreService.limpiarSeguimiento();
             this.usuarioService.limpiarPerfil();
             this.comandaService.vaciarComanda();
             this.router.navigateByUrl('/check-in');
