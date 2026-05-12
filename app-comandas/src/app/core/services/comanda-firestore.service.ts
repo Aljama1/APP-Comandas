@@ -2,7 +2,7 @@ import { Injectable, inject, signal, computed, OnDestroy, NgZone, runInInjection
 import {
   Firestore,
   collection, addDoc, query, where, orderBy,
-  onSnapshot, serverTimestamp, Unsubscribe
+  onSnapshot, serverTimestamp, Unsubscribe, doc, updateDoc
 } from '@angular/fire/firestore';
 import { Comanda, EstadoComanda } from '../models/comanda.model';
 import { MesaAccessValidatorService } from './mesa-access-validator.service';
@@ -214,6 +214,21 @@ export class ComandaFirestoreService implements OnDestroy {
         }
       );
     });
+  }
+
+  /**
+   * Marca todas las comandas activas de la mesa como "solicita cuenta".
+   * El cliente sólo puede establecer solicitaCuenta=true — los campos
+   * críticos quedan frozen por las Firestore Rules.
+   */
+  public async pedirCuenta(): Promise<void> {
+    const activas = this.todasLasComandas().filter(
+      c => c.id && c.estado !== 'PAGADO' && c.estado !== 'CANCELADO'
+    );
+    if (!activas.length) return;
+    await Promise.all(
+      activas.map(c => updateDoc(doc(this.firestore, `comandas/${c.id}`), { solicitaCuenta: true }))
+    );
   }
 
   /**

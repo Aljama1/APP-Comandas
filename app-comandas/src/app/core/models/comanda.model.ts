@@ -27,5 +27,6 @@ export interface Comanda {
   precioTotal: number;         // Sumatorio total
   fechaCreacion: number;       // Timestamp (Date.now())
   fechaActualizacion: number;  // Timestamp
+  solicitaCuenta?: boolean;    // El cliente ha pedido la cuenta
 }
 

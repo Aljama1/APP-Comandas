@@ -111,6 +111,15 @@ export class AdminComandaService implements OnDestroy {
     return Array.from(mapa.values());
   });
 
+  // Mesas que han pulsado "Pedir la cuenta" desde la app del cliente
+  mesasConSolicitudCuenta = computed(() => {
+    const mesas = new Set<string>();
+    this._comandasActivas().forEach(c => {
+      if (c.solicitaCuenta === true) mesas.add(c.idMesa);
+    });
+    return Array.from(mesas).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  });
+
   hayPedidosPendientes = computed(() => this.pedidosPendientes().length > 0);
   hayPedidosEnCurso = computed(() => this.pedidosEnCurso().length > 0);
   hayPedidosHistorial = computed(() => this.pedidosHistorial().length > 0);

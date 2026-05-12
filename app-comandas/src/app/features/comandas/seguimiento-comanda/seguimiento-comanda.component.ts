@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
@@ -33,6 +33,7 @@ export class SeguimientoComandaComponent {
   public todasLasComandas = this.firestoreService.todasLasComandas;
   public error = this.firestoreService.errorEscucha;
   public todasServidas = this.firestoreService.todasServidas;
+  public enviandoPedirCuenta = signal(false);
 
   // ── Computed ─────────────────────────────────────────────────────
   public nombreCliente = computed(() => this.usuarioService.perfil()?.nombre ?? 'Cliente');
@@ -40,6 +41,11 @@ export class SeguimientoComandaComponent {
   /** Total acumulado de todas las rondas */
   public totalAcumulado = computed(() =>
     this.todasLasComandas().reduce((sum, c) => sum + c.precioTotal, 0)
+  );
+
+  /** True si al menos una comanda activa tiene solicitaCuenta=true */
+  public cuentaSolicitada = computed(() =>
+    this.todasLasComandas().some(c => c.solicitaCuenta === true)
   );
 
   /** Número total de items en todas las rondas */
@@ -77,6 +83,16 @@ export class SeguimientoComandaComponent {
 
   nuevaRonda(): void {
     this.router.navigateByUrl('/carta');
+  }
+
+  async pedirCuenta(): Promise<void> {
+    if (this.enviandoPedirCuenta() || this.cuentaSolicitada()) return;
+    this.enviandoPedirCuenta.set(true);
+    try {
+      await this.firestoreService.pedirCuenta();
+    } finally {
+      this.enviandoPedirCuenta.set(false);
+    }
   }
 
   cerrarSesion(): void {

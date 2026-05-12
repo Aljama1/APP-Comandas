@@ -324,6 +324,34 @@ $danger:   #ff3b30;
   &:active { transform: scale(0.97); }
 }
 
+.btn-pedir-cuenta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px;
+  border: 2px solid rgba(0, 122, 255, 0.35);
+  border-radius: 16px;
+  background: rgba(0, 122, 255, 0.06);
+  color: #007aff;
+  font-family: $font-body;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.2s, border-color 0.2s;
+
+  ion-icon { font-size: 20px; }
+  &:active:not(:disabled) { transform: scale(0.97); }
+  &:disabled { opacity: 0.7; cursor: default; }
+
+  &--solicitada {
+    border-color: rgba(52, 199, 89, 0.4);
+    background: rgba(52, 199, 89, 0.08);
+    color: $ready;
+  }
+}
+
 .btn-cerrar {
   display: flex;
   align-items: center;
@@ -382,6 +410,9 @@ $danger:   #ff3b30;
   }
 
   .btn-nueva-ronda { background: #fff; color: #000; box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05); }
+  .btn-pedir-cuenta { border-color: rgba(0, 122, 255, 0.4); background: rgba(0, 122, 255, 0.1); color: #4da6ff;
+    &--solicitada { border-color: rgba(52, 199, 89, 0.4); background: rgba(52, 199, 89, 0.08); color: $ready; }
+  }
   .btn-cerrar { border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.5); }
 
   .empty-state { color: rgba(255, 255, 255, 0.3); }

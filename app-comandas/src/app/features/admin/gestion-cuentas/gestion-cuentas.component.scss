@@ -224,15 +224,13 @@ ion-content.dashboard-bg {
 .modal-body {
   padding: 18px 28px 8px;
   flex: 0 1 auto;
-  min-height: 0;
-  overflow: hidden;
+  min-height: 120px;
+  max-height: 30vh;
+  overflow-y: auto;
 
-  // Cuando el usuario pulsa "Mostrar cuenta completa" permitimos scroll
-  // interno sólo en esta sección, dejando resumen y footer siempre visibles.
+  // Al expandir se amplía el área de scroll para cuentas largas
   &.modal-body--expandido {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    max-height: 38vh;
+    max-height: 50vh;
   }
 
   &::-webkit-scrollbar { width: 6px; }

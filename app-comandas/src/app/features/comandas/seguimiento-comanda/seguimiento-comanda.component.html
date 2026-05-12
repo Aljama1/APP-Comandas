@@ -106,6 +106,18 @@
         <span>{{ 'SEGUIMIENTO.PEDIR_OTRA' | translate }}</span>
       </button>
 
+      @if (totalAcumulado() > 0 && !todasServidas()) {
+        <button
+          class="btn-pedir-cuenta"
+          [class.btn-pedir-cuenta--solicitada]="cuentaSolicitada()"
+          [disabled]="cuentaSolicitada() || enviandoPedirCuenta()"
+          (click)="pedirCuenta()"
+          aria-label="Pedir la cuenta">
+          <ion-icon [name]="cuentaSolicitada() ? 'checkmark-circle-outline' : 'receipt-outline'" aria-hidden="true"></ion-icon>
+          <span>{{ cuentaSolicitada() ? 'Cuenta solicitada — espera al camarero' : 'Pedir la cuenta' }}</span>
+        </button>
+      }
+
       @if (todasServidas()) {
         <button class="btn-cerrar" (click)="cerrarSesion()" [attr.aria-label]="'SEGUIMIENTO.CERRAR_SESION' | translate">
           <ion-icon name="home-outline" aria-hidden="true"></ion-icon>

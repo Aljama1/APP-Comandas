@@ -13,7 +13,7 @@ import {
   fastFoodOutline, flashOutline, searchOutline, cafeOutline, closeCircleOutline,
   notificationsOutline, walletOutline, listOutline, createOutline, chevronDownOutline,
   chevronUpOutline, warningOutline, checkmarkCircle, trendingUpOutline, peopleOutline,
-  analyticsOutline, checkmarkOutline, documentTextOutline, languageOutline
+  analyticsOutline, checkmarkOutline, documentTextOutline, languageOutline, receiptOutline
 } from 'ionicons/icons';
 import { DatePipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -177,7 +177,7 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
       fastFoodOutline, flashOutline, searchOutline, cafeOutline, closeCircleOutline,
       notificationsOutline, walletOutline, listOutline, createOutline, chevronDownOutline,
       chevronUpOutline, warningOutline, checkmarkCircle, trendingUpOutline, peopleOutline,
-      analyticsOutline, checkmarkOutline, documentTextOutline, languageOutline
+      analyticsOutline, checkmarkOutline, documentTextOutline, languageOutline, receiptOutline
     });
   }
 

@@ -30,16 +30,25 @@ service cloud.firestore {
         isCliente() && resource.data.idCliente == request.auth.uid
       );
 
-      allow update: if isStaff() || (
-        isCliente()
-        && resource.data.idCliente == request.auth.uid
-        && resource.data.estado == 'PENDIENTE'
-        && request.resource.data.idCliente == resource.data.idCliente
-        && request.resource.data.idMesa == resource.data.idMesa
-        && request.resource.data.estado == resource.data.estado
-        && request.resource.data.precioTotal == resource.data.precioTotal
-        && request.resource.data.lineasComanda == resource.data.lineasComanda
-      );
+      allow update: if isStaff()
+        // Cliente puede añadir notas en estado PENDIENTE sin tocar campos críticos
+        || (isCliente()
+            && resource.data.idCliente == request.auth.uid
+            && resource.data.estado == 'PENDIENTE'
+            && request.resource.data.idCliente == resource.data.idCliente
+            && request.resource.data.idMesa == resource.data.idMesa
+            && request.resource.data.estado == resource.data.estado
+            && request.resource.data.precioTotal == resource.data.precioTotal
+            && request.resource.data.lineasComanda == resource.data.lineasComanda)
+        // Cliente puede marcar solicitaCuenta=true en cualquier estado de SU comanda
+        || (isCliente()
+            && resource.data.idCliente == request.auth.uid
+            && request.resource.data.solicitaCuenta == true
+            && request.resource.data.idCliente == resource.data.idCliente
+            && request.resource.data.idMesa == resource.data.idMesa
+            && request.resource.data.estado == resource.data.estado
+            && request.resource.data.precioTotal == resource.data.precioTotal
+            && request.resource.data.lineasComanda == resource.data.lineasComanda);
 
       allow delete: if isStaff();
     }

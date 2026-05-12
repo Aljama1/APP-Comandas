@@ -87,9 +87,21 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════
-         ALERTAS DE SALA
+         ALERTAS DE SALA — solicitudes de cuenta
     ════════════════════════════════════════════════════ -->
-
+    @if (adminComandaService.mesasConSolicitudCuenta().length > 0) {
+      <div class="alertas-sala">
+        @for (mesa of adminComandaService.mesasConSolicitudCuenta(); track mesa) {
+          <div class="alerta-cuenta">
+            <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
+            <span>Mesa <strong>{{ mesa }}</strong> pide la cuenta</span>
+            <button class="btn-alerta-cobrar" (click)="irACuentas()">
+              Cobrar
+            </button>
+          </div>
+        }
+      </div>
+    }
 
     <!-- ═══════════════════════════════════════════════════
          KANBAN GRID
