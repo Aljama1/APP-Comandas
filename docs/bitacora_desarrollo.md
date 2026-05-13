@@ -288,4 +288,29 @@ Eliminar inconsistencias lógicas detectadas en la auditoría de código previas
 
 ---
 
+---
+
+## Fase 13 — Distribución nativa Android y cierre de proyecto (2026-05-13)
+
+**Commit de referencia:** `6f37ec0`.
+
+### Objetivo
+Empaquetar la aplicación como APK nativo Android e instalarla en un dispositivo físico para la grabación del vídeo de defensa del TFG. Cerrar el repositorio con lint limpio, build de producción sin errores y 28/28 tests passing.
+
+### Decisiones técnicas
+- **Capacitor 8 como puente nativo.** La misma base de código Angular sirve para PWA y APK Android sin duplicar lógica. `capacitor.config.ts` configura `appId: com.trace.comandas`, ajustes de `StatusBar` (color corporativo, fondo oscuro) y `Keyboard` (resizes body, no scroll).
+- **Icono personalizado generado programáticamente.** Script Node con `sharp` genera una imagen SVG con la "T" blanca sobre fondo `#1a1a1a` en 1024×1024. `@capacitor/assets` la distribuye a todos los tamaños `mipmap-*` de Android (92 assets) y al `favicon.png` de la PWA.
+- **`manifest.webmanifest` actualizado.** `name: "Trace - Gestión de Comandas"`, `background_color: #0b0e14`, `theme_color: #0061ff`, modo `standalone`, `orientation: portrait`.
+- **iOS soportado por arquitectura, no compilado.** Capacitor gestiona el proyecto iOS, pero la compilación de un IPA requiere Mac con Xcode — limitación de entorno de desarrollo, no del proyecto.
+- **Limpieza del repositorio.** `.gitignore` actualizado para excluir artefactos de herramientas auxiliares (`node_modules/` raíz, scripts generadores, `resources/`, `docs/documentacion/`). Source control queda en 0 cambios pendientes.
+
+### Evidencia
+- `app-comandas/android/` (proyecto Capacitor Android completo)
+- `app-comandas/capacitor.config.ts`
+- `app-comandas/public/manifest.webmanifest`
+- `app-comandas/ngsw-config.json`
+- `app-comandas/src/assets/icon/favicon.png`
+
+---
+
 *Última actualización: 13 de mayo de 2026. El estado de la documentación se gestiona en `roadmap_diario.md` (cronograma) y `arquitectura_proyecto.md` (ADR estructurales).*

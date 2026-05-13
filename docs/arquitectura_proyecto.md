@@ -128,10 +128,12 @@ Para mejorar la experiencia de usuario y la resiliencia de la aplicación:
 *   Cambio de idioma en caliente sin recarga, con `currency` y `date` adaptándose al locale activo.
 *   Cobertura total del literal en B2C y B2B (incluyendo facturación y reportes Z).
 
-## 9. PWA y Modo Offline
+## 9. PWA, Modo Offline y Distribución Nativa (Capacitor)
 *   Integración de `@angular/service-worker` para cachear recursos estáticos.
-*   Instalable en iOS y Android desde el propio navegador.
-*   Mitiga problemas en restaurantes con redes Wi-Fi inestables.
+*   Instalable como PWA en iOS y Android directamente desde el navegador (sin app store).
+*   Compilable como **APK nativo Android** mediante Capacitor 8 (`appId: com.trace.comandas`), con icono personalizado, configuración de StatusBar y Keyboard nativa. La misma base de código Angular sirve para la web, la PWA y la app nativa.
+*   La arquitectura soporta iOS; la compilación para iPhone requiere un Mac con Xcode.
+*   Mitiga problemas en restaurantes con redes Wi-Fi inestables gracias al service worker.
 
 ---
 

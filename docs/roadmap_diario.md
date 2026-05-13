@@ -11,7 +11,7 @@ Cada fase se ha diseñado siguiendo criterios académicos, promoviendo la resili
 
 ---
 
-## Resumen del Estado Actual (12 de mayo de 2026)
+## Resumen del Estado Actual (13 de mayo de 2026)
 
 | Fase | Nombre | Ventana temporal | Estado |
 |------|--------|------------------|--------|
@@ -26,7 +26,8 @@ Cada fase se ha diseñado siguiendo criterios académicos, promoviendo la resili
 | 8 | Gestión de la Carta Avanzada (Backoffice) | 2026-05-07 | ✅ Completada |
 | 9 | Analítica, Stock y Generador QR | 2026-05-09 | ✅ Completada |
 | 10 | Auditoría, Seguridad y PWA | 2026-05-09 → 2026-05-10 | ✅ Completada |
-| 11 | Facturación Veri\*factu y Endurecimiento Fiscal | 2026-05-09 → 2026-05-12 | 🟡 En consolidación |
+| 11 | Facturación Veri\*factu y Endurecimiento Fiscal | 2026-05-09 → 2026-05-12 | ✅ Completada |
+| 12 | Distribución Nativa Android y Cierre de Proyecto | 2026-05-13 | ✅ Completada |
 
 ---
 
@@ -191,6 +192,21 @@ Cada fase se ha diseñado siguiendo criterios académicos, promoviendo la resili
 - **Commit de referencia:** `edd91b7`.
 
 > **Estado.** La Fase 11 entrega los mecanismos técnicos exigidos por la normativa en modo demostración. La conexión productiva con los servicios de la AEAT (certificado de representante, alta como obligado tributario, QR oficial) queda como línea de trabajo futuro en [`trabajo_futuro.md`](trabajo_futuro.md).
+
+---
+
+## Fase 12 — Distribución Nativa Android y Cierre de Proyecto (2026-05-13)
+
+### Hito 12.1: Empaquetado Android con Capacitor
+- **Propuesta:** Compilar la aplicación como APK nativo Android e instalarla en un dispositivo físico para la grabación del vídeo de defensa.
+- **Artefactos:** Proyecto Android generado en `android/` (`appId: com.trace.comandas`), configuración de StatusBar y Keyboard nativos en `capacitor.config.ts`, `ngsw-config.json` para Service Worker.
+- **Commit de referencia:** `6f37ec0`.
+
+### Hito 12.2: Icono personalizado y manifest PWA
+- **Artefactos:** Icono "T blanca sobre fondo oscuro" generado programáticamente con `sharp` y distribuido a todos los tamaños Android (`mipmap-*`) con `@capacitor/assets`; mismo icono aplicado al `favicon.png` de la PWA; `manifest.webmanifest` actualizado con nombre, colores corporativos y modo `standalone`.
+
+### Hito 12.3: Cierre documental y de repositorio
+- **Artefactos:** `.gitignore` actualizado para excluir artefactos de herramientas auxiliares y `docs/documentacion/` (entregada al tutor por separado); 28/28 tests passing, lint limpio, build de producción sin errores; guion y presentación de vídeo preparados.
 
 ---
 
