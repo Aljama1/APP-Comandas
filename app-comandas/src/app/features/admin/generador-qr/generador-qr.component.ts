@@ -15,6 +15,11 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class GeneradorQrComponent {
   numeroMesa = signal<number>(1);
+
+  setNumeroMesa(value: number | null) {
+    const n = Math.max(1, Math.round(Number(value) || 1));
+    this.numeroMesa.set(n);
+  }
   manualUrl = signal<string>(''); // Para sobreescribir la URL en producción
   
   // URL base: usa la manual si existe, si no, la del navegador

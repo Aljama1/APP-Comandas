@@ -51,8 +51,9 @@ export class CheckInComponent implements OnInit {
 
   constructor() {
     const mesa = this.route.snapshot.queryParamMap.get('mesa');
-    if (mesa) {
-      this.formulario.patchValue({ mesaId: Number(mesa) });
+    const mesaNum = Number(mesa);
+    if (mesa && Number.isInteger(mesaNum) && mesaNum >= 1) {
+      this.formulario.patchValue({ mesaId: mesaNum });
       this.mesaDesdeQR = true;
       this.formulario.get('mesaId')?.disable();
     }

@@ -24,7 +24,7 @@
           <label>{{ 'QR.NUMERO_MESA' | translate }}</label>
           <div class="number-input-wrapper">
             <button class="btn-adjust" (click)="numeroMesa.set(numeroMesa() - 1)" [disabled]="numeroMesa() <= 1">-</button>
-            <input type="number" [ngModel]="numeroMesa()" (ngModelChange)="numeroMesa.set($event)" class="table-input" min="1" max="999">
+            <input type="number" [ngModel]="numeroMesa()" (ngModelChange)="setNumeroMesa($event)" class="table-input" min="1" max="999">
             <button class="btn-adjust" (click)="numeroMesa.set(numeroMesa() + 1)">+</button>
           </div>
         </div>
