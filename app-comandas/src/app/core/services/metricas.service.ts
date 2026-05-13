@@ -1,17 +1,17 @@
 import { Injectable, inject, signal, computed, runInInjectionContext, EnvironmentInjector } from '@angular/core';
 import { Firestore, collection, query, where, orderBy, limit, onSnapshot, Unsubscribe, Timestamp } from '@angular/fire/firestore';
 import { Comanda } from '../models/comanda.model';
-import { getTranslation } from '../models/common.model';
+import { Translatable, getTranslation } from '../models/common.model';
 
 export interface KpiGeneral {
   totalVentas: number;
   totalComandas: number;
-  tiempoMedioServicio: number; // en minutos
+  tiempoMedioEstancia: number; // en minutos
   ticketMedio: number;
 }
 
 export interface ProductoVendido {
-  nombre: string;
+  nombre: Translatable;
   cantidad: number;
   totalRecaudado: number;
 }
@@ -33,7 +33,7 @@ export class MetricasService {
   // 1. KPI Generales
   public kpis = computed<KpiGeneral>(() => {
     const lista = this.comandasHistoricas();
-    if (lista.length === 0) return { totalVentas: 0, totalComandas: 0, tiempoMedioServicio: 0, ticketMedio: 0 };
+    if (lista.length === 0) return { totalVentas: 0, totalComandas: 0, tiempoMedioEstancia: 0, ticketMedio: 0 };
 
     const totalVentas = lista.reduce((acc, c) => acc + (c.precioTotal || 0), 0);
     const totalComandas = lista.length;
@@ -48,7 +48,7 @@ export class MetricasService {
     const tiempoMedio = comandasConTiempo.length > 0 ? sumaTiempos / comandasConTiempo.length : 0;
     const ticketMedio = totalVentas / totalComandas;
 
-    return { totalVentas, totalComandas, tiempoMedioServicio: tiempoMedio, ticketMedio };
+    return { totalVentas, totalComandas, tiempoMedioEstancia: tiempoMedio, ticketMedio };
   });
 
   // 2. Ranking de Productos
@@ -63,7 +63,7 @@ export class MetricasService {
           existente.totalRecaudado += l.subtotal;
         } else {
           mapa.set(l.idProducto, {
-            nombre: getTranslation(l.nombreProducto, 'es'),
+            nombre: l.nombreProducto,
             cantidad: l.cantidad,
             totalRecaudado: l.subtotal
           });

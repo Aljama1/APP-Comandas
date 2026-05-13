@@ -7,36 +7,36 @@
     <header class="top-bar glass-panel">
       <div class="brand">
         <div class="logo-pulse"></div>
-        <h1>Panel de Cocina</h1>
+        <h1>{{ 'ADMIN_PANEL.PANEL_COCINA' | translate }}</h1>
       </div>
 
       <div class="search-container">
-        <ion-searchbar placeholder="Filtrar por Mesa..." type="number" animated="true"
+        <ion-searchbar [placeholder]="'ADMIN_PANEL.BUSCAR_MESA' | translate" type="number" animated="true"
           (ionInput)="actualizarFiltro($event)" class="custom-search">
         </ion-searchbar>
       </div>
 
       <div class="actions">
         <div class="termometro glass-panel">
-          <span class="term-badge" [class.saturado]="adminComandaService.pedidosBarra().length >= 5" title="Raciones en Barra">
+          <span class="term-badge" [class.saturado]="adminComandaService.pedidosBarra().length >= 5" [title]="'ADMIN_PANEL.RACIONES_BARRA' | translate">
             <ion-icon name="beer-outline"></ion-icon> {{ statsKPI().platosBarra }}
           </span>
-          <span class="term-badge" [class.saturado]="adminComandaService.pedidosCocina().length >= 5" title="Raciones en Cocina">
+          <span class="term-badge" [class.saturado]="adminComandaService.pedidosCocina().length >= 5" [title]="'ADMIN_PANEL.RACIONES_COCINA' | translate">
             <ion-icon name="flame-outline"></ion-icon> {{ statsKPI().platosCocina }}
           </span>
         </div>
 
         <ion-button (click)="mostrarHistorial.set(true)" class="btn-historial">
           <ion-icon name="list-outline" slot="start"></ion-icon>
-          <span class="btn-text">Historial</span>
+          <span class="btn-text">{{ 'ADMIN_PANEL.HISTORIAL' | translate }}</span>
         </ion-button>
         <ion-button (click)="irABarra()" class="btn-neon-blue">
           <ion-icon name="beer-outline" slot="start"></ion-icon>
-          <span class="btn-text">Barra</span>
+          <span class="btn-text">{{ 'ADMIN_PANEL.BARRA' | translate }}</span>
         </ion-button>
         <ion-button (click)="irASala()" class="btn-neon-green">
           <ion-icon name="grid-outline" slot="start"></ion-icon>
-          <span class="btn-text">Sala</span>
+          <span class="btn-text">{{ 'ADMIN_PANEL.SALA' | translate }}</span>
         </ion-button>
 
         <app-admin-config-bar></app-admin-config-bar>
@@ -50,15 +50,15 @@
          ============================================== -->
     <div class="columna-produccion">
       <div class="cabecera-fija">
-        <h2 class="titulo-columna">Platos</h2>
-        <p class="subtitulo">Resumen de raciones a preparar</p>
+        <h2 class="titulo-columna">{{ 'ADMIN_PANEL.PLATOS' | translate }}</h2>
+        <p class="subtitulo">{{ 'ADMIN_PANEL.RESUMEN_RACIONES' | translate }}</p>
       </div>
 
       <div class="area-scroll">
         @if (productosAgregadosCocinaFiltrados().length === 0) {
         <div class="estado-vacio">
           <ion-icon name="restaurant-outline"></ion-icon>
-          <p>Producción limpia</p>
+          <p>{{ 'ADMIN_PANEL.PRODUCCION_LIMPIA' | translate }}</p>
         </div>
         }
 
@@ -67,7 +67,7 @@
           <div class="tarjeta-producto-agrupado">
             <div class="cabecera-agrupada">
               <span class="cantidad-gigante">{{ producto.cantidadTotal }}x</span>
-              <h3 class="nombre-plato">{{ producto.nombre }}</h3>
+              <h3 class="nombre-plato">{{ producto.nombre | translateContent }}</h3>
             </div>
 
             <div class="info-mesas">
@@ -95,15 +95,15 @@
          ============================================== -->
     <div class="columna-tickets">
       <div class="cabecera-fija">
-        <h2 class="titulo-columna">Mesas</h2>
-        <p class="subtitulo">Tacha los platos y la mesa saldrá automáticamente al completar</p>
+        <h2 class="titulo-columna">{{ 'ADMIN_PANEL.MESAS' | translate }}</h2>
+        <p class="subtitulo">{{ 'ADMIN_PANEL.TACHA_PLATOS' | translate }}</p>
       </div>
 
       <div class="area-scroll">
         @if (pedidosCocinaFiltrados().length === 0) {
         <div class="estado-vacio">
           <ion-icon name="cafe-outline"></ion-icon>
-          <p>No hay tickets pendientes</p>
+          <p>{{ 'ADMIN_PANEL.SIN_TICKETS' | translate }}</p>
         </div>
         }
 
@@ -117,7 +117,7 @@
 
             <div class="ticket-header">
               <div class="info-principal">
-                <span class="mesa">MESA {{ comanda.idMesa }}</span>
+                <span class="mesa">{{ 'ADMIN_PANEL.MESA_MAYUS' | translate }} {{ comanda.idMesa }}</span>
                 <span class="cliente">{{ comanda.nombreCliente }}</span>
               </div>
               <div class="tiempo-espera">
@@ -130,7 +130,7 @@
             <div class="alerta-seguridad">
               <ion-icon name="warning-outline"></ion-icon>
               <div class="texto-alerta">
-                <strong>¡ALERGIAS!</strong>
+                <strong>{{ 'ADMIN_PANEL.ALERGIAS' | translate }}</strong>
                 <p>{{ comanda.alergenosUsuario | translateAlergenos | uppercase }}</p>
               </div>
             </div>
@@ -149,7 +149,7 @@
                   <div class="contenido-plato">
                     <div class="linea-superior">
                       <span class="cantidad">{{ linea.cantidad }}x</span>
-                      <span class="nombre">{{ getNombreProducto(linea.nombreProducto) }}</span>
+                      <span class="nombre">{{ linea.nombreProducto | translateContent }}</span>
                     </div>
                     @if (linea.notasEspeciales) {
                     <div class="nota-ticket">
@@ -165,7 +165,7 @@
             <!-- En caso de que haya algún error o se quiera forzar la salida -->
             <div class="ticket-footer">
               <ion-button fill="clear" size="small" color="medium" (click)="marcharComandaManual(comanda.id)">
-                Forzar salida manual
+                {{ 'ADMIN_PANEL.FORZAR_SALIDA' | translate }}
               </ion-button>
             </div>
 
@@ -185,7 +185,7 @@
       <div class="historial-header">
         <div class="historial-titulo">
           <ion-icon name="list-outline"></ion-icon>
-          <h2>Historial de Comandas</h2>
+          <h2>{{ 'ADMIN_PANEL.HISTORIAL_COMANDAS' | translate }}</h2>
         </div>
         <ion-button fill="clear" color="light" (click)="mostrarHistorial.set(false)">
           <ion-icon name="close-outline" slot="icon-only"></ion-icon>
@@ -196,14 +196,14 @@
         @if (adminComandaService.pedidosHistorial().length === 0) {
           <div class="historial-vacio">
             <ion-icon name="time-outline"></ion-icon>
-            <p>Sin comandas servidas aún</p>
+            <p>{{ 'ADMIN_PANEL.SIN_COMANDAS_SERVIDAS' | translate }}</p>
           </div>
         }
         @for (comanda of adminComandaService.pedidosHistorial(); track comanda.id) {
           <div class="historial-item">
             <div class="historial-item-header">
               <div class="historial-mesa-info">
-                <span class="h-mesa">MESA {{ comanda.idMesa }}</span>
+                <span class="h-mesa">{{ 'ADMIN_PANEL.MESA_MAYUS' | translate }} {{ comanda.idMesa }}</span>
                 <span class="h-cliente">{{ comanda.nombreCliente }}</span>
               </div>
               <div class="historial-meta">
@@ -215,7 +215,7 @@
               @for (linea of comanda.lineasComanda; track linea.idProducto + $index) {
                 <li>
                   <span class="hp-qty">{{ linea.cantidad }}x</span>
-                  <span class="hp-nom">{{ getNombreProducto(linea.nombreProducto) }}</span>
+                  <span class="hp-nom">{{ linea.nombreProducto | translateContent }}</span>
                   @if (linea.notasEspeciales) {
                     <span class="hp-nota">{{ linea.notasEspeciales }}</span>
                   }

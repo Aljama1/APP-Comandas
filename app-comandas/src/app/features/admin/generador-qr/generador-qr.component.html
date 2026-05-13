@@ -1,44 +1,52 @@
 <ion-content class="dashboard-bg">
   <div class="dashboard-container">
-    <header class="top-bar glass-panel animar-entrada-abajo">
-      <div class="brand">
-        <div class="logo-pulse"></div>
-        <h1>Generador de QR</h1>
+    <header class="top-bar animar-entrada-abajo">
+      <div class="header-left">
+        <button class="btn-back" (click)="volver()">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <div class="title-group">
+          <h1>{{ 'QR.TITULO' | translate }}</h1>
+          <span class="subtitle">{{ 'QR.SUBTITULO' | translate }}</span>
+        </div>
       </div>
+      <div class="header-right"></div>
     </header>
 
     <div class="content-wrapper animar-entrada-arriba">
       <div class="config-panel glass-panel">
         <div class="panel-header">
           <ion-icon name="qr-code-outline"></ion-icon>
-          <h2>Configurar Mesa</h2>
+          <h2>{{ 'QR.CONFIGURAR_MESA' | translate }}</h2>
         </div>
         
         <div class="input-group">
-          <label>Número de Mesa</label>
+          <label>{{ 'QR.NUMERO_MESA' | translate }}</label>
           <div class="number-input-wrapper">
             <button class="btn-adjust" (click)="numeroMesa.set(numeroMesa() - 1)" [disabled]="numeroMesa() <= 1">-</button>
-            <input type="number" [ngModel]="numeroMesa()" (ngModelChange)="numeroMesa.set($event)" class="table-input" min="1">
+            <input type="number" [ngModel]="numeroMesa()" (ngModelChange)="numeroMesa.set($event)" class="table-input" min="1" max="999">
             <button class="btn-adjust" (click)="numeroMesa.set(numeroMesa() + 1)">+</button>
           </div>
         </div>
 
         <div class="input-group">
-          <label>URL Base (opcional para producción)</label>
+          <label>{{ 'QR.URL_BASE' | translate }}</label>
           <div class="url-input-wrapper">
             <input type="text" 
                    [ngModel]="manualUrl()" 
                    (ngModelChange)="manualUrl.set($event)" 
                    placeholder="Ej: https://mi-app.com"
                    class="url-override-input">
-            <small *ngIf="!manualUrl()" class="hint">Usando URL actual: {{baseUrl()}}</small>
+            @if (!manualUrl()) {
+              <small class="hint">{{ 'QR.USANDO_URL' | translate }} {{baseUrl()}}</small>
+            }
           </div>
         </div>
 
         <div class="link-preview">
           <div class="link-label">
             <ion-icon name="link-outline"></ion-icon>
-            <span>URL de destino:</span>
+            <span>{{ 'QR.URL_DESTINO' | translate }}</span>
           </div>
           <div class="link-box" (click)="copiarEnlace()">
             <span class="url-text">{{ urlDestino() }}</span>
@@ -51,18 +59,18 @@
         <div class="qr-container print-area">
           <div class="qr-header">
             <div class="brand-mini">TRACE<span class="dot">.</span></div>
-            <div class="table-badge">MESA {{ numeroMesa() }}</div>
+            <div class="table-badge">{{ 'ADMIN_PANEL.MESA_MAYUS' | translate }} {{ numeroMesa() }}</div>
           </div>
           <div class="qr-image-wrapper">
             <img [src]="qrImageUrl()" alt="QR Mesa {{numeroMesa()}}" class="qr-image">
-            <div class="scan-text">ESCANEA PARA PEDIR</div>
+            <div class="scan-text">{{ 'QR.ESCANEA' | translate }}</div>
           </div>
         </div>
 
         <div class="actions-panel hide-on-print">
           <button class="btn-print" (click)="imprimirQr()">
             <ion-icon name="print-outline"></ion-icon>
-            <span>Imprimir QR</span>
+            <span>{{ 'QR.IMPRIMIR' | translate }}</span>
           </button>
         </div>
       </div>

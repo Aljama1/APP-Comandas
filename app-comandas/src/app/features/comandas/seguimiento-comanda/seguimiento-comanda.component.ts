@@ -1,6 +1,6 @@
 import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ComandaFirestoreService } from '../../../core/services/comanda-firestore.service';
 import { ComandaService } from '../../../core/services/comanda.service';
@@ -28,6 +28,7 @@ export class SeguimientoComandaComponent {
   private comandaService = inject(ComandaService);
   private usuarioService = inject(UsuarioService);
   private router = inject(Router);
+  private toastCtrl = inject(ToastController);
 
   // ── Signals del servicio ─────────────────────────────────────────
   public todasLasComandas = this.firestoreService.todasLasComandas;
@@ -64,7 +65,6 @@ export class SeguimientoComandaComponent {
     const configs: Record<EstadoComanda, { icono: string; etiqueta: string; clase: string }> = {
       'PENDIENTE':   { icono: 'time-outline',              etiqueta: 'ESTADOS.PENDIENTE',    clase: 'estado--pendiente' },
       'PREPARANDO':  { icono: 'flame-outline',             etiqueta: 'ESTADOS.PREPARANDO',   clase: 'estado--preparando' },
-      'LISTO':       { icono: 'checkmark-circle-outline',  etiqueta: 'ESTADOS.LISTO',        clase: 'estado--listo' },
       'SERVIDO':     { icono: 'restaurant-outline',        etiqueta: 'ESTADOS.SERVIDO',      clase: 'estado--servido' },
       'PAGADO':      { icono: 'checkmark-circle-outline',  etiqueta: 'ESTADOS.PAGADO',       clase: 'estado--servido' },
       'CANCELADO':   { icono: 'alert-circle-outline',      etiqueta: 'ESTADOS.CANCELADO',    clase: 'estado--cancelado' },
@@ -90,6 +90,22 @@ export class SeguimientoComandaComponent {
     this.enviandoPedirCuenta.set(true);
     try {
       await this.firestoreService.pedirCuenta();
+      const toast = await this.toastCtrl.create({
+        message: 'Cuenta solicitada. Un camarero pasará en breve.',
+        duration: 3500,
+        position: 'top',
+        color: 'success',
+        icon: 'checkmark-circle-outline',
+      });
+      await toast.present();
+    } catch {
+      const toast = await this.toastCtrl.create({
+        message: 'No se ha podido enviar la solicitud. Inténtalo de nuevo.',
+        duration: 3500,
+        position: 'top',
+        color: 'danger',
+      });
+      await toast.present();
     } finally {
       this.enviandoPedirCuenta.set(false);
     }

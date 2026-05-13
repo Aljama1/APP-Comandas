@@ -1,7 +1,7 @@
 import { DestinoReceptor, VarianteProducto, OpcionModificador } from './producto.model';
 import { Translatable } from './common.model';
 
-export type EstadoComanda = 'PENDIENTE' | 'PREPARANDO' | 'LISTO' | 'SERVIDO' | 'PAGADO' | 'CANCELADO';
+export type EstadoComanda = 'PENDIENTE' | 'PREPARANDO' | 'SERVIDO' | 'PAGADO' | 'CANCELADO';
 
 export interface LineaComanda {
   idProducto: string;          // Referencia al ID del producto
@@ -25,8 +25,8 @@ export interface Comanda {
   lineasComanda: LineaComanda[]; // Matriz con los platos solicitados
   estado: EstadoComanda;       // Estado de flujo de vida de la comanda en cocina
   precioTotal: number;         // Sumatorio total
-  fechaCreacion: number;       // Timestamp (Date.now())
-  fechaActualizacion: number;  // Timestamp
+  fechaCreacion: number;       // Timestamp en ms. Lo asigna el servidor (serverTimestamp) al crear; al leer se normaliza con toMillis().
+  fechaActualizacion: number;  // Timestamp en ms. Lo asigna el servidor (serverTimestamp) en cada update.
   solicitaCuenta?: boolean;    // El cliente ha pedido la cuenta
 }
 

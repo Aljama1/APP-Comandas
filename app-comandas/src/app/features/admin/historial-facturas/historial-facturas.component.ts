@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IonicModule, LoadingController } from '@ionic/angular';
@@ -28,6 +28,7 @@ export class HistorialFacturasComponent implements OnInit {
   private loadingCtrl = inject(LoadingController);
   private ticketService = inject(TicketService);
   private translate = inject(TranslateService);
+  private envInjector = inject(EnvironmentInjector);
 
   facturas: FacturaLegal[] = [];
   cargando = true;
@@ -53,12 +54,14 @@ export class HistorialFacturasComponent implements OnInit {
   async cargarFacturas() {
     this.cargando = true;
     try {
-      const q = query(
-        collection(this.firestore, 'facturas'),
-        orderBy('fechaExpedicion', 'desc'),
-        limit(50)
-      );
-      const snapshot = await getDocs(q);
+      const snapshot = await runInInjectionContext(this.envInjector, () => {
+        const q = query(
+          collection(this.firestore, 'facturas'),
+          orderBy('fechaExpedicion', 'desc'),
+          limit(50)
+        );
+        return getDocs(q);
+      });
       this.facturas = snapshot.docs.map(doc => doc.data() as FacturaLegal);
     } catch (error) {
       console.error('Error al cargar facturas', error);

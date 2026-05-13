@@ -1,0 +1,27 @@
+# Líneas de trabajo futuro
+
+El alcance del presente TFG se ha cerrado de forma consciente en torno al flujo end-to-end de comanda, cocina, caja y facturación demo, dejando fuera seis líneas que se consideran extensiones naturales del sistema. Las tres primeras son las identificadas durante el desarrollo del proyecto; las tres siguientes se han incorporado tras la auditoría documental previa a la defensa para reflejar las exigencias normativas y operativas que un despliegue comercial habría de satisfacer.
+
+## 1. Integración productiva con Veri\*factu (AEAT)
+
+La implementación actual reproduce fielmente los mecanismos exigidos por el Real Decreto 1007/2023 —encadenamiento criptográfico SHA-256, numeración correlativa inalterable y append-only a nivel de reglas de seguridad de Firestore—, pero opera en modo demostración. La conexión real con los servicios de la AEAT requiere un certificado electrónico de representante, alta como obligado tributario en el entorno de pruebas de la Agencia y la generación del QR oficial conforme a la especificación técnica publicada. Estos requisitos son administrativos y fiscales, no técnicos, y exceden tanto el contexto académico como el plazo del proyecto; abordarlos implicaría disponer de un restaurante real como sujeto pasivo, condición que no se cumple en un TFG.
+
+## 2. Pasarela de pago integrada en la cuenta del cliente
+
+La gestión de cuentas, la generación de facturas y la trazabilidad de líneas servidas están ya resueltas, de modo que el sistema queda preparado para incorporar un proveedor de pagos (Stripe, Redsys o equivalente) sobre el documento de cuenta ya existente. No se ha abordado en esta entrega porque el cobro electrónico exige un contrato mercantil con el adquirente, credenciales de comercio reales y cumplimiento de PCI-DSS en el manejo de datos de tarjeta, requisitos que no son satisfacibles desde un entorno académico sin un negocio que respalde la operativa.
+
+## 3. Modo multi-restaurante (multi-tenant)
+
+El modelo de datos actual presupone una única organización, lo que ha permitido centrarse en la corrección funcional del dominio (comandas, alérgenos, turnos, facturación) sin diluir el esfuerzo en infraestructura. Escalar a multi-tenant implicaría rediseñar las colecciones de Firestore bajo una jerarquía por organización, reescribir las reglas de seguridad para aislar tenants y diferenciar roles administrativos a dos niveles (plataforma y restaurante). Es una evolución arquitectónica de calado que se ha pospuesto deliberadamente: introducirla antes de validar el dominio habría incrementado el riesgo del proyecto sin aportar valor académico adicional.
+
+## 4. Auditoría formal de accesibilidad WCAG 2.2 AA → AAA
+
+El producto se ha desarrollado aplicando buenas prácticas de accesibilidad (atributos `aria-label`, roles semánticos, `aria-live` en regiones dinámicas, atención al contraste en el sistema de tematización), pero no se ha sometido a una auditoría sistemática frente al estándar WCAG 2.2. La Directiva UE 2019/882 (European Accessibility Act, plenamente aplicable desde junio de 2025) exige conformidad demostrable para servicios digitales orientados al consumidor. Las acciones pendientes son: (i) ejecutar una auditoría automatizada con `axe-core` y `Lighthouse Accessibility` sobre cada ruta del producto; (ii) cerrar los hallazgos hasta certificar nivel AA; (iii) elaborar la declaración de accesibilidad pública conforme al modelo de la Generalitat / Ministerio de Asuntos Económicos; (iv) explorar el salto a nivel AAA en los flujos críticos (check-in del comensal y emisión de factura). El esfuerzo se ha cuantificado en torno a dos sprints de trabajo concentrado.
+
+## 5. Integración con TPV físicos e impresoras térmicas (ESC/POS)
+
+La factura emitida en modo demostración se genera como documento PDF en cliente, lo que es adecuado para defensa académica pero no para uso de mostrador, donde el ticket impreso al instante es operativo y exigido por el cliente. La integración con impresoras térmicas de mercado (Epson TM-T20, Star TSP100 y compatibles) implica adoptar el protocolo **ESC/POS** sobre transporte USB, Bluetooth o red. En entornos web esto requiere acudir a la `Web USB API`/`Web Bluetooth` o, en el modo nativo de Capacitor, a un *plugin* específico. Adicionalmente, la apertura del cajón portamonedas se vehicula por el mismo bus de impresora. La línea se extiende a la integración con TPV (datáfono) mediante el adquirente que se contrate en su momento, complementando la línea 2 (pasarela de pago).
+
+## 6. Observabilidad, monitorización y políticas de SLA
+
+El proyecto carece todavía de instrumentación de producción: errores no capturados, latencia real de `onSnapshot` bajo carga, tasa de éxito de la emisión de factura, *crash rate* en dispositivos del staff. Para un despliegue comercial responsable, se ha identificado la siguiente pila mínima: (i) **Sentry** (o equivalente) para captura de excepciones JavaScript y trazado de errores en producción, con muestreo por *release*; (ii) **Firebase Performance Monitoring** y **Firebase Crashlytics** para métricas nativas y *crash rate* del empaquetado Capacitor; (iii) panel ligero de KPIs operativos sobre los datos ya existentes en `MetricasService`; (iv) política de SLA por severidad (P1 < 4 h, P2 < 24 h, P3 < 5 días hábiles) y procedimiento de *postmortem*. La instrumentación condicionada al consentimiento del usuario para cumplir el principio RGPD de minimización.

@@ -106,7 +106,7 @@ export class ComandaFirestoreService implements OnDestroy {
    *
    * @throws Error si la validación de seguridad falla
    */
-  async enviarComanda(comanda: Comanda): Promise<string> {
+  async enviarComanda(comanda: Omit<Comanda, 'fechaCreacion' | 'fechaActualizacion'>): Promise<string> {
     // Validación de seguridad: verificar que uid y mesaId sean válidos
     const mesaIdNumero = Number(comanda.idMesa);
     if (!this.mesaValidator.isValidMesaAccess(comanda.idCliente, mesaIdNumero)) {

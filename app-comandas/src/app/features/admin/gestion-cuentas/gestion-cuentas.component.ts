@@ -14,7 +14,8 @@ import {
   walletOutline, searchOutline, closeOutline, trashOutline, createOutline,
   checkmarkOutline, restaurantOutline, timeOutline, cardOutline, cashOutline,
   qrCodeOutline, trendingUpOutline, gridOutline, shieldCheckmarkOutline, arrowBackOutline,
-  addCircleOutline, removeCircleOutline, informationCircleOutline
+  addCircleOutline, removeCircleOutline, informationCircleOutline,
+  chevronDownOutline, chevronUpOutline, alarmOutline, hourglassOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -43,6 +44,7 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
   // este umbral, se muestra un botón "+ Ver N más" que expande la lista.
   readonly UMBRAL_PRODUCTOS_VISIBLES = 4;
   mostrarTodosProductos = signal<boolean>(false);
+  resumenExpandido = signal<boolean>(false);
 
   get idiomaActual(): string {
     return this.translate.currentLang || this.translate.defaultLang || 'es';
@@ -50,11 +52,21 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
 
   // Modal de edición de línea
   lineaEnEdicion = signal<{ index: number; linea: any } | null>(null);
-  cantidadEditando = signal<number>(0);
-  precioEditando = signal<number>(0);
+  cantidadEditando = 0;
+  precioEditando = 0;
   
   // Estado de procesamiento de factura
   isProcessing = signal<boolean>(false);
+
+  // ── Detección de cuentas antiguas ───────────────────────────────
+  // Umbrales (en minutos) a partir de los cuales una cuenta se considera
+  // que lleva "mucho tiempo" abierta. Disparan feedback visual progresivo.
+  readonly UMBRAL_AVISO_MIN = 45;
+  readonly UMBRAL_URGENTE_MIN = 75;
+
+  // Reloj interno: tick cada 30s para refrescar los tiempos sin recargar.
+  ahora = signal<number>(Date.now());
+  private tickerHandle: any = null;
 
   // Todas las comandas activas (no pagadas): incluye SERVIDO porque ya preparado ≠ cobrado
   todasLasComandas = computed(() => {
@@ -66,34 +78,63 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
 
   // Agrupar por mesa
   mesasAgrupadas = computed(() => {
-    const mapa = new Map<string, { comanda: Comanda; productos: any[]; total: number; clientes: Set<string>; ultimaActualizacion: number }>();
-    
+    const mapa = new Map<string, { comanda: Comanda; productos: any[]; total: number; clientes: Set<string>; ultimaActualizacion: number; fechaApertura: number }>();
+
     this.todasLasComandas().forEach(comanda => {
       const existente = mapa.get(comanda.idMesa);
       if (existente) {
         existente.productos.push(...comanda.lineasComanda);
-        existente.total += comanda.precioTotal;
+        existente.total += (comanda.precioTotal ?? 0);
         existente.clientes.add(comanda.nombreCliente);
         existente.ultimaActualizacion = Math.max(existente.ultimaActualizacion, comanda.fechaActualizacion);
+        if (comanda.fechaCreacion && (!existente.fechaApertura || comanda.fechaCreacion < existente.fechaApertura)) {
+          existente.fechaApertura = comanda.fechaCreacion;
+        }
       } else {
         mapa.set(comanda.idMesa, {
           comanda,
           productos: [...comanda.lineasComanda],
-          total: comanda.precioTotal,
+          total: comanda.precioTotal ?? 0,
           clientes: new Set([comanda.nombreCliente]),
-          ultimaActualizacion: comanda.fechaActualizacion
+          ultimaActualizacion: comanda.fechaActualizacion,
+          fechaApertura: comanda.fechaCreacion || comanda.fechaActualizacion
         });
       }
     });
 
+    const now = this.ahora();
     return Array.from(mapa.entries())
-      .map(([idMesa, data]) => ({
-        idMesa,
-        ...data,
-        nombresClientes: Array.from(data.clientes).join(', ')
-      }))
-      .sort((a, b) => a.idMesa.localeCompare(b.idMesa, undefined, { numeric: true }));
+      .map(([idMesa, data]) => {
+        const minutosAbierta = data.fechaApertura
+          ? Math.max(0, Math.floor((now - data.fechaApertura) / 60000))
+          : 0;
+        const nivelAntiguedad: 'ok' | 'aviso' | 'urgente' =
+          minutosAbierta >= this.UMBRAL_URGENTE_MIN ? 'urgente'
+          : minutosAbierta >= this.UMBRAL_AVISO_MIN ? 'aviso'
+          : 'ok';
+        return {
+          idMesa,
+          ...data,
+          nombresClientes: Array.from(data.clientes).join(', '),
+          minutosAbierta,
+          nivelAntiguedad
+        };
+      })
+      .sort((a, b) => {
+        // Primero las urgentes, luego las de aviso, luego por número de mesa
+        const peso = (n: string) => n === 'urgente' ? 0 : n === 'aviso' ? 1 : 2;
+        const dif = peso(a.nivelAntiguedad) - peso(b.nivelAntiguedad);
+        if (dif !== 0) return dif;
+        return a.idMesa.localeCompare(b.idMesa, undefined, { numeric: true });
+      });
   });
+
+  formatearTiempoAbierta(minutos: number): string {
+    if (minutos < 60) return `${minutos} min`;
+    const h = Math.floor(minutos / 60);
+    const m = minutos % 60;
+    return m === 0 ? `${h} h` : `${h} h ${m} min`;
+  }
 
   // Filtrado por búsqueda
   mesasFiltradas = computed(() => {
@@ -106,16 +147,23 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
     addIcons({
       walletOutline, searchOutline, closeOutline, trashOutline, createOutline,
       checkmarkOutline, restaurantOutline, timeOutline, cardOutline, cashOutline, qrCodeOutline, trendingUpOutline, gridOutline, shieldCheckmarkOutline, arrowBackOutline,
-      addCircleOutline, removeCircleOutline, informationCircleOutline
+      addCircleOutline, removeCircleOutline, informationCircleOutline,
+      chevronDownOutline, chevronUpOutline, alarmOutline, hourglassOutline
     });
   }
 
   ngOnInit() {
     this.adminComandaService.iniciarEscuchaPedidosEntrantes();
+    this.ahora.set(Date.now());
+    this.tickerHandle = setInterval(() => this.ahora.set(Date.now()), 30_000);
   }
 
   ngOnDestroy() {
     this.adminComandaService.detenerEscucha();
+    if (this.tickerHandle) {
+      clearInterval(this.tickerHandle);
+      this.tickerHandle = null;
+    }
   }
 
   actualizarFiltro(event: any) {
@@ -131,10 +179,15 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
     this.mesaSeleccionada.set(null);
     this.lineaEnEdicion.set(null);
     this.mostrarTodosProductos.set(false);
+    this.resumenExpandido.set(false);
   }
 
   toggleMostrarTodos() {
     this.mostrarTodosProductos.update(v => !v);
+  }
+
+  toggleResumen() {
+    this.resumenExpandido.update(v => !v);
   }
 
   productosVisibles(): any[] {
@@ -184,13 +237,16 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
   iniciarEdicionLinea(linea: any, event: Event) {
     event.stopPropagation();
     this.lineaEnEdicion.set({ index: linea.indexComanda, linea });
-    this.cantidadEditando.set(linea.cantidad);
-    this.precioEditando.set(linea.precioUnitario);
+    this.cantidadEditando = linea.cantidad;
+    this.precioEditando = linea.precioUnitario;
   }
 
   cancelarEdicionLinea() {
     this.lineaEnEdicion.set(null);
   }
+
+  incrementarCantidad() { this.cantidadEditando++; }
+  decrementarCantidad() { if (this.cantidadEditando > 1) this.cantidadEditando--; }
 
   async confirmarEdicion() {
     const datosEdicion = this.lineaEnEdicion();
@@ -204,8 +260,8 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
 
     try {
       await this.adminComandaService.editarLineaComanda(comandaId, indexLinea, {
-        cantidad: this.cantidadEditando(),
-        precioUnitario: this.precioEditando()
+        cantidad: this.cantidadEditando,
+        precioUnitario: this.precioEditando
       });
       
       this.lineaEnEdicion.set(null);

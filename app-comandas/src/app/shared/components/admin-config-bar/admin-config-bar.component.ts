@@ -6,12 +6,12 @@ import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { UserSettingsService } from '../../../core/services/user-settings.service';
 import { ProductoAdminService } from '../../../core/services/producto-admin.service';
 import { updatePassword } from '@angular/fire/auth';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin-config-bar',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, TranslateModule],
   templateUrl: './admin-config-bar.component.html',
   styleUrls: ['./admin-config-bar.component.scss']
 })
@@ -25,8 +25,11 @@ export class AdminConfigBarComponent implements OnInit {
   private translate = inject(TranslateService);
   @ViewChild('configPopover') popover!: IonPopover;
 
-  // Ya no usamos isExpanded, usamos el popover de Ionic
-  
+  openPopover(event: Event) {
+    this.popover.event = event;
+    this.popover.present();
+  }
+
   constructor() {  }
 
   ngOnInit() {

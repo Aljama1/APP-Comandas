@@ -1,247 +1,291 @@
-# Bitácora de Desarrollo - TFG Comandas y Alérgenos
+# Bitácora de Desarrollo — TFG Trace
 
-Este documento registra los hitos y pasos clave en el desarrollo del proyecto.
+Esta bitácora registra los hitos de desarrollo del proyecto **Trace** organizados por fase. Cada fase se documenta con la plantilla académica *Objetivo · Decisiones técnicas · Alternativas descartadas · Riesgos · Evidencia*, de modo que cada decisión queda trazada al código y al historial de Git que la respalda.
 
-## Visión del Proyecto (B2C + B2B)
-Aplicación Híbrida con dos verticales:
-- **B2C (Cliente Final):** Autogestión de comandas en restaurantes con enfoque en la accesibilidad alimentaria y filtro de alérgenos. El comensal escanea el QR de su mesa, configura su perfil médico, consulta una carta filtrada y envía su pedido con seguimiento en tiempo real.
-- **B2B (Staff del Restaurante):** Panel de administración para que los trabajadores reciban, acepten y despachen pedidos, con separación inteligente entre **Barra** (bebidas) y **Cocina** (comidas).
+Las decisiones arquitectónicas estructurales se documentan en formato ADR en [`arquitectura_proyecto.md`](arquitectura_proyecto.md) (sección 0). El cronograma con fechas reales reconstruidas desde `git log` está disponible en [`roadmap_diario.md`](roadmap_diario.md) y como diagrama Gantt en [`diagramas.md`](diagramas.md).
 
 ---
 
-## Hitos del Proyecto
+## Visión global del producto
 
-### Semana 1: Configuración Inicial e Infraestructura (Completado)
-- **Definición del Roadmap**: Se estableció el plan de desarrollo, pruebas y documentación del TFG usando el enfoque "Client-First" (B2C).
-- **Preparación del Entorno (Clean Architecture)**: 
-    - Selección estricta de stack tecnológico: Angular 20 (100% Standalone) + Ionic 8 + Firebase.
-    - Estructura de dominios: `core`, `shared`, `features` (auth, menu, orders, tables).
-    - Creación de carpeta de documentación académica (`/docs`).
-- **Configuración Git**: Repositorio inicializado y saneado de forma formal para la revisión del profesorado.
+Aplicación híbrida con dos verticales sobre una misma base técnica:
 
-### Fase 1: Identidad y Acceso del Comensal (Completado)
-
-#### Día 1: Interfaz de Bienvenida y Perfil de Usuario (Completado)
-- **Hito**: Implementación del esqueleto del `CheckInComponent` como pieza central de la entrada del cliente.
-- **Detalles técnicos**:
-    - **Enfoque Standalone**: Uso de componentes independientes para optimizar el bundle y facilitar el testing unitario futuro.
-    - **Diseño UI/UX (Minimalist White)**: Implementación de un diseño limpio estilo Apple para reducir la carga cognitiva del cliente.
-    - **Reactividad Base**: Integración de `FormsModule` para capturar el `Nombre` y `MesaID` mediante "Two-way data binding".
-- **Decisión de Arquitectura**: Se optó por un diseño de "ruta limpia" (`/check-in`) como acceso único para el comensal tras el escaneo del código QR.
-
-#### Día 2: Vinculación del Estado Global (Completado)
-- **Hito**: Migración de datos locales a estado global persistente mediante **Angular Signals**.
-- **Detalles técnicos**:
-    - **UsuarioService**: Creación de un servicio centralizado en `core/services` para gestionar el perfil del comensal.
-    - **Reactividad Avanzada**: Uso de `signal` y `computed` para un flujo de datos unidireccional y eficiente.
-    - **Persistencia en Memoria**: El sistema ya "recuerda" quién es el cliente y qué alérgenos padece para las siguientes fases.
-
-### Fase 2: El Menú Digital Inteligente (Completado)
-
-#### Día 3: Maquetación de la Carta Base (Completado)
-- **Hito**: Desarrollo visual de `features/carta` con iteración sobre productos estáticos (Mock Data).
-- **Detalles técnicos**:
-    - **Renderizado Dinámico**: Implementación de interfaces `Producto` para tipado estricto.
-    - **Estilos Adaptativos**: Tarjetas responsivas enfocadas a la interacción móvil con animaciones de entrada (`fade-in`).
-
-#### Día 4: Motor Central de Filtrado de Alérgenos (Completado)
-- **Hito**: Integración cruzada del `UsuarioService` con `CartaService` y lógica de evaluación visual.
-- **Detalles técnicos**:
-    - **Evaluación Computada**: `computed()` evalúa la seguridad de cada producto (Alergias Usuario vs Alérgenos Producto).
-    - **UI/UX Segura (Bloqueo y Difuminado)**: Los productos letales no desaparecen (para evitar confusión e informar al cliente), pero se bloquea el botón de interacción, se aplica el filtro grayscale, y se añade un overlay informando de la incompatibilidad.
-
-### Fase 3: Autogestión del Carrito de la Comanda (Completado)
-
-#### Día 5: Lógica del Carrito Flotante (Completado)
-- **Hito**: Construcción del `ComandaService` y la interfaz visual interactiva de la bandeja flotante (`ResumenFlotanteComponent`).
-- **Detalles técnicos**:
-    - **Servicio Reactivo Puro**: Uso avanzado de `Signals` y `computed` en `comanda.service.ts` para tabular el carrito en memoria (Total de artículos y Subtotal) de manera instantánea y síncrona, desvinculando la base de datos hasta la Fase 4.
-    - **Modelado Robusto (Dominio)**: Refactorización de nomenclaturas anglosajonas/genéricas a jerga de dominio (`LineaComanda`).
-    - **Micro-interacciones y UI Premium**: Diseño del componente tipo "Píldora Flotante" con CSS `backdrop-filter` (Glassmorphism) oscuro, situado por encima de la vista de la Carta. La píldora se anima desde abajo únicamente cuando existen elementos seleccionados.
-    - **Cruce de Capas de Seguridad**: El botón de "Añadir a la comanda" sigue estrictamente las instrucciones del `UsuarioService` de la Fase 1 interconectado en la tabla de productos de la Fase 2, denegando el evento clic si está marcado como peligroso.
-
-#### Día 6: Pantalla de Resumen y Confirmación (Completado)
-- **Hito**: Construida la vista del carrito final (`ResumenComandaComponent`) donde se detalla la orden global, se confirman los totales, y se provee comunicación fluida de requerimientos a cocina.
-- **Detalles técnicos**:
-    - **Enrutamiento Estricto**: Integración del enrutador Angular (`Router.navigateByUrl`) en la píldora flotante y el botón del carrito para saltar a `/resumen-comanda`.
-    - **Manejo Interactivo (Componente Stepper)**: Uso del `ComandaService` para alterar las cantidades (`+`, `-`) dentro de las tarjetas individuales Glassmorphism. El botón "restar" muta dinámicamente a icono de "papelera" (`trash-outline`) cuando la cantidad es 1, indicando visualmente la eliminación.
-    - **Notas Especiales Nativas**: Inclusión de Ionic `AlertController` para solicitar al comensal notas de cocina usando el teclado nativo del SO (modo `ios`).
-    - **Estética Sleek Mesh**: Mantenimiento del patrón visual de gradientes con Glassmorphism para una percepción de producto alta gama.
-
-#### Día 7: Mejoras de UX, Organización y Accesibilidad (Completado)
-- **Hito**: Refinamiento integral de la interfaz de la Carta y del Resumen de Comanda tras validación funcional completa del flujo Check-in → Carta → Carrito → Resumen → Confirmación.
-- **Detalles técnicos**:
-    - **Agrupación por Categorías**: Implementación de un `computed()` adicional (`productosPorCategoria`) que organiza los productos del menú en secciones ordenadas (Entrantes, Principales, Postres, Bebidas, Especiales) mediante etiquetas de dominio con emojis representativos. Uso de la etiqueta semántica `<section>` con encabezados `<h2>` por grupo.
-    - **Feedback Visual al Añadir**: Se introdujo un `signal<string | null>` (`productoRecienAnadido`) que marca temporalmente (800ms) el producto recién añadido al carrito. El botón "+" muta visualmente a un check verde (`checkmark-outline`) con fondo `#34c759` y animación `scale(1.1)`, proporcionando retroalimentación inmediata al usuario.
-    - **Navegación Secundaria ("Seguir Pidiendo")**: Adición del botón `btn-seguir-pidiendo` en el Resumen de Comanda, con variante "Explorar la carta" en el estado vacío. Permite al comensal regresar a la carta sin depender exclusivamente del botón de retroceso del header.
-    - **Accesibilidad (ARIA)**: Incorporación exhaustiva de atributos `aria-label` en todos los botones interactivos (carrito, logout, stepper, notas, confirmar), `aria-hidden="true"` en iconos decorativos, roles semánticos (`role="list"`, `role="listitem"`, `role="alert"`, `role="status"`, `role="note"`, `role="group"`) y `aria-live="polite"` en cantidades y totales para lectores de pantalla. Uso de `<article>` como contenedor semántico de cada producto.
-    - **Internacionalización (Locale)**: Registro del locale español (`registerLocaleData(localeEs)`) en `main.ts` para el correcto funcionamiento del `CurrencyPipe` con formato `'es'` en toda la aplicación.
-    - **Funcionalidad de Cierre de Sesión**: Implementación de un botón de logout en la cabecera de la Carta con confirmación mediante `AlertController` (rol destructivo). Al confirmar, se vacía el perfil del usuario y el carrito, redirigiendo a `/check-in`.
-
-### Fase 4: Sincronización en Tiempo Real con la Nube (Completado)
-
-#### Día 8: Conexión de la Comanda a la Nube (Firestore) (Completado)
-- **Hito**: Integración del ecosistema Firebase para dotar a la aplicación de persistencia real y gestión de identidades.
-- **Detalles técnicos**:
-    - **Estrategia Híbrida de Auth**: Implementación de `signInAnonymously()` de Firebase Auth. Esta decisión de diseño garantiza una experiencia "Zero-Friction" para el comensal, eliminando la necesidad de registro previo pero dotando a cada pedido de un UID (Unique Identifier) para trazabilidad de seguridad.
-    - **Persistencia en Firestore**: Desarrollo del `ComandaFirestoreService`. Tras la confirmación del usuario, se transforma el objeto reactivo (Signal) en un documento NoSQL persistente, desvinculando la lógica de presentación de la capa de datos.
-    - **Refactorización de Interfaz de Envío**: Inclusión de estados de carga (`LoadingController`) y diálogos de confirmación asíncronos en el `ResumenComandaComponent` para mejorar el feedback visual durante la comunicación con el servidor.
-    - **Internacionalización de Activos**: Normalización del set de iconos de alérgenos (`gluten.svg`, `lactosa.svg`, `frutos-secos.svg`) garantizando consistencia semántica en todo el proyecto.
-
-### Corrección Transversal: Normalización de Nomenclatura (Completado)
-
-#### Auditoría y corrección de nomenclatura SCSS/HTML
-- **Hito**: Refactorización integral de toda la nomenclatura personalizada en archivos de estilos (SCSS) y plantillas (HTML) para cumplir con la convención establecida de **español de España** en todo el código no obligatorio del stack.
-- **Detalles técnicos**:
-    - **Alcance**: Se identificaron y corrigieron ~80+ casos distribuidos en 8 archivos (4 pares SCSS/HTML): `check-in`, `carta`, `resumen-comanda` y `resumen-flotante`.
-    - **Clases CSS**: Renombrado sistemático de todas las clases personalizadas (ej. `.allergies-section` → `.seccion-alergenos`, `.glass-panel` → `.panel-cristal`, `.product-card` → `.tarjeta-producto`, `.empty-state` → `.estado-vacio`).
-    - **Variables SCSS**: Normalización de variables compartidas (ej. `$title-font` → `$fuente-titulo`, `$primary-dark` → `$oscuro-primario`, `$bg-color` → `$color-fondo`).
-    - **Keyframes**: Traducción de animaciones (ej. `fadeIn` → `aparicionSuave`, `floatBackground` → `fondoFlotante`, `pulse` → `latido`, `slideUp` → `deslizarArriba`).
-    - **Comentarios**: Traducción de comentarios en inglés residuales dentro de los archivos SCSS.
-    - **Criterio**: Se respetó la nomenclatura obligatoria del stack (propiedades CSS nativas, directivas Angular, APIs de Ionic) manteniendo solo en inglés lo que el framework exige.
-
-#### Día 8 (cont.): Mejoras de Robustez y Experiencia de Usuario (Completado)
-- **Hito**: Refinamiento del flujo B2C con funcionalidades orientadas a la resiliencia de la sesión y la integración física (QR) con la plataforma digital.
-- **Detalles técnicos**:
-    - **Auto-llenado por QR (Mesas Inteligentes)**: Implementación de lectura de `queryParams` mediante `ActivatedRoute.snapshot` en el `CheckInComponent`. Si la URL contiene el parámetro `?mesa=X` (proveniente de un código QR físico), el campo de mesa se rellena automáticamente y se bloquea (`readonly`) con un indicador visual (`qr-badge`) que informa al usuario de que la mesa fue asignada por escaneo. Se optó por `snapshot` frente a `subscribe` para evitar suscripciones innecesarias y advertencias del contexto de inyección de Firebase.
-    - **Persistencia de Sesión (localStorage)**: Refactorización del `UsuarioService` y `ComandaService` para sincronizar el estado reactivo (Signals) con `localStorage`. Al inicializar cada servicio, se intenta recuperar el perfil y el carrito del almacenamiento local. Cada mutación (`establecerPerfil`, `agregarLinea`, `vaciarComanda`, etc.) persiste automáticamente el estado actualizado. Esto garantiza que un refresco accidental del navegador (F5) no destruya la sesión del comensal ni su carrito de productos.
-    - **Redirección Inteligente**: El `CheckInComponent` evalúa en su constructor si ya existe un perfil autenticado en memoria. De ser así, redirige automáticamente a `/carta`, eliminando la fricción de un doble check-in tras una recarga de página.
-
-#### Día 9: Seguimiento de Comanda en Tiempo Real (Completado)
-- **Hito**: Implementación completa del seguimiento en tiempo real de la comanda del cliente, cerrando el ciclo reactivo bidireccional entre el cliente y la nube.
-- **Detalles técnicos**:
-    - **Escucha Bidireccional (`onSnapshot`)**: Evolución del `ComandaFirestoreService` de escritura unidireccional a bidireccional. Se implementó `onSnapshot` para recibir actualizaciones push desde Firestore sin necesidad de polling.
-    - **Signals Reactivos**: Exposición de estado mediante `signal()`: `estadoComandaActiva`, `datosComandaActiva` y `errorEscucha`. La vista se repinta instantáneamente ante cualquier cambio de estado realizado por el staff.
-    - **`SeguimientoComandaComponent`**: Nueva vista `/seguimiento-comanda` con un stepper visual (rastreador) de 4 pasos: Recibida → En Preparación → Lista → Servida. Animaciones de pulso (`latidoSuave`) en el paso activo y transiciones suaves entre estados.
-    - **Persistencia del ID**: El ID de la comanda activa se guarda en `localStorage` para que el seguimiento sobreviva a un refresco de página (F5).
-    - **Flujo de Redirección**: Tras confirmar el envío en `ResumenComandaComponent`, el cliente es redirigido automáticamente a la pantalla de seguimiento.
-
-### Fase 5: Modelo de Destinos y Comandas Múltiples (Completado)
-
-#### Día 10: Ampliación del Modelo de Datos y Arquitectura de Escucha (Completado)
-- **Hito**: Evolución del sistema de datos para reflejar la logística real de un restaurante, con separación inteligente de destinos de producción y soporte completo para múltiples rondas de pedidos por mesa.
-- **Detalles técnicos**:
-    - **Tipo `DestinoReceptor`**: Nuevo type literal `'BARRA' | 'COCINA'` definido en `producto.model.ts`. Determina a qué puesto de trabajo se despacha cada línea del pedido.
-    - **Constante `MAPA_DESTINO_CATEGORIA`**: Mapa centralizado (`Record<CategoriaProducto, DestinoReceptor>`) que vincula automáticamente cada categoría del menú con su destino. Solo `'bebida'` va a `BARRA`; el resto a `COCINA`. Centralizar esta lógica en una constante facilita añadir nuevas categorías sin modificar la lógica de negocio dispersa.
-    - **Campo `destino` en `LineaComanda`**: Cada línea del pedido ahora lleva su etiqueta de despacho. Se asigna automáticamente en `ComandaService.agregarLinea()` consultando el mapa, con fallback a `'COCINA'` si la categoría no está mapeada.
-    - **Arquitectura de Escucha por Query (Cambio Crítico)**: Reescritura completa de `ComandaFirestoreService`. Se reemplazó el enfoque de listener individual (`onSnapshot` sobre un documento) por una **query filtrada única** (`where('idCliente') + where('idMesa') + orderBy('fechaCreacion')`). Una sola conexión WebSocket recibe actualizaciones de TODAS las rondas del cliente simultáneamente, resolviendo el caso de múltiples rondas activas (ej. Ronda 1 en PREPARANDO y Ronda 2 en PENDIENTE).
-    - **Signal `todasLasComandas`**: Nuevo signal central que contiene el array completo de comandas, ordenado por fecha. Todas las señales derivadas (`totalRondas`, `tieneComandas`, `comandaMasReciente`, `estadoComandaActiva`, `todasServidas`) se calculan como `computed()` a partir de este array.
-    - **Persistencia de Sesión por Query**: En lugar de guardar un array de IDs individuales, se persiste un par `{idCliente, idMesa}` en localStorage. Al recargar, se reconstruye la query completa, recuperando automáticamente todas las rondas de la sesión.
-    - **Vista de Seguimiento Multi-Ronda**: El `SeguimientoComandaComponent` ahora muestra: (1) la ronda más reciente con stepper completo, (2) las rondas anteriores como tarjetas compactas con indicador de estado y mini-resumen. Todas se actualizan en tiempo real.
-    - **Etiquetas de Destino Visuales**: Cada línea del resumen muestra su destino con iconos semánticos (🍺 Barra / 🔥 Cocina) y colores diferenciados (naranja para barra, rojo para cocina).
-    - **Etiquetas de Estado Semánticas**: Cada ronda muestra un badge con su estado actual (Pendiente/Preparando/Lista/Servida) con colores diferenciados: amarillo, azul, verde claro y verde oscuro.
-    - **Lógica de Acciones Refinada**: El botón "Pedir otra ronda" está siempre disponible (navega a `/carta` sin cerrar sesión). El botón "Cerrar sesión" solo aparece cuando TODAS las rondas han sido servidas (`todasServidas` computed).
-    - **Índice Compuesto de Firestore**: La query requiere un índice compuesto (`idCliente` + `idMesa` + `fechaCreacion`). Firebase genera automáticamente un enlace directo en la consola del navegador para crearlo con un clic la primera vez que se ejecute.
-
-### Fase 6: Panel de Administración B2B (Staff) y Logística (Completado)
-
-#### Día 11: Infraestructura y Seguridad B2B
-- **Hito:** Establecimiento del portal B2B protegido y separación lógica de roles de usuario.
-- **Detalles técnicos:**
-    - **`AdminAuthService`:** Implementación de autenticación de Firebase (Email/Contraseña) para el staff, garantizando que los usuarios anónimos (clientes) no interfieran.
-    - **`adminGuard`:** Creación de un guardián de rutas funcional en Angular 18 que verifica activamente el estado de autenticación (no anónimo) antes de permitir acceso a `/admin/*`.
-    - **UI Login B2B:** Vista premium (`LoginAdminComponent`) de estética oscura con manejo de errores y `LoadingController`.
-
-#### Día 12: Panel de Pedidos (Barra) y Reactividad Avanzada
-- **Hito:** Desarrollo del "centro de mando" del restaurante, capaz de gestionar el ciclo de vida completo de una comanda de forma reactiva.
-- **Detalles técnicos:**
-    - **Escucha Robusta (`NgZone` y Contextos):** Reestructuración de `AdminComandaService` y `ComandaFirestoreService` para envolver los callbacks de `onSnapshot` en `NgZone.run()`. Esto resuelve los problemas de renderizado fantasma en navegadores móviles cuando Firebase recibe datos en segundo plano, y limpia advertencias de *Injection Context* de AngularFire.
-    - **Visibilidad Multiestado:** El servicio `AdminComandaService` escucha simultáneamente comandas en estado `PENDIENTE`, `PREPARANDO` y `LISTO` usando un operador `in`, reutilizando eficientemente el mismo índice compuesto (`estado` + `fechaCreacion`).
-    - **Signals Computados (Tabs):** División dinámica de la señal maestra en `pedidosPendientes` y `pedidosEnCurso` mediante `computed()`, logrando un sistema de pestañas instantáneo (`<ion-segment>`) que no requiere múltiples consultas a BD.
-    - **Ciclo de Vida Completo:** Implementación de botones de acción progresivos ("Aceptar Pedido" → "Marcar como Listo" → "Entregar en Mesa") que actualizan el `estado` en Firestore, disparando las actualizaciones en los móviles de los comensales.
-
-#### Día 13: Refinamiento de Usabilidad Logística (Workstation UI)
-- **Hito:** Adaptación de la UI a la realidad de las estaciones de trabajo mediante "Separación por Estación".
-- **Detalles técnicos:**
-    - **Filtro de Rol Dinámico:** Implementación de un `ion-toggle` ("Vista exclusiva de Barra") en `PanelPedidosComponent`. Al activarse, las líneas con destino `BARRA` se detallan al máximo, mientras que las de `COCINA` se colapsan en un único resumen visual (ej. *"3 platos para Cocina"*). Evita la saturación cognitiva del barman.
-    - **Filtros Inteligentes Locales:** Incorporación de un `<ion-searchbar>` para buscar por número de mesa. El filtrado se realiza localmente a través de `computed signals` (`pedidosPendientesFiltrados`), ahorrando costes masivos en lecturas de Firestore.
-    - **Alertas de Tiempo Visuales:** Implementación del método `esUrgente()`. Si una comanda (en `PENDIENTE` o `PREPARANDO`) excede los 10 minutos desde su `fechaCreacion`, la interfaz le aplica la clase `.tarjeta-urgente`, añadiendo un borde rojo pulsante y una animación de latido en el ícono del tiempo, exigiendo acción inmediata del equipo.
-
-#### Día 14: Modernización de Arquitectura y Notificaciones Inteligentes
-- **Hito:** Finalización de la Fase 6 con la implementación de historial, avisos sonoros y migración global a la tecnología más reciente de Angular.
-- **Detalles técnicos:**
-    - **Pestaña de Historial:** Expansión del `AdminComandaService` para incluir el estado `SERVIDO`. Creación de una vista dedicada para pedidos finalizados, permitiendo al staff auditar rondas entregadas. El historial se presenta invertido (FIFO inverso) para priorizar las comandas más recientes.
-    - **Notificaciones con Web Audio API:** Integración de un sistema de avisos sonoros nativo. Se desarrolló un sintetizador de audio que utiliza osciladores para generar un sonido de "campanilla de servicio" (🛎️) optimizado en frecuencia (3500Hz). La lógica detecta cambios de tipo `added` en Firestore, evitando falsos positivos durante la carga inicial.
-    - **Migración a Angular Control Flow (@if, @for):** Refactorización integral de todo el proyecto (B2C y B2B) eliminando las directivas estructurales `*ngIf` y `*ngFor` en favor de la nueva sintaxis nativa de Angular 17+. Esta mejora incrementa el rendimiento de renderizado y prepara el código para futuras optimizaciones de "hydration".
-    - **Actualización de Normas de Desarrollo:** Inclusión de una regla estricta en `.antigravityrules` que prohíbe el uso de sintaxis heredada, asegurando la consistencia técnica del proyecto para su defensa ante tribunal.
+- **B2C (cliente final).** Autogestión de comandas en restaurantes con filtrado dinámico de alérgenos. El comensal escanea el código QR de su mesa, configura su perfil con los 14 alérgenos del Reglamento UE 1169/2011, consulta una carta filtrada y envía su pedido con seguimiento en tiempo real.
+- **B2B (personal del restaurante).** Panel de administración con separación por estación de trabajo (Barra para bebidas, Cocina para platos) y módulo fiscal Veri\*factu en modo demostración.
 
 ---
 
-### Fase 7: Vista de Cocina en Tiempo Real (KDS) (Completado)
+## Fase 1 — Identidad y acceso del comensal
 
-#### Día 15: Tablero de Producción y Separación de Roles
-- **Hito:** Implementación del Sistema de Visualización de Cocina (KDS) profesional con lógica de agregación y automatización de estados.
-- **Detalles técnicos:**
-    - **Workstation Isolation:** Creación de componentes dedicados (`VistaCocinaComponent` y `VistaBarraComponent`) que filtran la información según el puesto de trabajo, reduciendo el ruido visual para el personal.
-    - **Modo de Producción Agregado:** Desarrollo de algoritmos de agrupación en `AdminComandaService` que suman cantidades de productos idénticos de diferentes mesas, permitiendo a cocina "marchar" varias raciones simultáneamente.
-    - **Auto-Marchar Inteligente:** Implementación de lógica de cierre de ciclo. La comanda muta automáticamente a estado `LISTO` solo cuando todas sus líneas (tanto de barra como de cocina) han sido marcadas como preparadas.
+**Commit de referencia:** `13d97aa` (2026-04-13).
 
-#### Día 16: Arquitectura KDS y Sistema de Diseño Global (Completado)
-- **Hito:** Implementación de la infraestructura de visualización de cocina (KDS) por roles y consolidación de un sistema de diseño institucional con persistencia de estado.
-- **Detalles técnicos:**
-    - **Aislamiento de Workstations:** Desarrollo de los componentes `VistaCocinaComponent` y `VistaBarraComponent`. Se ha implementado un patrón de filtrado reactivo basado en el atributo `destino` de la `LineaComanda`, asegurando que cada estación de trabajo reciba exclusivamente la información pertinente para su flujo operativo, minimizando así la latitud de error en el servicio.
-    - **Design System Centralizado:** Migración de estilos ad-hoc a un sistema de tokens de diseño en `global.scss`. Se han definido variables CSS para la gestión semántica de colores (neón operacional) y estados (urgente, pendiente, completado).
-    - **Persistencia de Preferencias (UserSettingsService):** Creación de una capa de servicio encargada de la serialización y recuperación de preferencias de usuario (ej. modo oscuro) mediante `localStorage`. Esto garantiza una experiencia de usuario consistente tras ciclos de recarga o reinicio de sesión.
-    - **Refactorización Visual de Interfaz Cliente:** Aplicación de técnicas de *Glassmorphism* y micro-interacciones en los componentes de `Carta` y `SeguimientoComanda`. Se ha optimizado la jerarquía visual de los estados de pedido para mejorar la transparencia informativa hacia el comensal.
+### Objetivo
+Implementar la entrada del cliente al sistema (`/check-in`) y el modelo de estado global de perfil del comensal.
 
-### Fase 8: Gestión de la Carta Avanzada (Backoffice) (Completado)
+### Decisiones técnicas
+- **`CheckInComponent` Standalone.** Punto de entrada único tras el escaneo del QR. Se opta por una ruta limpia (`/check-in`) para que el QR físico pueda parametrizarse mediante `?mesa=N`.
+- **`UsuarioService` basado en *signals*.** Estado de perfil expuesto como `signal()` y derivados (`alergenosActivos`, `tieneRestriccionesAlimentarias`) como `computed()`.
 
-#### Día 17: Módulo de Gestión de Productos (CRUD Pro) (Completado)
-- **Hito**: Evolución del catálogo a un sistema de productos complejo con variantes y modificadores.
-- **Detalles técnicos**:
-    - **Variantes de Producto**: Implementación de raciones (ej. Tapa, Media, Ración) con precios dinámicos vinculados a una única ficha de producto.
-    - **Grupos de Modificadores**: Sistema de extras opcionales y selecciones excluyentes (ej. punto de la carne) con recálculo automático de precio en el carrito.
-    - **Formulario Reactivo Dinámico**: Uso de `FormArray` y señales para gestionar colecciones de variantes y modificadores en el panel de administración.
+### Alternativas descartadas
+- Uso de `BehaviorSubject` y `async pipe`: descartado por verbosidad y alineamiento con la dirección oficial de Angular (ver ADR-002).
 
-#### Día 18: Motor de Turnos y Horarios Reactivos (Completado)
-- **Hito**: Implementación de inteligencia temporal en la carta basada en la configuración de Firestore.
-- **Detalles técnicos**:
-    - **HorarioRestauranteService**: Escucha activa del documento `configuracion/general` para determinar el turno actual (Almuerzo/Cena).
-    - **Filtrado Reactivo por Tiempo**: La `CartaService` ahora usa un `computed()` que depende del turno actual. Si el restaurante "cierra", los platos restringidos desaparecen de la carta del cliente al instante sin recargar la página.
-    - **Ordenación Manual**: Incorporación del campo `orden` para que el administrador controle la prioridad visual de los platos.
-
-#### Día 19: Centralización de Audio y UX (Completado)
-- **Hito**: Creación del `AudioService` para feedback sonoro unificado mediante Web Audio API.
-- **Detalles técnicos**:
-    - **Síntesis de Audio**: Generación de sonidos (Ping de campana, Clic de éxito) mediante osciladores, eliminando la dependencia de archivos `.mp3` externos y mejorando el rendimiento.
-    - **Integración Transversal**: Notificaciones sonoras en el panel B2B para pedidos nuevos y feedback táctil/sonoro en el B2C al añadir productos.
-    - **Corrección de Tipos y Limpieza**: Normalización de interfaces (`ProductoMaquetado`) y eliminación de código muerto tras el refactorizado.
-
----
-#### Día 19 (Parte 1): Generador QR y Exportación a PDF (Completado)
-- **Hito**: Implementación de herramientas administrativas para la gestión física de mesas y auditoría financiera mediante exportación de datos.
-- **Detalles técnicos**:
-    - **Generador QR Dinámico**: Creación del `GeneradorQrComponent` que permite asignar números de mesa, generar URLs vinculadas y descargar/imprimir el código QR para su uso físico en el local.
-    - **Exportación Z (PDF)**: Integración de las librerías `jspdf` y `jspdf-autotable`. Se ha desarrollado una lógica de exportación que transforma las señales de `MetricasService` (KPIs y Ranking) en un documento PDF profesional con formato de informe de cierre.
-    - **UI Administrativa**: Adición de botones de acción con feedback visual (hover, active, disabled) y estados de carga para evitar exportaciones inconsistentes si no hay datos.
+### Evidencia
+- `app-comandas/src/app/features/autenticacion/check-in.component.ts`
+- `app-comandas/src/app/core/services/usuario.service.ts`
 
 ---
 
-### Fase 9: Gestión de Stock y Auto-Sold-Out (Completado)
+## Fase 2 — Menú digital con filtrado de alérgenos
 
-#### Día 20: Control de Inventario y Experiencia del Cliente
-- **Hito**: Implementación de la lógica de stock en el panel B2B y su reflejo reactivo en el B2C.
-- **Detalles técnicos**:
-    - **Agotado Dinámico (Auto-Sold-Out)**: Integración del campo `stock` en `Producto`. Cuando un producto llega a 0 de stock, su propiedad `agotado` se activa dinámicamente en el `CartaComponent`.
-    - **Feedback Visual**: Los productos agotados en la vista del cliente muestran un badge "AGOTADO" y se deshabilita el botón de añadir a la comanda, previniendo errores de sincronización y mejorando la satisfacción del comensal.
+### Objetivo
+Renderizar la carta y bloquear visualmente los productos incompatibles con el perfil del comensal.
+
+### Decisiones técnicas
+- **Tipado estricto del dominio.** Interfaz `Producto` con `alergenos: Alergeno[]` (unión de literales de los 14 alérgenos UE).
+- **Evaluación reactiva.** Un `computed()` cruza `usuarioService.alergenosActivos()` con `producto.alergenos[]` para determinar la seguridad de cada plato.
+- **UI defensiva.** Los productos incompatibles no se eliminan del listado: se aplica filtro `grayscale`, se desactiva el botón de añadir y se muestra un *overlay* informativo. Se prioriza la transparencia sobre la ocultación, evitando dudas al comensal.
+
+### Riesgos mitigados
+- Que el comensal interprete la ausencia de un plato como temporal y pregunte al camarero. Resuelto mediante visibilidad explícita con bloqueo.
+
+### Evidencia
+- `app-comandas/src/app/features/carta/carta.component.ts`
+- `app-comandas/src/app/core/models/producto.model.ts`
+
+---
+
+## Fase 3 — Autogestión del carrito de la comanda
+
+### Objetivo
+Permitir al comensal componer su pedido en local antes de confirmarlo, con feedback inmediato.
+
+### Decisiones técnicas
+- **`ComandaService` reactivo puro.** Carrito en memoria mediante `signal()`; total de artículos y subtotal como `computed()`, sin acceso al *backend* hasta la confirmación.
+- **Nomenclatura de dominio.** Se sustituyen identificadores genéricos (`cartItem`, `total`) por términos de dominio (`LineaComanda`, `precioTotal`) para alinear el código con el vocabulario del sector HORECA.
+- **`ResumenFlotanteComponent`.** Componente persistente con `backdrop-filter` (efecto de transparencia) sobre la vista de carta, visible solo cuando el carrito tiene elementos.
+- **Validación cruzada de seguridad.** El botón "Añadir" comprueba la compatibilidad del producto con el perfil antes de permitir el evento, replicando la barrera ya impuesta por la UI.
+
+### Evidencia
+- `app-comandas/src/app/core/services/comanda.service.ts`
+- `app-comandas/src/app/shared/components/resumen-flotante/`
 
 ---
 
-### Fase 10: Robustez, Seguridad y Resiliencia (Completado)
+## Fase 4 — Sincronización en tiempo real con Firestore
 
-#### Día 21: Internacionalización y Estándares Empresariales
-- **Hito**: Transformación de la aplicación en un producto Enterprise-Ready.
-- **Detalles técnicos**:
-    - **Traducciones Reactivas (i18n)**: Normalización final de todos los literales de la app usando `@ngx-translate/core`. Los pipes `currency` y `date` ahora son dinámicos y responden a los cambios de idioma (`es` vs `en`).
-    - **Refinamiento de Copywriting**: Ajuste del tono de voz ("Table Billing", "Invoice") en los diccionarios JSON para lograr un carácter profesional.
-    - **Limpieza de Control Flow**: Migración completa y exhaustiva a las directivas `@if` y `@for` de Angular 17.
+**Commit de referencia:** `7f6efe3` (2026-04-26), `7f24cde` (2026-04-29).
 
-#### Día 22: Seguridad Firestore y PWA
-- **Hito**: Blindaje de la base de datos y mejoras de infraestructura de red.
-- **Detalles técnicos**:
-    - **Firestore Rules**: Desarrollo e implementación de `firestore.rules` garantizando que los clientes anónimos solo pueden leer/escribir comandas asociadas a su mesa (`idMesa`), mientras que los productos del menú son de solo lectura pública. El staff (con auth) tiene privilegios CRUD completos.
-    - **Progressive Web App (PWA)**: Integración de `@angular/pwa` y Service Workers. La aplicación ahora soporta modo offline parcial, cacheo de recursos (CSS, JS, iconos) e instalación directa en dispositivos (iOS/Android), mitigando problemas en restaurantes con redes Wi-Fi inestables.
-    - **Script de Migración**: Ejecución exitosa de `migrarProductosAntiguos()` para compatibilidad retroactiva de datos en Firestore (nombres y descripciones internacionales).
+### Objetivo
+Persistir las comandas en la nube y devolver al cliente actualizaciones de estado en tiempo real desde el panel del staff.
+
+### Decisiones técnicas
+- **Autenticación anónima B2C.** `signInAnonymously()` de Firebase Auth. Cada sesión recibe un UID único utilizado por las reglas de seguridad para autorizar mutaciones. Justificación completa en ADR-004.
+- **`ComandaFirestoreService`.** Capa de adaptación entre el `ComandaService` reactivo y el SDK de Firestore. Aísla las llamadas a `addDoc`, `onSnapshot` y `updateDoc`.
+- **Escucha bidireccional.** Tras confirmar la comanda, se inicia un *listener* `onSnapshot` que repinta el seguimiento del cliente ante cualquier cambio realizado por el staff.
+- **Persistencia local de sesión.** `UsuarioService` y `ComandaService` sincronizan su estado con `localStorage`, garantizando recuperación frente a F5 o cortes de red. El `CheckInComponent` redirige automáticamente a `/carta` si detecta un perfil ya autenticado, eliminando el doble check-in.
+- **Auto-llenado por QR.** Lectura de `ActivatedRoute.snapshot.queryParams['mesa']` para precargar y bloquear (`readonly`) el campo de mesa cuando el cliente accede mediante el QR físico.
+
+### Riesgos mitigados
+- **Pérdida de sesión por recarga.** Resuelta con persistencia en `localStorage`.
+- **Inyección de contexto de AngularFire.** Resuelta envolviendo los *callbacks* de `onSnapshot` en `NgZone.run()` (consolidado en Fase 6).
+
+### Evidencia
+- `app-comandas/src/app/core/services/comanda-firestore.service.ts`
+- `app-comandas/src/app/features/comandas/seguimiento-comanda/`
 
 ---
-*Última actualización: 9 de mayo de 2026 - Proyecto completado al 100% (Fase Final)*
+
+## Fase 5 — Modelo de destinos y comandas múltiples
+
+### Objetivo
+Reflejar la realidad operativa de un restaurante con separación entre Barra (bebidas) y Cocina (comidas), y permitir que una mesa curse varias rondas durante un mismo servicio.
+
+### Decisiones técnicas
+- **Tipo `DestinoReceptor`.** Unión literal `'BARRA' | 'COCINA'` definida en `producto.model.ts`.
+- **Mapa centralizado `MAPA_DESTINO_CATEGORIA`.** Vincula cada `CategoriaProducto` con su destino; la asignación se realiza automáticamente en `ComandaService.agregarLinea()`.
+- **Arquitectura de escucha por *query*.** Sustitución de la escucha sobre un único documento por una *query* filtrada (`where idCliente + where idMesa + orderBy fechaCreacion`). Una única conexión recupera todas las rondas de la sesión, resolviendo el caso de Ronda 1 en `PREPARANDO` y Ronda 2 en `PENDIENTE` simultáneamente.
+- **`signal todasLasComandas`.** Origen único del que derivan todos los *computed* (`totalRondas`, `tieneComandas`, `comandaMasReciente`, `todasServidas`).
+- **Persistencia por par `{idCliente, idMesa}`.** En lugar de almacenar un array de IDs, se persiste la clave de la *query*. Al recargar la sesión se reconstruye automáticamente.
+- **Índice compuesto.** La *query* requiere índice (`idCliente` ASC, `idMesa` ASC, `fechaCreacion` ASC), documentado en `firestore.indexes.json`.
+
+### Evidencia
+- `app-comandas/src/app/core/services/comanda-firestore.service.ts`
+- `firestore.indexes.json`
+
+---
+
+## Fase 6 — Panel de administración B2B
+
+**Commit de referencia:** `4e742b4` (2026-05-04).
+
+### Objetivo
+Habilitar el acceso autenticado del personal y proporcionar el centro de mando reactivo para la gestión del ciclo de vida del pedido.
+
+### Decisiones técnicas
+- **`AdminAuthService`.** Autenticación email/contraseña distinta de la anónima del comensal. Las reglas de Firestore discriminan ambos casos mediante `request.auth.token.firebase.sign_in_provider`.
+- **`adminGuard`.** Guardián funcional (`CanActivateFn`, vigente en Angular 20) que verifica autenticación no anónima antes de permitir acceso a `/admin/*`.
+- **Escucha multi-estado.** `AdminComandaService` consume `where('estado', 'in', ['PENDIENTE', 'PREPARANDO', 'SERVIDO'])` aprovechando el índice (`estado` + `fechaCreacion`). División posterior por *signals* `computed` para alimentar las pestañas del panel sin lecturas adicionales.
+- **Reactividad robusta en navegadores móviles.** Los *callbacks* de `onSnapshot` se envuelven en `NgZone.run()` para evitar renderizados fantasma y advertencias de *injection context* de AngularFire.
+- **Ciclo de vida progresivo.** Botones "Aceptar Pedido" → "Entregar en Mesa" que actualizan el campo `estado` en Firestore, propagándose al móvil del comensal.
+- **Filtros locales por `computed`.** Búsqueda por número de mesa mediante `<ion-searchbar>` evaluada en cliente, evitando lecturas adicionales a Firestore.
+- **Detección de urgencia.** Método `esUrgente()`: si una comanda en estado activo supera los 10 minutos desde `fechaCreacion`, se aplica la clase `.tarjeta-urgente` con borde y animación.
+
+### Evidencia
+- `app-comandas/src/app/features/admin/panel-pedidos/`
+- `app-comandas/src/app/core/services/admin-comanda.service.ts`
+- `app-comandas/src/app/core/guards/admin.guard.ts`
+
+---
+
+## Fase 7 — Vista de cocina en tiempo real (KDS)
+
+**Commit de referencia:** `7da1958` (2026-05-06).
+
+### Objetivo
+Proporcionar al personal de cocina y de barra una vista filtrada por su estación de trabajo, con agregación de cantidades entre mesas.
+
+### Decisiones técnicas
+- **Aislamiento por estación.** `VistaCocinaComponent` y `VistaBarraComponent` consumen el mismo `AdminComandaService` pero filtran las `LineaComanda` por su atributo `destino`, reduciendo el ruido visual.
+- **Producción agregada.** Algoritmo en `AdminComandaService` que suma cantidades de productos idénticos procedentes de distintas mesas, permitiendo "marchar" varias raciones en paralelo.
+- **Cierre de ciclo automático.** La comanda transita directamente a `SERVIDO` cuando todas sus líneas (barra y cocina) han sido marcadas como preparadas, ya que marcar = el producto ha salido a la mesa. No existe estado intermedio `LISTO`.
+- **Sistema de diseño centralizado.** Tokens de color y estado en `global.scss`; persistencia de la preferencia de tema mediante `UserSettingsService` sobre `localStorage`.
+- **Notificaciones sonoras nativas.** Síntesis con Web Audio API (oscilador a 3500 Hz) ante eventos `added` en la *query* de pendientes, evitando dependencia de archivos de audio.
+
+### Evidencia
+- `app-comandas/src/app/features/admin/vista-cocina/`
+- `app-comandas/src/app/features/admin/vista-barra/`
+- `app-comandas/src/app/core/services/user-settings.service.ts`
+
+---
+
+## Fase 8 — Gestión avanzada de la carta (backoffice)
+
+**Commit de referencia:** `63c827d` (2026-05-07).
+
+### Objetivo
+Dotar al backoffice de un CRUD completo de productos con variantes y modificadores, e introducir inteligencia temporal (turnos) en la carta.
+
+### Decisiones técnicas
+- **Modelo enriquecido.** Producto con `variantes?: VarianteProducto[]` (raciones con precios) y `modificadores?: GrupoModificadores[]` (excluyentes u opcionales, obligatorios o no). Recálculo automático de subtotal en el carrito.
+- **Formulario reactivo dinámico.** Uso de `FormArray` y *signals* para gestionar colecciones de variantes y modificadores en el panel de administración.
+- **Motor de turnos.** `HorarioRestauranteService` escucha `configuracion/general` y expone el turno actual (`ALMUERZO` / `CENA`); `CartaService` añade un `computed()` que filtra la carta por turno, sin recarga manual.
+- **Ordenación manual.** Campo `orden` para que el administrador controle la prelación visual de los platos.
+- **`AudioService` unificado.** Síntesis centralizada (campana, clic de éxito) eliminando la dependencia de archivos `.mp3` y reduciendo el *bundle*.
+
+### Evidencia
+- `app-comandas/src/app/features/admin/gestion-carta/`
+- `app-comandas/src/app/core/services/horario-restaurante.service.ts`
+- `app-comandas/src/app/core/services/audio.service.ts`
+
+---
+
+## Fase 9 — Analítica, stock y herramientas administrativas
+
+**Commit de referencia:** `78d475f` (2026-05-09).
+
+### Objetivo
+Cerrar el ciclo de negocio con métricas, control de inventario y herramientas físicas (QR, cierre Z).
+
+### Decisiones técnicas
+- **`MetricasService`.** KPI de ventas y *ranking* de productos calculados sobre la colección de comandas en estado `SERVIDO`/`PAGADO`.
+- **Auto-sold-out.** Campo `stock` en `Producto`. Cuando llega a 0, la propiedad derivada `agotado` se activa y la carta muestra *badge* "AGOTADO" deshabilitando el botón "Añadir".
+- **Generador QR dinámico.** `GeneradorQrComponent` produce URLs con `?mesa=N` y exporta el código QR a PNG y a documento imprimible para uso físico.
+- **Exportación cierre Z.** Integración de `jspdf` y `jspdf-autotable` para transformar los *signals* de `MetricasService` en un PDF de cierre de caja con KPI y *ranking*. Estados de carga (`disabled`, *spinner*) protegen ante exportaciones vacías.
+
+### Evidencia
+- `app-comandas/src/app/features/admin/generador-qr/`
+- `app-comandas/src/app/features/admin/historial-facturas/`
+
+---
+
+## Fase 10 — Auditoría, seguridad, PWA e internacionalización
+
+**Commit de referencia:** `4d3d4df`, `94a2192` (2026-05-09 → 2026-05-10).
+
+### Objetivo
+Endurecer la base de datos, internacionalizar la aplicación e instalarla como PWA.
+
+### Decisiones técnicas
+- **Reglas de Firestore.** `firestore.rules` distingue staff (proveedor `password`) de cliente (proveedor `anonymous`). El cliente solo puede leer y mutar sus propias comandas; las mutaciones más allá de `PENDIENTE` quedan restringidas a `solicitaCuenta = true`. Los productos son de lectura pública.
+- **Internacionalización.** Migración completa a `@ngx-translate/core` con diccionarios `es.json` y `en.json`; pipes `currency` y `date` reactivos al *locale*.
+- **Migración de sintaxis a Control Flow.** Sustitución de `*ngIf`/`*ngFor` por `@if`/`@for`/`@switch` (API nativa desde Angular 17, vigente en Angular 20).
+- **Progressive Web App.** Integración de `@angular/service-worker` para cacheo de recursos, instalación en iOS/Android y resiliencia ante redes Wi-Fi inestables —común en hostelería—.
+
+### Evidencia
+- `app-comandas/firestore.rules`
+- `app-comandas/src/assets/i18n/{es,en}.json`
+- `app-comandas/ngsw-config.json`
+
+---
+
+## Fase 11 — Facturación Veri\*factu y endurecimiento fiscal (en consolidación)
+
+**Commit de referencia:** `1b50e49`, `a034657`, `edd91b7`, `9e170a5`, `738fc22` (2026-05-09 → 2026-05-12).
+
+### Objetivo
+Implementar los mecanismos técnicos exigidos por el RD 1007/2023 (Veri\*factu) en modo demostración y consolidar la robustez del sistema previa a la defensa.
+
+### Decisiones técnicas
+- **Colección `facturas` *append-only*.** Reglas de Firestore prohíben `update` y `delete` sobre cualquier factura emitida.
+- **Numeración correlativa inalterable.** Documento `metadatos/contadores_facturas` con regla que solo admite `ultimoNumero = previo + 1` y `serieActual` invariable, bloqueando cualquier rebobinado de la cadena fiscal.
+- **Encadenamiento SHA-256.** Cada factura calcula `hashActual = SHA-256(numero | fecha | total | hashAnterior)` mediante `crypto.subtle.digest` (Web Crypto API). La autorrelación implementa la cadena de integridad auditable.
+- **Atomicidad.** La emisión de factura se ejecuta dentro de `runTransaction()`, garantizando que el incremento del contador y la creación del documento sean indivisibles. Detalle visual en el diagrama de secuencia de [`diagramas.md §3`](diagramas.md#3-secuencia-de-emisión-de-factura-verifactu-modo-demostración).
+- **Generación de PDF.** Documento con desglose de IVA por tipo impositivo, datos del emisor y QR informativo, producido en cliente con `jsPDF` + `jspdf-autotable`.
+- **Flag `solicitaCuenta`.** Campo booleano en `comandas` con regla específica que permite al cliente anónimo cambiarlo a `true` sin tocar el resto de campos, en cualquier estado de la comanda. El panel admin muestra aviso visual en la mesa correspondiente.
+- **Provider centralizado de iconos.** Refactorización del registro de Ionicons en un único *provider*, eliminando duplicaciones y mejorando el *tree-shaking*.
+- **Adaptación al tema claro/oscuro.** Auditoría exhaustiva de modales y vistas administrativas para que respeten las variables CSS de tematización de forma consistente.
+
+### Riesgos asumidos
+- **Conexión productiva con la AEAT.** Queda fuera del alcance del TFG por requerir certificado de representante y alta como obligado tributario. Documentado como línea de consolidación en [`trabajo_futuro.md`](trabajo_futuro.md).
+
+### Evidencia
+- `app-comandas/src/app/core/models/factura.model.ts`
+- `app-comandas/src/app/core/services/facturacion.service.ts`
+- `app-comandas/firestore.rules`
+
+---
+
+## Fase 12 — Corrección de fallos lógicos (auditoría pre-defensa)
+
+**Commit de referencia:** (2026-05-13).
+
+### Objetivo
+Eliminar inconsistencias lógicas detectadas en la auditoría de código previas a la defensa del TFG: un salto ilegal de estado en la máquina de comandas, un posible NaN en el cobro de mesas, un desajuste de redondeo fiscal, código muerto peligroso en facturación, nomenclatura incorrecta en métricas y varias fragilidades menores.
+
+### Decisiones técnicas
+
+- **Eliminación del estado `LISTO` de la máquina de comandas.** El estado `LISTO` fue diseñado originalmente como paso intermedio entre `PREPARANDO` y `SERVIDO`, representando "preparado en cocina, pendiente de recogida por el camarero". Tras la auditoría se constató que no encajaba con el flujo real del restaurante: en este modelo, marcar un ítem en cocina/barra **significa que el producto ya ha salido a la mesa** — el personal lleva el plato al mismo tiempo que lo marca. Mantener `LISTO` generaba código muerto en toda la pila (`EstadoComanda`, `pedidosEnCurso`, query Firestore, `getLabelEstado`, stepper del cliente, traducciones i18n, manual y memoria) sin aportar valor al flujo. Se elimina completamente de tipo, servicios, componentes, traducciones y documentación. La máquina de estados queda como `PENDIENTE → PREPARANDO → SERVIDO → PAGADO / CANCELADO`. La decisión queda documentada como ADR-006 en `arquitectura_proyecto.md`.
+
+- **Protección contra NaN en totales de mesa (`gestion-cuentas.component.ts`).** La acumulación `total += comanda.precioTotal` no protegía contra `undefined`. Se aplica `?? 0` en la inicialización y en el acumulador para evitar que un documento incompleto propague NaN al importe final mostrado en el cobro.
+
+- **Redondeo de IVA fiscalmente correcto (`factura.model.ts`).** `calcularDesgloseIva` redondeaba `base` y `cuota` de forma independiente, lo que en ciertos importes produce `baseImponible + cuotaIva ≠ importeTotal`. La corrección redondea solo `baseImponible` y deriva `cuotaIva = importeTotal - baseImponible` ya redondeado, garantizando el cuadre aritmético exigido en una factura legal.
+
+- **`finalizarCuentaMesa` convertida en `private` (`admin-comanda.service.ts`).** Desde que `FacturacionService.generarFactura` cierra las comandas dentro de su propia transacción atómica, este método público quedó sin llamadores externos y representa un riesgo: llamarlo solo cierra la mesa sin emitir factura. Se hace `private` y se documenta con `@deprecated`. El mock obsoleto en `facturacion.service.spec.ts` se elimina.
+
+- **Semántica del KPI de tiempo (`metricas.service.ts`, `dashboard-metricas`).** El campo `tiempoMedioServicio` calculaba en realidad `fechaActualizacion (cobro) − fechaCreacion (primera ronda)`, que es el tiempo total de estancia en mesa, no el tiempo de preparación en cocina. Se renombra a `tiempoMedioEstancia` en la interfaz `KpiGeneral`, el servicio, el componente de dashboard y el informe Z en PDF para evitar confusión en la interpretación operativa.
+
+- **Consistencia de timestamps (`admin-comanda.service.ts`, `facturacion.service.ts`).** Los updates de estado usaban `Date.now()` (reloj local del cliente) mientras la creación usaba `serverTimestamp()` (reloj del servidor). Se unifica todo a `serverTimestamp()` para eliminar el sesgo de relojes en métricas y evitar ordenaciones erróneas en Firestore.
+
+- **Guard en `detenerEscucha` (`admin-comanda.service.ts`).** El contador `activeListeners` podía bajar a negativo si se llamaba `detenerEscucha` más veces de las que se había llamado a `iniciarEscuchaPedidosEntrantes`. Se añade un guard `if (activeListeners <= 0) return` al inicio del método para hacer la operación idempotente.
+
+- **Restauración segura del DOM en `imprimirQr` (`generador-qr.component.ts`).** El elemento `.print-area` se movía al `<body>` para imprimir y se restauraba después de `window.print()`. Si el diálogo de impresión lanzaba una excepción, el elemento quedaba fuera de su posición original. Se envuelve la llamada en `try/finally` para garantizar la restauración en cualquier caso.
+
+### Riesgos mitigados
+- Cobros de mesa mostrando importe `NaN` al administrador.
+- Facturas con cuadre aritmético incorrecto (base + cuota ≠ total).
+- Comandas atascadas en estado `LISTO` sin salida automática (estado eliminado).
+- Sesgo temporal en métricas al mezclar relojes locales y del servidor.
+
+### Evidencia
+- `app-comandas/src/app/core/services/admin-comanda.service.ts`
+- `app-comandas/src/app/core/services/facturacion.service.ts`
+- `app-comandas/src/app/core/services/metricas.service.ts`
+- `app-comandas/src/app/core/models/factura.model.ts`
+- `app-comandas/src/app/features/admin/gestion-cuentas/gestion-cuentas.component.ts`
+- `app-comandas/src/app/features/admin/dashboard-metricas/dashboard-metricas.component.ts`
+- `app-comandas/src/app/features/admin/generador-qr/generador-qr.component.ts`
+- `app-comandas/src/app/core/services/facturacion.service.spec.ts`
+
+---
+
+*Última actualización: 13 de mayo de 2026. El estado de la documentación se gestiona en `roadmap_diario.md` (cronograma) y `arquitectura_proyecto.md` (ADR estructurales).*

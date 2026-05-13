@@ -12,7 +12,7 @@
         </div>
       </div>
       @if (facturas.length > 0) {
-        <span class="total-count">{{ facturas.length }} {{ facturas.length === 1 ? 'factura' : 'facturas' }}</span>
+        <span class="total-count">{{ facturas.length }} {{ facturas.length === 1 ? ('HISTORIAL_FACTURAS.FACTURA_SINGULAR' | translate) : ('HISTORIAL_FACTURAS.FACTURA_PLURAL' | translate) }}</span>
       }
     </header>
 
@@ -30,13 +30,13 @@
       } @else {
 
         <div class="list-header">
-          <span class="col-numero">Nº Factura</span>
-          <span class="col-fecha">Fecha</span>
-          <span class="col-mesa">Mesa</span>
-          <span class="col-base">Base Imp.</span>
-          <span class="col-iva">IVA (10%)</span>
-          <span class="col-total">Total</span>
-          <span class="col-metodo">Método</span>
+          <span class="col-numero">{{ 'HISTORIAL_FACTURAS.COL_NUMERO' | translate }}</span>
+          <span class="col-fecha">{{ 'HISTORIAL_FACTURAS.COL_FECHA' | translate }}</span>
+          <span class="col-mesa">{{ 'HISTORIAL_FACTURAS.COL_MESA' | translate }}</span>
+          <span class="col-base">{{ 'HISTORIAL_FACTURAS.COL_BASE' | translate }}</span>
+          <span class="col-iva">{{ 'HISTORIAL_FACTURAS.COL_IVA' | translate }}</span>
+          <span class="col-total">{{ 'HISTORIAL_FACTURAS.COL_TOTAL' | translate }}</span>
+          <span class="col-metodo">{{ 'HISTORIAL_FACTURAS.COL_METODO' | translate }}</span>
           <span class="col-acciones"></span>
         </div>
 

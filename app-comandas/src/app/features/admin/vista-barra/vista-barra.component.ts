@@ -7,6 +7,8 @@ import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { addIcons } from 'ionicons';
 import { beerOutline, timeOutline, warningOutline, cafeOutline, checkmarkDoneOutline, logOutOutline, flameOutline, checkmarkOutline, gridOutline, listOutline, closeOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import { getTranslation } from '../../../core/models/common.model';
+import { TranslateModule } from '@ngx-translate/core';
+import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
 
 /**
  * VistaBarra - Panel KDS (Kitchen Display System) adaptado para el Barman.
@@ -18,14 +20,14 @@ import { getTranslation } from '../../../core/models/common.model';
  *   - Derecha: Tickets por mesa con checklist para tachar cada bebida servida
  * 
  * Cuando el barman tapa la última bebida de un ticket Y cocina ya terminó sus platos,
- * la comanda pasa automáticamente a LISTO y se avisa al camarero.
+ * la comanda pasa automáticamente a SERVIDO (el producto ya ha salido a la mesa).
  */
 import { AdminConfigBarComponent } from '../../../shared/components/admin-config-bar/admin-config-bar.component';
 
 @Component({
   selector: 'app-vista-barra',
   standalone: true,
-  imports: [CommonModule, IonicModule, AdminConfigBarComponent],
+  imports: [CommonModule, IonicModule, AdminConfigBarComponent, TranslateModule, TranslateContentPipe],
   templateUrl: './vista-barra.component.html',
   styleUrls: ['./vista-barra.component.scss']
 })

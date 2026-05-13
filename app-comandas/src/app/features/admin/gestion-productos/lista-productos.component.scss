@@ -248,12 +248,14 @@ ion-content.dashboard-bg {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 
   .producto-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 8px;
+    min-width: 0;
   }
 
   .producto-nombre {
@@ -262,6 +264,13 @@ ion-content.dashboard-bg {
     color: var(--dash-text-main);
     line-height: 1.3;
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .producto-precio {
@@ -289,6 +298,9 @@ ion-content.dashboard-bg {
     gap: 4px;
     flex-wrap: wrap;
     margin-top: 4px;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
 
     .alg-icon {
       font-size: 0.85rem;
@@ -306,6 +318,10 @@ ion-content.dashboard-bg {
       text-transform: uppercase;
       font-weight: 600;
       letter-spacing: 0.03em;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 }
@@ -576,12 +592,15 @@ ion-content.dashboard-bg {
   align-items: center;
   gap: 12px;
   margin-top: 10px;
-  
+  min-width: 0;
+  flex-wrap: wrap;
+
   .stock-control-panel {
-    flex: 1;
+    flex: 1 1 160px;
+    min-width: 0;
     margin-top: 0; /* Override previous margin */
   }
-  
+
   .orden-config {
     flex-shrink: 0;
   }

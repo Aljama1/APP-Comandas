@@ -2,6 +2,67 @@
 
 :host { display: block; height: 100%; }
 
+.dashboard-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .btn-back {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--dash-border);
+      border-radius: 12px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--dash-text-main);
+      cursor: pointer;
+      transition: all 0.2s;
+      ion-icon { font-size: 1.3rem; }
+      &:hover { background: rgba(255, 255, 255, 0.1); }
+    }
+
+    .title-group {
+      h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: linear-gradient(135deg, var(--dash-accent-blue) 0%, #0ea5e9 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .subtitle {
+        font-size: 0.85rem;
+        color: var(--dash-text-sec);
+        font-weight: 500;
+      }
+    }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
 .content-wrapper {
   display: flex;
   gap: 24px;
@@ -121,11 +182,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     margin-bottom: 20px;
     border-bottom: 2px solid #e2e8f0;
     padding-bottom: 12px;
-    .brand-mini { color: #0f172a; font-weight: 900; font-size: 1.5rem; letter-spacing: -0.5px; }
-    .table-badge { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 1rem; }
+    .brand-mini { color: #0f172a; font-weight: 900; font-size: 1.5rem; letter-spacing: -0.5px; min-width: 0; }
+    .table-badge { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 1rem; flex-shrink: 0; white-space: nowrap; }
   }
   .qr-image-wrapper {
     display: flex;

@@ -39,6 +39,11 @@ export class ResumenComandaComponent {
     this.router.navigateByUrl('/carta');
   }
 
+  /** Devuelve el nombre del producto como string, resolviendo multiidioma. Usado en aria-labels. */
+  nombreLegible(linea: LineaComanda): string {
+    return getTranslation(linea.nombreProducto, this.translate.currentLang);
+  }
+
   actualizarCantidad(linea: LineaComanda, operacion: 'incrementar' | 'decrementar') {
     this.comandaService.actualizarCantidad(linea, operacion);
   }
@@ -122,16 +127,15 @@ export class ResumenComandaComponent {
     await loading.present();
 
     try {
-      const nuevaComanda: Comanda = {
+      const nuevaComanda: Omit<Comanda, 'fechaCreacion' | 'fechaActualizacion'> = {
         idMesa: perfil.mesaId.toString(),
         idCliente: perfil.uid,
         nombreCliente: perfil.nombre,
         alergenosUsuario: perfil.alergenos ?? [],
         lineasComanda: this.comandaService.lineasComanda(),
         estado: 'PENDIENTE',
-        precioTotal: this.comandaService.subtotalComanda(),
-        fechaCreacion: Date.now(),
-        fechaActualizacion: Date.now()
+        precioTotal: this.comandaService.subtotalComanda()
+        // fechaCreacion/fechaActualizacion las asigna el servicio con serverTimestamp()
       };
 
       await this.firestoreService.enviarComanda(nuevaComanda);

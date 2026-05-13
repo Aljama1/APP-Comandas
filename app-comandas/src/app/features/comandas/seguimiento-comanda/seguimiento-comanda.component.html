@@ -112,9 +112,9 @@
           [class.btn-pedir-cuenta--solicitada]="cuentaSolicitada()"
           [disabled]="cuentaSolicitada() || enviandoPedirCuenta()"
           (click)="pedirCuenta()"
-          aria-label="Pedir la cuenta">
+          [attr.aria-label]="cuentaSolicitada() ? 'Cuenta solicitada, espera al camarero' : (enviandoPedirCuenta() ? 'Enviando solicitud de cuenta' : 'Pedir la cuenta')">
           <ion-icon [name]="cuentaSolicitada() ? 'checkmark-circle-outline' : 'receipt-outline'" aria-hidden="true"></ion-icon>
-          <span>{{ cuentaSolicitada() ? 'Cuenta solicitada — espera al camarero' : 'Pedir la cuenta' }}</span>
+          <span>{{ cuentaSolicitada() ? ('SEGUIMIENTO.CUENTA_SOLICITADA' | translate) : (enviandoPedirCuenta() ? ('SEGUIMIENTO.ENVIANDO' | translate) : ('SEGUIMIENTO.PEDIR_CUENTA' | translate)) }}</span>
         </button>
       }
 

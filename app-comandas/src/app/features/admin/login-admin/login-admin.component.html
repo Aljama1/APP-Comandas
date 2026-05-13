@@ -7,7 +7,7 @@
           <ion-icon [name]="rolAdmin === 'cocina' ? 'flame-outline' : 'lock-closed-outline'"></ion-icon>
         </div>
         <h1>Trace Admin</h1>
-        <p>{{ rolAdmin === 'cocina' ? 'Panel de Producción y Cocina' : rolAdmin === 'barra' ? 'Panel de Gestión de Barra y Caja' : 'Panel de Administración' }}</p>
+        <p>{{ rolAdmin === 'cocina' ? ('LOGIN.PANEL_COCINA' | translate) : rolAdmin === 'barra' ? ('LOGIN.PANEL_BARRA' | translate) : ('LOGIN.PANEL_ADMIN' | translate) }}</p>
       </div>
 
       <!-- Formulario -->
@@ -16,7 +16,8 @@
           <ion-icon name="mail-outline" slot="start"></ion-icon>
           <ion-input
             type="email"
-            placeholder="Correo del restaurante"
+            [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
+            [attr.aria-label]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
             [(ngModel)]="email"
             name="email"
             required
@@ -27,7 +28,8 @@
           <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
           <ion-input
             type="password"
-            placeholder="Contraseña"
+            [placeholder]="'LOGIN.PASSWORD_PLACEHOLDER' | translate"
+            [attr.aria-label]="'LOGIN.PASSWORD_PLACEHOLDER' | translate"
             [(ngModel)]="password"
             name="password"
             required
@@ -41,7 +43,7 @@
           [disabled]="!email || !password"
         >
           <ion-icon name="log-in-outline" slot="start"></ion-icon>
-          Acceder al Sistema
+          {{ 'LOGIN.ACCEDER' | translate }}
         </ion-button>
       </form>
     </div>

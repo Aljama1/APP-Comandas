@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed, NgZone, runInInjectionContext, EnvironmentInjector, OnDestroy } from '@angular/core';
-import { Firestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, serverTimestamp } from '@angular/fire/firestore';
 import { Comanda, EstadoComanda } from '../models/comanda.model';
 import { UserSettingsService } from './user-settings.service';
 import { AudioService } from './audio.service';
@@ -24,7 +24,7 @@ export class AdminComandaService implements OnDestroy {
 
   // Computed: Clasificamos automáticamente en dos "cubos" para las pestañas
   pedidosPendientes = computed(() => this._comandasActivas().filter(c => c.estado === 'PENDIENTE'));
-  pedidosEnCurso = computed(() => this._comandasActivas().filter(c => c.estado === 'PREPARANDO' || c.estado === 'LISTO'));
+  pedidosEnCurso = computed(() => this._comandasActivas().filter(c => c.estado === 'PREPARANDO'));
   pedidosHistorial = computed(() => this._comandasActivas().filter(c => c.estado === 'SERVIDO').reverse());
 
   // Señal para la vista de tickets (Por Mesa) - Solo pedidos con destino COCINA en preparación
@@ -150,7 +150,7 @@ export class AdminComandaService implements OnDestroy {
       // Consulta: Traemos 4 estados a la vez. 
       const q = query(
         comandasRef,
-        where('estado', 'in', ['PENDIENTE', 'PREPARANDO', 'LISTO', 'SERVIDO']),
+        where('estado', 'in', ['PENDIENTE', 'PREPARANDO', 'SERVIDO']),
         orderBy('fechaCreacion', 'asc')
       );
 
@@ -194,11 +194,10 @@ export class AdminComandaService implements OnDestroy {
   }
 
   detenerEscucha() {
+    if (this.activeListeners <= 0) return;
     this.activeListeners--;
-    
-    // Solo detenemos la escucha real de Firestore si ningún componente lo necesita ya
-    if (this.activeListeners <= 0) {
-      this.activeListeners = 0;
+
+    if (this.activeListeners === 0) {
       if (this.unsubscribeSnapshot) {
         this.unsubscribeSnapshot();
         this.unsubscribeSnapshot = null;
@@ -215,7 +214,7 @@ export class AdminComandaService implements OnDestroy {
     try {
       await updateDoc(docRef, {
         estado: nuevoEstado,
-        fechaActualizacion: Date.now()
+        fechaActualizacion: serverTimestamp()
       });
     } catch (error) {
       console.error(`Error al actualizar a ${nuevoEstado}:`, error);
@@ -224,10 +223,11 @@ export class AdminComandaService implements OnDestroy {
   }
 
   /**
-   * Cierra todas las comandas activas de una mesa específica (marcar como PAGADO).
-   * Esto libera la mesa para nuevos clientes.
+   * @deprecated Usar generarFactura(), que cierra las comandas dentro de su
+   * propia transacción atómica. Llamar a este método por separado provoca
+   * un doble cierre o un cierre sin factura asociada.
    */
-  async finalizarCuentaMesa(idMesa: string): Promise<void> {
+  private async finalizarCuentaMesa(idMesa: string): Promise<void> {
     const comandasDeLaMesa = this._comandasActivas().filter(c => c.idMesa === idMesa);
     
     const promesas = comandasDeLaMesa.map(comanda => {
@@ -247,7 +247,7 @@ export class AdminComandaService implements OnDestroy {
   /**
    * Marca un plato específico de una comanda como preparado o no.
    * Si al marcarlo se completan todos los platos de cocina de esa comanda,
-   * se cambia el estado global de la comanda a LISTO de forma automática.
+   * se cambia el estado global de la comanda a SERVIDO de forma automática.
    */
   async marcarLineaPreparada(idComanda: string, indexLinea: number, preparado: boolean): Promise<void> {
     const comanda = this._comandasActivas().find(c => c.id === idComanda);
@@ -265,24 +265,23 @@ export class AdminComandaService implements OnDestroy {
 
     const docRef = doc(this.firestore, `comandas/${idComanda}`);
     
-    // Auto-Marchar inteligente: La comanda solo pasa a LISTO cuando TANTO la cocina
-    // COMO la barra han terminado con todos sus ítems.
+    // Auto-Marchar: cuando cocina Y barra han ticked todos sus ítems, la comanda pasa
+    // directamente a SERVIDO. Marcar un ítem = el producto ya salió a la mesa.
     const todasLasLineas = nuevasLineas.filter(l => l.destino === 'COCINA' || l.destino === 'BARRA');
     const todosListos = todasLasLineas.length > 0 && todasLasLineas.every(l => l.preparado);
 
     try {
       if (todosListos) {
-        // Auto-Marchar: Si todo lo de cocina está listo, marcamos la comanda como SERVIDO (completada)
         await updateDoc(docRef, {
           lineasComanda: nuevasLineas,
           estado: 'SERVIDO',
-          fechaActualizacion: Date.now()
+          fechaActualizacion: serverTimestamp()
         });
       } else {
         // Solo actualizamos el tick de la línea
         await updateDoc(docRef, {
           lineasComanda: nuevasLineas,
-          fechaActualizacion: Date.now()
+          fechaActualizacion: serverTimestamp()
         });
       }
     } catch (error) {
@@ -313,7 +312,7 @@ export class AdminComandaService implements OnDestroy {
     await updateDoc(docRef, {
       lineasComanda: nuevasLineas,
       precioTotal: nuevoTotal,
-      fechaActualizacion: Date.now()
+      fechaActualizacion: serverTimestamp()
     });
   }
 
@@ -337,13 +336,13 @@ export class AdminComandaService implements OnDestroy {
         lineasComanda: [],
         precioTotal: 0,
         estado: 'CANCELADO',
-        fechaActualizacion: Date.now()
+        fechaActualizacion: serverTimestamp()
       });
     } else {
       await updateDoc(docRef, {
         lineasComanda: nuevasLineas,
         precioTotal: nuevoTotal,
-        fechaActualizacion: Date.now()
+        fechaActualizacion: serverTimestamp()
       });
     }
   }

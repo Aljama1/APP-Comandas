@@ -6,11 +6,12 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { addIcons } from 'ionicons';
 import { lockClosedOutline, mailOutline, logInOutline, alertCircleOutline, flameOutline } from 'ionicons/icons';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login-admin',
   standalone: true,
-  imports: [IonicModule, FormsModule],
+  imports: [IonicModule, FormsModule, TranslateModule],
   templateUrl: './login-admin.component.html',
   styleUrls: ['./login-admin.component.scss']
 })

@@ -1,4 +1,4 @@
-<ion-content [fullscreen]="true" class="dashboard-bg">
+<ion-content class="dashboard-bg">
   <div class="dashboard-container">
 
     <!-- Header -->
@@ -8,18 +8,18 @@
           <ion-icon name="chevron-back-outline"></ion-icon>
         </button>
         <div class="title-group">
-          <h1>Analisis Empresarial</h1>
-          <span class="subtitle">Ultimos 7 dias de operativa</span>
+          <h1>{{ 'METRICAS.TITULO' | translate }}</h1>
+          <span class="subtitle">{{ 'METRICAS.SUBTITULO' | translate }}</span>
         </div>
       </div>
       <div class="header-right">
-        <button class="btn-action" (click)="exportarCierreZ()" [disabled]="metricasService.cargando() || metricasService.error() || metricasService.kpis().totalComandas === 0" title="Exportar Cierre Z">
+        <button class="btn-action" (click)="exportarCierreZ()" [disabled]="metricasService.cargando() || metricasService.error() || metricasService.kpis().totalComandas === 0" [title]="'METRICAS.EXPORTAR_Z' | translate">
           <ion-icon name="print-outline"></ion-icon>
-          <span class="btn-text">Exportar Z</span>
+          <span class="btn-text">{{ 'METRICAS.EXPORTAR_Z' | translate }}</span>
         </button>
         <div class="badge-live">
           <span class="pulse"></span>
-          DATOS
+          {{ 'METRICAS.DATOS' | translate }}
         </div>
       </div>
     </header>
@@ -27,7 +27,7 @@
     @if (metricasService.cargando()) {
     <div class="loading-state">
       <ion-spinner name="crescent"></ion-spinner>
-      <p>Procesando metricas avanzadas...</p>
+      <p>{{ 'METRICAS.PROCESANDO' | translate }}</p>
     </div>
     } @else if (metricasService.error()) {
     <div class="error-state">
@@ -40,28 +40,28 @@
         <div class="kpi-icon"><ion-icon name="wallet-outline"></ion-icon></div>
         <div class="kpi-info">
           <span class="kpi-value">{{ metricasService.kpis().totalVentas | currency:'EUR' }}</span>
-          <span class="kpi-label">Ventas Totales</span>
+          <span class="kpi-label">{{ 'METRICAS.VENTAS_TOTALES' | translate }}</span>
         </div>
       </div>
       <div class="kpi-card card-green">
         <div class="kpi-icon"><ion-icon name="trending-up-outline"></ion-icon></div>
         <div class="kpi-info">
           <span class="kpi-value">{{ metricasService.kpis().ticketMedio | currency:'EUR' }}</span>
-          <span class="kpi-label">Ticket Medio</span>
+          <span class="kpi-label">{{ 'METRICAS.TICKET_MEDIO' | translate }}</span>
         </div>
       </div>
       <div class="kpi-card card-orange">
         <div class="kpi-icon"><ion-icon name="stats-chart-outline"></ion-icon></div>
         <div class="kpi-info">
           <span class="kpi-value">{{ metricasService.kpis().totalComandas }}</span>
-          <span class="kpi-label">Comandas</span>
+          <span class="kpi-label">{{ 'METRICAS.COMANDAS' | translate }}</span>
         </div>
       </div>
       <div class="kpi-card card-purple">
         <div class="kpi-icon"><ion-icon name="time-outline"></ion-icon></div>
         <div class="kpi-info">
-          <span class="kpi-value">{{ metricasService.kpis().tiempoMedioServicio | number:'1.1-1' }}'</span>
-          <span class="kpi-label">T. Medio Servicio</span>
+          <span class="kpi-value">{{ metricasService.kpis().tiempoMedioEstancia | number:'1.1-1' }}'</span>
+          <span class="kpi-label">{{ 'METRICAS.T_MEDIO_SERVICIO' | translate }}</span>
         </div>
       </div>
     </div>
@@ -70,7 +70,7 @@
       <div class="stats-panel ranking-panel">
         <div class="panel-header">
           <ion-icon name="medal-outline"></ion-icon>
-          <h2>Ranking de Productos</h2>
+          <h2>{{ 'METRICAS.RANKING_PRODUCTOS' | translate }}</h2>
         </div>
         <div class="ranking-list">
           @for (prod of metricasService.rankingProductos(); track prod.nombre; let i = $index) {
@@ -78,21 +78,21 @@
             <div class="rank-number">#{{ i + 1 }}</div>
             <div class="rank-details">
               <div class="rank-main">
-                <span class="rank-name">{{ prod.nombre }}</span>
-                <span class="rank-qty">{{ prod.cantidad }} vtas.</span>
+                <span class="rank-name">{{ prod.nombre | translateContent }}</span>
+                <span class="rank-qty">{{ prod.cantidad }} {{ 'METRICAS.VENTAS_ABBR' | translate }}</span>
               </div>
               <div class="rank-progress-bg">
                 <div class="rank-progress-bar"
                   [style.width.%]="(prod.cantidad / metricasService.rankingProductos()[0].cantidad) * 100"></div>
               </div>
               <div class="rank-footer">
-                <span class="rank-revenue">{{ prod.totalRecaudado | currency:'EUR' }} recaudados</span>
-                <span class="rank-percent">{{ getPorcentajeVenta(prod.totalRecaudado) | number:'1.1-1' }}% del total</span>
+                <span class="rank-revenue">{{ prod.totalRecaudado | currency:'EUR' }} {{ 'METRICAS.RECAUDADOS' | translate }}</span>
+                <span class="rank-percent">{{ getPorcentajeVenta(prod.totalRecaudado) | number:'1.1-1' }}{{ 'METRICAS.DEL_TOTAL' | translate }}</span>
               </div>
             </div>
           </div>
           } @empty {
-          <div class="empty-mini">No hay datos de ventas aun.</div>
+          <div class="empty-mini">{{ 'METRICAS.SIN_DATOS' | translate }}</div>
           }
         </div>
       </div>
@@ -100,20 +100,20 @@
       <div class="stats-panel info-panel">
         <div class="panel-header">
           <ion-icon name="bar-chart-outline"></ion-icon>
-          <h2>Analisis de Operativa</h2>
+          <h2>{{ 'METRICAS.ANALISIS_OPERATIVA' | translate }}</h2>
         </div>
         <div class="info-content">
           <div class="info-card">
-            <h3>Eficiencia de Cocina</h3>
-            <p>Tu tiempo medio de preparacion es de <strong>{{ metricasService.kpis().tiempoMedioServicio | number:'1.1-1' }} minutos</strong> por comanda.</p>
-            <div class="efficiency-indicator" [class.fast]="metricasService.kpis().tiempoMedioServicio < 12">
-              {{ metricasService.kpis().tiempoMedioServicio < 12 ? 'Rendimiento Optimo' : 'Potencial de Mejora' }}
+            <h3>{{ 'METRICAS.EFICIENCIA_COCINA' | translate }}</h3>
+            <p>{{ 'METRICAS.TIEMPO_MEDIO' | translate }} <strong>{{ metricasService.kpis().tiempoMedioEstancia | number:'1.1-1' }} {{ 'METRICAS.MINUTOS' | translate }}</strong> {{ 'METRICAS.POR_COMANDA' | translate }}</p>
+            <div class="efficiency-indicator" [class.fast]="metricasService.kpis().tiempoMedioEstancia < 12">
+              {{ metricasService.kpis().tiempoMedioEstancia < 12 ? ('METRICAS.RENDIMIENTO_OPTIMO' | translate) : ('METRICAS.POTENCIAL_MEJORA' | translate) }}
             </div>
           </div>
 
           <div class="info-card">
-            <h3>Analisis de Ticket</h3>
-            <p>Con un ticket medio de <strong>{{ metricasService.kpis().ticketMedio | currency:'EUR' }}</strong>, los clientes realizan un gasto medio por servicio.</p>
+            <h3>{{ 'METRICAS.ANALISIS_TICKET' | translate }}</h3>
+            <p>{{ 'METRICAS.TICKET_MEDIO_DESC' | translate }} <strong>{{ metricasService.kpis().ticketMedio | currency:'EUR' }}</strong>{{ 'METRICAS.TICKET_MEDIO_DESC2' | translate }}</p>
           </div>
         </div>
       </div>

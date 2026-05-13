@@ -1,3 +1,13 @@
+> ⚠️ **Documento histórico — no vigente.**
+> Este análisis corresponde al **estado inicial del repositorio en enero de 2026** (Fase 0, antes de la implementación). Se conserva por valor historiográfico y para evidenciar la evolución del proyecto, pero **no debe utilizarse como referencia técnica vigente**: la arquitectura, el stack y los módulos descritos aquí han sido superados por las Fases 1–11.
+>
+> Para la documentación técnica actual, consultar:
+> - [`arquitectura_proyecto.md`](../arquitectura_proyecto.md) — arquitectura vigente.
+> - [`backend_firebase.md`](../backend_firebase.md) — modelo de datos y reglas de seguridad.
+> - [`bitacora_desarrollo.md`](../bitacora_desarrollo.md) — historial completo de hitos.
+
+---
+
 # Análisis Arquitectónico y Estado del Proyecto (Fase 0)
 
 Como Arquitecto de Software y Documentador Técnico, he analizado el repositorio de la **App de Comandas**. Dado que el proyecto ha sido recién inicializado, este documento refleja su estado base, identificando el stack, evaluando las primeras decisiones de arquitectura y proporcionando una hoja de ruta para evitar deuda técnica temprana.

@@ -1,6 +1,6 @@
 import { Injectable, inject, Injector, NgZone, runInInjectionContext, EnvironmentInjector } from '@angular/core';
 import {
-  Firestore, collection, doc, runTransaction
+  Firestore, collection, doc, runTransaction, serverTimestamp
 } from '@angular/fire/firestore';
 import { FacturaLegal, ContadorFacturas, calcularDesgloseIva, generarHashFactura } from '../models/factura.model';
 import { AdminComandaService } from './admin-comanda.service';
@@ -153,11 +153,10 @@ export class FacturacionService {
           // 6. Cerrar todas las comandas de la mesa como PAGADO en la misma
           // transacción. Si cualquiera falla, la factura no se persiste y
           // el contador no avanza.
-          const fechaCierre = Date.now();
           for (const refComanda of refsComandas) {
             transaccion.update(refComanda, {
               estado: 'PAGADO',
-              fechaActualizacion: fechaCierre
+              fechaActualizacion: serverTimestamp()
             });
           }
 

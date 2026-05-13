@@ -35,14 +35,13 @@ export interface ContadorFacturas {
  */
 export function calcularDesgloseIva(totalConIva: number, porcentajeIva: number = 10): { baseImponible: number, cuotaIva: number } {
   // Fórmula: Base = Total / (1 + (IVA/100))
+  // Se redondea solo la base; la cuota se obtiene por diferencia para garantizar
+  // que baseImponible + cuotaIva == importeTotal exactamente (cumplimiento fiscal).
   const divisor = 1 + (porcentajeIva / 100);
-  const base = totalConIva / divisor;
-  const cuota = totalConIva - base;
-  
-  return {
-    baseImponible: Number(base.toFixed(2)),
-    cuotaIva: Number(cuota.toFixed(2))
-  };
+  const baseImponible = Number((totalConIva / divisor).toFixed(2));
+  const cuotaIva = Number((totalConIva - baseImponible).toFixed(2));
+
+  return { baseImponible, cuotaIva };
 }
 
 /**

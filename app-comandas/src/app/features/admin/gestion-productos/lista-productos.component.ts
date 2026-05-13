@@ -71,11 +71,7 @@ export class ListaProductosComponent {
   }
 
   getLabelCategoria(cat: string): string {
-    const map: Record<string, string> = {
-      entrante: 'Entrante', principal: 'Principal',
-      postre: 'Postre', bebida: 'Bebida', especial: 'Especial'
-    };
-    return map[cat] || cat;
+    return 'CATEGORIAS.' + cat;
   }
 
   irANuevo() { this.router.navigate(['/admin/productos/nuevo']); }
@@ -86,14 +82,14 @@ export class ListaProductosComponent {
     const nuevoValor = !producto.disponible;
     try {
       await this.productoService.actualizarProducto(producto.id, { disponible: nuevoValor });
-      const msg = nuevoValor ? 'Producto activado.' : 'Producto desactivado.';
+      const msg = nuevoValor ? this.translate.instant('TOASTS.PRODUCTO_ACTIVADO') : this.translate.instant('TOASTS.PRODUCTO_DESACTIVADO');
       const toast = await this.toastCtrl.create({
         message: msg, duration: 1500, position: 'top', color: 'success',
         icon: nuevoValor ? 'eye-outline' : 'eye-off-outline'
       });
       await toast.present();
     } catch {
-      const toast = await this.toastCtrl.create({ message: 'Error al actualizar.', duration: 2000, color: 'danger' });
+      const toast = await this.toastCtrl.create({ message: this.translate.instant('TOASTS.ERROR_ACTUALIZAR'), duration: 2000, color: 'danger' });
       await toast.present();
     }
   }
@@ -105,7 +101,7 @@ export class ListaProductosComponent {
     try {
       await this.productoService.actualizarProducto(producto.id, { orden: val });
     } catch {
-      const toast = await this.toastCtrl.create({ message: 'Error al actualizar orden.', duration: 2000, color: 'danger' });
+      const toast = await this.toastCtrl.create({ message: this.translate.instant('TOASTS.ERROR_ACTUALIZAR'), duration: 2000, color: 'danger' });
       await toast.present();
     }
   }
@@ -120,10 +116,10 @@ export class ListaProductosComponent {
         updates.disponible = false;
       }
       await this.productoService.actualizarProducto(producto.id, updates);
-      const toast = await this.toastCtrl.create({ message: 'Stock actualizado.', duration: 1500, color: 'success' });
+      const toast = await this.toastCtrl.create({ message: this.translate.instant('TOASTS.STOCK_ACTUALIZADO'), duration: 1500, color: 'success' });
       await toast.present();
     } catch {
-      const toast = await this.toastCtrl.create({ message: 'Error al actualizar stock.', duration: 2000, color: 'danger' });
+      const toast = await this.toastCtrl.create({ message: this.translate.instant('TOASTS.ERROR_ACTUALIZAR'), duration: 2000, color: 'danger' });
       await toast.present();
     }
   }
@@ -135,19 +131,20 @@ export class ListaProductosComponent {
 
   async eliminarProducto(producto: Producto) {
     const alert = await this.alertCtrl.create({
+      cssClass: 'admin-app-alert admin-app-alert--danger',
       header: this.translate.instant('ADMIN.ELIMINAR_PREGUNTA'),
       message: `"${getTranslation(producto.nombre, this.translate.currentLang)}" ${this.translate.instant('ADMIN.ELIMINAR_AVISO')}`,
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: this.translate.instant('ACCIONES.CANCELAR'), role: 'cancel', cssClass: 'admin-alert-btn-cancel' },
         {
-          text: 'Eliminar', role: 'destructive',
+          text: this.translate.instant('ADMIN.ELIMINAR'), role: 'destructive', cssClass: 'admin-alert-btn-danger',
           handler: async () => {
             try {
               await this.productoService.eliminarProducto(producto.id);
-              const toast = await this.toastCtrl.create({ message: 'Producto eliminado.', duration: 1500, color: 'medium' });
+              const toast = await this.toastCtrl.create({ message: this.translate.instant('TOASTS.PRODUCTO_ELIMINADO'), duration: 1500, color: 'medium' });
               await toast.present();
             } catch {
-              const toast = await this.toastCtrl.create({ message: 'Error al eliminar.', duration: 2000, color: 'danger' });
+              const toast = await this.toastCtrl.create({ message: this.translate.instant('TOASTS.ERROR_ELIMINAR'), duration: 2000, color: 'danger' });
               await toast.present();
             }
           }

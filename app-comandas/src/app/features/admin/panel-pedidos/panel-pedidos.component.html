@@ -7,39 +7,39 @@
     <header class="top-bar glass-panel">
       <div class="brand">
         <div class="logo-pulse"></div>
-        <h1>Gestión de comandas</h1>
+        <h1>{{ 'ADMIN_PANEL.GESTION_COMANDAS' | translate }}</h1>
       </div>
 
       <div class="search-container">
-        <ion-searchbar placeholder="Buscar Mesa..." type="number" animated="true"
+        <ion-searchbar [placeholder]="'ADMIN_PANEL.BUSCAR_MESA' | translate" type="number" animated="true"
           (ionInput)="actualizarFiltro($event)" class="custom-search">
         </ion-searchbar>
       </div>
 
       <div class="actions">
         <div class="termometro glass-panel">
-          <span class="term-badge" [class.saturado]="adminComandaService.pedidosBarra().length >= 5" title="Raciones en Barra">
+          <span class="term-badge" [class.saturado]="adminComandaService.pedidosBarra().length >= 5" [title]="'ADMIN_PANEL.RACIONES_BARRA' | translate">
             <ion-icon name="beer-outline"></ion-icon> {{ statsKPI().platosBarra }}
           </span>
-          <span class="term-badge" [class.saturado]="adminComandaService.pedidosCocina().length >= 5" title="Raciones en Cocina">
+          <span class="term-badge" [class.saturado]="adminComandaService.pedidosCocina().length >= 5" [title]="'ADMIN_PANEL.RACIONES_COCINA' | translate">
             <ion-icon name="flame-outline"></ion-icon> {{ statsKPI().platosCocina }}
           </span>
         </div>
         <ion-button (click)="irABarra()" class="btn-neon-blue">
           <ion-icon name="beer-outline" slot="start"></ion-icon>
-          <span class="btn-text">Barra</span>
+          <span class="btn-text">{{ 'ADMIN_PANEL.BARRA' | translate }}</span>
         </ion-button>
         <ion-button (click)="irACocina()" class="btn-neon-orange">
           <ion-icon name="flame-outline" slot="start"></ion-icon>
-          <span class="btn-text">Cocina</span>
+          <span class="btn-text">{{ 'ADMIN_PANEL.COCINA' | translate }}</span>
         </ion-button>
         <ion-button (click)="irAGestionProductos()" class="btn-neon-purple">
           <ion-icon name="restaurant-outline" slot="start"></ion-icon>
-          <span class="btn-text">Carta</span>
+          <span class="btn-text">{{ 'ADMIN_PANEL.CARTA' | translate }}</span>
         </ion-button>
         <ion-button (click)="irACuentas()" class="btn-neon-green" style="--color: #00ff88; --background: rgba(0, 255, 136, 0.1);">
           <ion-icon name="receipt-outline" slot="start"></ion-icon>
-          <span class="btn-text">Cuentas</span>
+          <span class="btn-text">{{ 'ADMIN_PANEL.CUENTAS' | translate }}</span>
         </ion-button>
         <app-admin-config-bar></app-admin-config-bar>
       </div>
@@ -53,35 +53,41 @@
         <ion-icon name="people-outline" class="kpi-icon icon-blue"></ion-icon>
         <div class="kpi-info">
           <span class="kpi-value">{{ statsKPI().mesasActivas }}</span>
-          <span class="kpi-label">Mesas activas</span>
+          <span class="kpi-label">{{ 'ADMIN_PANEL.MESAS_ACTIVAS' | translate }}</span>
         </div>
       </div>
       <div class="kpi-card">
         <ion-icon name="flame-outline" class="kpi-icon icon-orange"></ion-icon>
         <div class="kpi-info">
           <span class="kpi-value">{{ statsKPI().platosCocina }}</span>
-          <span class="kpi-label">Raciones en cocina</span>
+          <span class="kpi-label">{{ 'ADMIN_PANEL.RACIONES_COCINA' | translate }}</span>
         </div>
       </div>
       <div class="kpi-card">
         <ion-icon name="beer-outline" class="kpi-icon icon-blue"></ion-icon>
         <div class="kpi-info">
           <span class="kpi-value">{{ statsKPI().platosBarra }}</span>
-          <span class="kpi-label">Bebidas en barra</span>
+          <span class="kpi-label">{{ 'ADMIN_PANEL.RACIONES_BARRA' | translate }}</span>
         </div>
       </div>
       <div class="kpi-card" [class.kpi-urgente]="statsKPI().tiempoMedioMin >= 15">
         <ion-icon name="time-outline" class="kpi-icon icon-amber"></ion-icon>
         <div class="kpi-info">
-          <span class="kpi-value">{{ statsKPI().tiempoMedioMin }}<small> min</small></span>
-          <span class="kpi-label">T. medio en marcha</span>
+          <span class="kpi-value">
+            @if (statsKPI().tiempoMedioMin > 0) {
+              {{ statsKPI().tiempoMedioMin }}<small> min</small>
+            } @else {
+              <span class="kpi-empty">—</span>
+            }
+          </span>
+          <span class="kpi-label">{{ 'ADMIN_PANEL.T_MEDIO_MARCHA' | translate }}</span>
         </div>
       </div>
       <div class="kpi-card">
         <ion-icon name="checkmark-done-outline" class="kpi-icon icon-green"></ion-icon>
         <div class="kpi-info">
           <span class="kpi-value">{{ statsKPI().completadas }}</span>
-          <span class="kpi-label">Completadas hoy</span>
+          <span class="kpi-label">{{ 'ADMIN_PANEL.COMPLETADAS_HOY' | translate }}</span>
         </div>
       </div>
     </div>
@@ -94,7 +100,7 @@
         @for (mesa of adminComandaService.mesasConSolicitudCuenta(); track mesa) {
           <div class="alerta-cuenta">
             <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
-            <span>Mesa <strong>{{ mesa }}</strong> pide la cuenta</span>
+            <span>{{ 'ADMIN_PANEL.MESA' | translate }} <strong>{{ mesa }}</strong> {{ 'ADMIN_PANEL.PIDE_CUENTA' | translate }}</span>
             <button class="btn-alerta-cobrar" (click)="irACuentas()">
               Cobrar
             </button>
@@ -113,7 +119,7 @@
         <div class="col-header">
           <div class="header-title">
             <ion-icon name="flash-outline" class="neon-text-orange"></ion-icon>
-            <h2>Entradas</h2>
+            <h2>{{ 'ADMIN_PANEL.ENTRADAS' | translate }}</h2>
           </div>
           <span class="counter badge-orange">{{ pedidosPendientesFiltrados().length }}</span>
         </div>
@@ -122,7 +128,7 @@
           @if (pedidosPendientesFiltrados().length === 0) {
           <div class="empty-state">
             <ion-icon name="cafe-outline"></ion-icon>
-            <p>Sala tranquila</p>
+            <p>{{ 'ADMIN_PANEL.SALA_TRANQUILA' | translate }}</p>
           </div>
           }
           @for (comanda of pedidosPendientesFiltrados(); track comanda.id) {
@@ -132,7 +138,7 @@
             <div class="card-header clickable" (click)="toggleExpand(comanda.id)">
               <div class="mesa-info">
                 <span class="mesa-id">
-                  Mesa {{ comanda.idMesa }}
+                  {{ 'ADMIN_PANEL.MESA' | translate }} {{ comanda.idMesa }}
                   <button
                     type="button"
                     class="btn-timeline"
@@ -157,7 +163,7 @@
             @if (comanda.alergenosUsuario && comanda.alergenosUsuario.length > 0) {
             <div class="alerta-alergia-inline">
               <ion-icon name="warning-outline"></ion-icon>
-              <span>{{ comanda.alergenosUsuario.join(', ') | uppercase }}</span>
+              <span><strong>{{ 'ADMIN_PANEL.ALERGIAS_LABEL' | translate }}</strong> {{ comanda.alergenosUsuario.join(', ') | uppercase }}</span>
             </div>
             }
 
@@ -170,10 +176,10 @@
               </div>
               <div class="destinos-row">
                 @if (getLineasCocina(comanda).length > 0) {
-                  <span class="dest-chip cocina"><ion-icon name="flame-outline"></ion-icon> {{ getLineasCocina(comanda).length }} cocina</span>
+                  <span class="dest-chip cocina"><ion-icon name="flame-outline"></ion-icon> {{ getLineasCocina(comanda).length }} {{ 'ADMIN_PANEL.COCINA' | translate }}</span>
                 }
                 @if (getLineasBarra(comanda).length > 0) {
-                  <span class="dest-chip barra"><ion-icon name="beer-outline"></ion-icon> {{ getLineasBarra(comanda).length }} barra</span>
+                  <span class="dest-chip barra"><ion-icon name="beer-outline"></ion-icon> {{ getLineasBarra(comanda).length }} {{ 'ADMIN_PANEL.BARRA' | translate }}</span>
                 }
               </div>
             </div>
@@ -202,18 +208,18 @@
               </div>
               }
               <div class="total-row">
-                <span>Total</span>
+                <span>{{ 'ADMIN_PANEL.TOTAL' | translate }}</span>
                 <strong>{{ comanda.precioTotal | currency:'EUR':'symbol':'1.2-2' }}</strong>
               </div>
             </div>
             }
 
             <div class="card-action dual-action">
-              <button class="btn-cancel action-red" (click)="anularComanda(comanda.id)" title="Anular Comanda">
+              <button class="btn-cancel action-red" (click)="anularComanda(comanda.id)" [title]="'ADMIN_PANEL.ANULAR_COMANDA' | translate">
                 <ion-icon name="close-circle-outline"></ion-icon>
               </button>
               <button class="btn-swipe-action action-orange" (click)="cambiarEstadoComanda(comanda.id, 'PREPARANDO')">
-                <span>Aprobar y Enviar</span>
+                <span>{{ 'ADMIN_PANEL.APROBAR_ENVIAR' | translate }}</span>
                 <ion-icon name="checkmark-circle-outline"></ion-icon>
               </button>
             </div>
@@ -227,7 +233,7 @@
         <div class="col-header">
           <div class="header-title">
             <ion-icon name="sync-outline" class="neon-text-blue"></ion-icon>
-            <h2>En Marcha</h2>
+            <h2>{{ 'ADMIN_PANEL.EN_MARCHA' | translate }}</h2>
           </div>
           <span class="counter badge-blue">{{ pedidosPreparandoFiltrados().length }}</span>
         </div>
@@ -236,7 +242,7 @@
           @if (pedidosPreparandoFiltrados().length === 0) {
           <div class="empty-state">
             <ion-icon name="restaurant-outline"></ion-icon>
-            <p>Sin comandas activas</p>
+            <p>{{ 'ADMIN_PANEL.SIN_COMANDAS_ACTIVAS' | translate }}</p>
           </div>
           }
           @for (comanda of pedidosPreparandoFiltrados(); track comanda.id) {
@@ -246,7 +252,7 @@
             <div class="card-header clickable" (click)="toggleExpand(comanda.id)">
               <div class="mesa-info">
                 <span class="mesa-id">
-                  Mesa {{ comanda.idMesa }}
+                  {{ 'ADMIN_PANEL.MESA' | translate }} {{ comanda.idMesa }}
                   <button
                     type="button"
                     class="btn-timeline"
@@ -271,7 +277,7 @@
             @if (comanda.alergenosUsuario && comanda.alergenosUsuario.length > 0) {
             <div class="alerta-alergia-inline">
               <ion-icon name="warning-outline"></ion-icon>
-              <span>{{ comanda.alergenosUsuario.join(', ') | uppercase }}</span>
+              <span><strong>{{ 'ADMIN_PANEL.ALERGIAS_LABEL' | translate }}</strong> {{ comanda.alergenosUsuario.join(', ') | uppercase }}</span>
             </div>
             }
 
@@ -279,7 +285,7 @@
             <div class="progreso-wrap">
               <div class="progreso-header">
                 <ion-icon name="sync-outline" class="spin-icon"></ion-icon>
-                <span>{{ getProgreso(comanda).preparados }} / {{ getProgreso(comanda).total }} preparados</span>
+                <span>{{ getProgreso(comanda).preparados }} / {{ getProgreso(comanda).total }} {{ 'ADMIN_PANEL.PREPARADOS' | translate }}</span>
                 <span class="pct-badge" [style.background]="getColorProgreso(getProgreso(comanda).pct) + '22'"
                   [style.color]="getColorProgreso(getProgreso(comanda).pct)">
                   {{ getProgreso(comanda).pct }}%
@@ -304,7 +310,7 @@
                 </span>
                 }
                 @if (comanda.lineasComanda.length > 3) {
-                <span class="mini-badge more-badge">+{{ comanda.lineasComanda.length - 3 }} más</span>
+                <span class="mini-badge more-badge">+{{ comanda.lineasComanda.length - 3 }} {{ 'ADMIN_PANEL.MAS' | translate }}</span>
                 }
               </div>
             </div>
@@ -346,7 +352,7 @@
         <div class="col-header">
           <div class="header-title">
             <ion-icon name="checkmark-done-outline" class="neon-text-green"></ion-icon>
-            <h2>Completadas</h2>
+            <h2>{{ 'ADMIN_PANEL.COMPLETADAS' | translate }}</h2>
           </div>
           <span class="counter badge-green">{{ pedidosCompletadosFiltrados().length }}</span>
         </div>
@@ -355,7 +361,7 @@
           @if (pedidosCompletadosFiltrados().length === 0) {
           <div class="empty-state">
             <ion-icon name="archive-outline"></ion-icon>
-            <p>Sin completadas</p>
+            <p>{{ 'ADMIN_PANEL.SIN_COMPLETADAS' | translate }}</p>
           </div>
           }
           @for (comanda of pedidosCompletadosFiltrados(); track comanda.id) {
@@ -364,7 +370,7 @@
             <div class="card-header clickable" (click)="toggleExpand(comanda.id)">
               <div class="mesa-info">
                 <span class="mesa-id">
-                  Mesa {{ comanda.idMesa }}
+                  {{ 'ADMIN_PANEL.MESA' | translate }} {{ comanda.idMesa }}
                   <button
                     type="button"
                     class="btn-timeline"
@@ -412,7 +418,7 @@
               </div>
               }
               <div class="total-row">
-                <span>Total cobrado</span>
+                <span>{{ 'ADMIN_PANEL.TOTAL_COBRADO' | translate }}</span>
                 <strong>{{ comanda.precioTotal | currency:'EUR':'symbol':'1.2-2' }}</strong>
               </div>
             </div>
@@ -433,7 +439,7 @@
       <ion-header class="ion-no-border">
         <ion-toolbar>
           <ion-title>
-            <ion-icon name="trending-up-outline"></ion-icon> Historial Mesa {{ mesaTimeline() }}
+            <ion-icon name="trending-up-outline"></ion-icon> {{ 'ADMIN_PANEL.HISTORIAL_MESA' | translate }} {{ mesaTimeline() }}
           </ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="cerrarTimeline()">
@@ -448,17 +454,17 @@
         <div class="timeline-header-stats">
           <div class="tl-stat">
             <span class="tl-stat-val">{{ comandasMesaTimeline().length }}</span>
-            <span class="tl-stat-label">Ronda{{ comandasMesaTimeline().length !== 1 ? 's' : '' }}</span>
+            <span class="tl-stat-label">{{ 'ADMIN_PANEL.RONDA' | translate }}{{ comandasMesaTimeline().length !== 1 ? 's' : '' }}</span>
           </div>
           <div class="tl-stat">
             <span class="tl-stat-val">{{ precioTotalMesa() | currency:'EUR':'symbol':'1.2-2' }}</span>
-            <span class="tl-stat-label">Total acumulado</span>
+            <span class="tl-stat-label">{{ 'ADMIN_PANEL.TOTAL_ACUMULADO' | translate }}</span>
           </div>
           <div class="tl-stat">
             <span class="tl-stat-val">
               {{ comandasMesaTimeline()[0]?.fechaCreacion | date:'HH:mm' }}
             </span>
-            <span class="tl-stat-label">Hora entrada</span>
+            <span class="tl-stat-label">{{ 'ADMIN_PANEL.HORA_ENTRADA' | translate }}</span>
           </div>
         </div>
 
@@ -466,7 +472,7 @@
         <div class="timeline-list">
           @for (comanda of comandasMesaTimeline(); track comanda.id; let i = $index) {
           <div class="tl-ronda">
-            <div class="tl-ronda-badge">Ronda {{ i + 1 }}</div>
+            <div class="tl-ronda-badge">{{ 'ADMIN_PANEL.RONDA' | translate }} {{ i + 1 }}</div>
             <div class="tl-ronda-meta">
               <span class="tl-estado" [class]="'estado-' + comanda.estado.toLowerCase()">
                 {{ getLabelEstado(comanda.estado) | translate }}
@@ -500,7 +506,7 @@
             </div>
 
             <div class="tl-subtotal">
-              <span>Ronda {{ i + 1 }}</span>
+              <span>{{ 'ADMIN_PANEL.RONDA' | translate }} {{ i + 1 }}</span>
               <strong>{{ comanda.precioTotal | currency:'EUR':'symbol':'1.2-2' }}</strong>
             </div>
           </div>
@@ -509,7 +515,7 @@
 
         <!-- Total global -->
         <div class="tl-total-global">
-          <span>TOTAL MESA {{ mesaTimeline() }}</span>
+          <span>{{ 'ADMIN_PANEL.TOTAL' | translate | uppercase }} {{ 'ADMIN_PANEL.MESA' | translate | uppercase }} {{ mesaTimeline() }}</span>
           <strong>{{ precioTotalMesa() | currency:'EUR':'symbol':'1.2-2' }}</strong>
         </div>
 
@@ -524,7 +530,7 @@
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar>
-          <ion-title>Detalle Mesa {{ comandaSeleccionada()?.idMesa }}</ion-title>
+          <ion-title>{{ 'ADMIN_PANEL.DETALLE_MESA' | translate }} {{ comandaSeleccionada()?.idMesa }}</ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="cerrarDetalle()">
               <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
@@ -534,11 +540,11 @@
       </ion-header>
       <ion-content class="ion-padding bg-dark-modal">
         <div class="modal-cliente-info">
-          <h3>Cliente: {{ comandaSeleccionada()?.nombreCliente }}</h3>
+          <h3>{{ 'ADMIN_PANEL.CLIENTE' | translate }} {{ comandaSeleccionada()?.nombreCliente }}</h3>
           @if (comandaSeleccionada()?.alergenosUsuario && comandaSeleccionada()?.alergenosUsuario!.length > 0) {
             <div class="alerta-alergenos">
               <ion-icon name="warning-outline"></ion-icon>
-              <span><strong>ALERGIAS:</strong> {{ comandaSeleccionada()?.alergenosUsuario!.join(', ') | uppercase }}</span>
+              <span><strong>{{ 'ADMIN_PANEL.ALERGIAS_LABEL' | translate }}</strong> {{ comandaSeleccionada()?.alergenosUsuario!.join(', ') | uppercase }}</span>
             </div>
           }
         </div>

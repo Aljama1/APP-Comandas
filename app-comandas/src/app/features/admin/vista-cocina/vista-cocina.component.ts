@@ -10,11 +10,13 @@ import { flameOutline, timeOutline, warningOutline, restaurantOutline, checkmark
 
 import { AdminConfigBarComponent } from '../../../shared/components/admin-config-bar/admin-config-bar.component';
 import { TranslateAlergenosPipe } from '../../../core/pipes/translate-alergenos.pipe';
+import { TranslateModule } from '@ngx-translate/core';
+import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
 
 @Component({
   selector: 'app-vista-cocina',
   standalone: true,
-  imports: [CommonModule, IonicModule, AdminConfigBarComponent, TranslateAlergenosPipe],
+  imports: [CommonModule, IonicModule, AdminConfigBarComponent, TranslateAlergenosPipe, TranslateModule, TranslateContentPipe],
   templateUrl: './vista-cocina.component.html',
   styleUrls: ['./vista-cocina.component.scss']
 })
@@ -176,10 +178,6 @@ export class VistaCocinaComponent implements OnInit, OnDestroy {
 
   actualizarFiltro(event: any) {
     this.filtroMesa.set(event.detail.value || '');
-  }
-
-  getNombreProducto(nombreProducto: any): string {
-    return getTranslation(nombreProducto, 'es');
   }
 
   cerrarSesion() {

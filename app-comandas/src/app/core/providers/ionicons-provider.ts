@@ -12,6 +12,7 @@ import {
   checkmarkCircle,
   checkmarkCircleOutline,
   checkmarkOutline,
+  chevronBackOutline,
   chevronForwardOutline,
   chevronUpOutline,
   closeOutline,
@@ -47,6 +48,7 @@ import {
   shieldOutline,
   sunnyOutline,
   timeOutline,
+  trashOutline,
   warningOutline,
   waterOutline,
   flaskOutline
@@ -66,6 +68,7 @@ export function registrarIconosAplicacion(): void {
     checkmarkCircle,
     checkmarkCircleOutline,
     checkmarkOutline,
+    chevronBackOutline,
     chevronForwardOutline,
     chevronUpOutline,
     closeOutline,
@@ -101,6 +104,7 @@ export function registrarIconosAplicacion(): void {
     shieldOutline,
     sunnyOutline,
     timeOutline,
+    trashOutline,
     warningOutline,
     waterOutline,
     flaskOutline

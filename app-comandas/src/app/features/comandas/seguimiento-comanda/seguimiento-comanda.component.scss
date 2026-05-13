@@ -1,5 +1,4 @@
 @use "sass:color";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800;900&display=swap');
 
 $font-display: 'Outfit', -apple-system, sans-serif;
 $font-body: 'Inter', -apple-system, sans-serif;
@@ -162,7 +161,6 @@ $danger:   #ff3b30;
 
   &.estado--pendiente  { background: rgba(255, 149, 0, 0.1);  color: color.adjust($pending, $lightness: -5%); }
   &.estado--preparando { background: rgba(0, 122, 255, 0.1);  color: $cooking; }
-  &.estado--listo      { background: rgba(52, 199, 89, 0.12); color: color.adjust($ready, $lightness: -10%); }
   &.estado--servido    { background: rgba(142, 142, 147, 0.1); color: $served; }
   &.estado--cancelado  { background: rgba(255, 59, 48, 0.08);  color: $danger; }
 }

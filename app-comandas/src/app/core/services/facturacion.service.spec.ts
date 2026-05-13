@@ -12,10 +12,8 @@ describe('FacturacionService', () => {
 
   beforeEach(() => {
     const adminSpy = jasmine.createSpyObj<AdminComandaService>('AdminComandaService', [
-      'obtenerComandasPorMesa',
-      'finalizarCuentaMesa'
+      'obtenerComandasPorMesa'
     ]);
-    adminSpy.finalizarCuentaMesa.and.resolveTo();
 
     TestBed.configureTestingModule({
       providers: [

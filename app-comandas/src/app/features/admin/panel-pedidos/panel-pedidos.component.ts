@@ -225,11 +225,10 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
 
   getLabelEstado(estado: EstadoComanda): string {
     const map: Record<EstadoComanda, string> = {
-      PENDIENTE: 'ESTADOS.PENDIENTE', 
+      PENDIENTE: 'ESTADOS.PENDIENTE',
       PREPARANDO: 'ESTADOS.PREPARANDO',
-      LISTO: 'ESTADOS.LISTO', 
-      SERVIDO: 'ESTADOS.SERVIDO', 
-      PAGADO: 'ESTADOS.PAGADO', 
+      SERVIDO: 'ESTADOS.SERVIDO',
+      PAGADO: 'ESTADOS.PAGADO',
       CANCELADO: 'ESTADOS.CANCELADO'
     };
     return map[estado] ?? estado;
@@ -241,7 +240,6 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
     let mensajeExito = '';
     switch (nuevoEstado) {
       case 'PREPARANDO': mensajeExito = this.translate.instant('TOASTS.COMANDA_VALIDADA'); break;
-      case 'LISTO':      mensajeExito = this.translate.instant('TOASTS.MARCADO_LISTO'); break;
       case 'SERVIDO':    mensajeExito = this.translate.instant('TOASTS.COMANDA_SERVIDA'); break;
     }
 

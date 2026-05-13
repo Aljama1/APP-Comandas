@@ -1,12 +1,15 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
+import { Location } from '@angular/common';
+
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-generador-qr',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule],
+  imports: [CommonModule, IonicModule, FormsModule, TranslateModule],
   templateUrl: './generador-qr.component.html',
   styleUrls: ['./generador-qr.component.scss']
 })
@@ -25,7 +28,11 @@ export class GeneradorQrComponent {
 
   copiado = signal<boolean>(false);
 
-  constructor() {  }
+  private location = inject(Location);
+
+  volver() {
+    this.location.back();
+  }
 
   async copiarEnlace() {
     try {
@@ -38,25 +45,29 @@ export class GeneradorQrComponent {
   }
 
   imprimirQr() {
-    // Para imprimir correctamente en Ionic, extraemos temporalmente el QR al body
     const printContent = document.querySelector('.print-area');
     if (!printContent) return;
 
     const originalParent = printContent.parentNode;
     const originalNextSibling = printContent.nextSibling;
 
-    document.body.classList.add('is-printing-qr');
-    document.body.appendChild(printContent);
-
-    setTimeout(() => {
-      window.print();
-      
-      // Restauramos el DOM después de imprimir
+    const restaurar = () => {
       document.body.classList.remove('is-printing-qr');
       if (originalNextSibling) {
         originalParent?.insertBefore(printContent, originalNextSibling);
       } else {
         originalParent?.appendChild(printContent);
+      }
+    };
+
+    document.body.classList.add('is-printing-qr');
+    document.body.appendChild(printContent);
+
+    setTimeout(() => {
+      try {
+        window.print();
+      } finally {
+        restaurar();
       }
     }, 100);
   }

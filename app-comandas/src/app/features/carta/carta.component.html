@@ -41,7 +41,7 @@
   @if (perfil()?.alergenos?.length) {
     <div class="alergenos-pill" role="status">
       <ion-icon name="shield-checkmark" aria-hidden="true"></ion-icon>
-      <span>Filtro activo: {{ perfil()?.alergenos | translateAlergenos }}</span>
+      <span>{{ 'CARTA.FILTRO_ACTIVO' | translate }}: {{ perfil()?.alergenos | translateAlergenos }}</span>
     </div>
   }
 
@@ -178,7 +178,7 @@
           <h3 class="modal-section-label">{{ 'ALERGENOS.TITULO' | translate }}</h3>
           <div class="modal-alergenos-list">
             @if (productoSeleccionado()!.alergenos.length === 0) {
-              <span class="alergeno-pill alergeno-pill--safe">✓ {{ 'ALERGENOS.SIN_ALERGENOS' | translate }}</span>
+              <span class="alergeno-pill alergeno-pill--safe">✓ {{ 'ALERGENOS.sin_alergenos' | translate }}</span>
             }
             @for (al of productoSeleccionado()!.alergenos; track al) {
               <span
@@ -292,7 +292,7 @@
             <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
             <div>
               <span class="settings-row__title">{{ perfil()?.nombre }}</span>
-              <span class="settings-row__sub">Mesa {{ perfil()?.mesaId }}</span>
+              <span class="settings-row__sub">{{ 'CARTA.MESA' | translate }} {{ perfil()?.mesaId }}</span>
             </div>
           </div>
         </div>

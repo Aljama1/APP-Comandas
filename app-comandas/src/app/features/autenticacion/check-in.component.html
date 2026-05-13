@@ -71,6 +71,8 @@
             formControlName="mesaId"
             [readonly]="mesaDesdeQR"
             inputmode="numeric"
+            min="1"
+            max="999"
           >
           @if (mesaDesdeQR) {
             <span class="field-badge-qr" aria-label="Mesa asignada automaticamente por QR">

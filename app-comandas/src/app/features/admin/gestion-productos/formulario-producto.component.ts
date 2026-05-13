@@ -62,21 +62,21 @@ export class FormularioProductoComponent implements OnInit {
     { clave: 'especial', etiqueta: 'Especial' }
   ];
 
-  todosLosAlergenos: { id: Alergeno; label: string; emoji: string }[] = [
-    { id: 'Gluten', label: 'Gluten', emoji: '🌾' },
-    { id: 'Crustáceos', label: 'Crustáceos', emoji: '🦞' },
-    { id: 'Huevos', label: 'Huevos', emoji: '🥚' },
-    { id: 'Pescado', label: 'Pescado', emoji: '🐟' },
-    { id: 'Cacahuetes', label: 'Cacahuetes', emoji: '🥜' },
-    { id: 'Soja', label: 'Soja', emoji: '🫘' },
-    { id: 'Lácteos', label: 'Lácteos', emoji: '🥛' },
-    { id: 'Frutos de cáscara', label: 'Frutos secos', emoji: '🌰' },
-    { id: 'Apio', label: 'Apio', emoji: '🥬' },
-    { id: 'Mostaza', label: 'Mostaza', emoji: '🌭' },
-    { id: 'Granos de sésamo', label: 'Sésamo', emoji: '🥯' },
-    { id: 'Dióxido de azufre y sulfitos', label: 'Sulfitos', emoji: '🍷' },
-    { id: 'Altramuces', label: 'Altramuces', emoji: '🌼' },
-    { id: 'Moluscos', label: 'Moluscos', emoji: '🦪' }
+  todosLosAlergenos: { id: Alergeno; key: string; emoji: string }[] = [
+    { id: 'Gluten', key: 'gluten', emoji: '🌾' },
+    { id: 'Crustáceos', key: 'crustaceos', emoji: '🦞' },
+    { id: 'Huevos', key: 'huevo', emoji: '🥚' },
+    { id: 'Pescado', key: 'pescado', emoji: '🐟' },
+    { id: 'Cacahuetes', key: 'cacahuetes', emoji: '🥜' },
+    { id: 'Soja', key: 'soja', emoji: '🫘' },
+    { id: 'Lácteos', key: 'lactosa', emoji: '🥛' },
+    { id: 'Frutos de cáscara', key: 'frutos-secos', emoji: '🌰' },
+    { id: 'Apio', key: 'apio', emoji: '🥬' },
+    { id: 'Mostaza', key: 'mostaza', emoji: '🌭' },
+    { id: 'Granos de sésamo', key: 'sesamo', emoji: '🥯' },
+    { id: 'Dióxido de azufre y sulfitos', key: 'sulfitos', emoji: '🍷' },
+    { id: 'Altramuces', key: 'altramuces', emoji: '🌼' },
+    { id: 'Moluscos', key: 'moluscos', emoji: '🦪' }
   ];
 
   ngOnInit() {
@@ -277,7 +277,7 @@ export class FormularioProductoComponent implements OnInit {
   async guardar(): Promise<void> {
     if (!this.esValido()) {
       const toast = await this.toastCtrl.create({
-        message: 'Completa nombre y precio (mayor que 0).',
+        message: this.translate.instant('ADMIN.FORM.VALIDACION_REQ'),
         duration: 2500, position: 'top', color: 'warning'
       });
       await toast.present();
@@ -324,7 +324,7 @@ export class FormularioProductoComponent implements OnInit {
       }
 
       const toast = await this.toastCtrl.create({
-        message: this.modoEdicion() ? 'Producto actualizado.' : 'Producto creado.',
+        message: this.modoEdicion() ? this.translate.instant('TOASTS.PRODUCTO_ACTUALIZADO') : this.translate.instant('TOASTS.PRODUCTO_CREADO'),
         duration: 1500, position: 'top', color: 'success', icon: 'checkmark-outline'
       });
       await toast.present();
@@ -332,7 +332,7 @@ export class FormularioProductoComponent implements OnInit {
     } catch (e) {
       console.error('ERROR AL GUARDAR:', e);
       const toast = await this.toastCtrl.create({
-        message: 'Error al guardar. Revisa la consola.',
+        message: this.translate.instant('TOASTS.ERROR_GUARDAR'),
         duration: 2500, position: 'top', color: 'danger'
       });
       await toast.present();

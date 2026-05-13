@@ -17,17 +17,21 @@ import {
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateContentPipe } from '../../../core/pipes/translate-content.pipe';
+import { getTranslation } from '../../../core/models/common.model';
 
 @Component({
   selector: 'app-dashboard-metricas',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, TranslateModule, TranslateContentPipe],
   templateUrl: './dashboard-metricas.component.html',
   styleUrls: ['./dashboard-metricas.component.scss']
 })
 export class DashboardMetricasComponent {
   public metricasService = inject(MetricasService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   constructor() {
     addIcons({
@@ -82,7 +86,7 @@ export class DashboardMetricasComponent {
     doc.text(`Ventas Totales: ${kpis.totalVentas.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}`, 14, 58);
     doc.text(`Comandas Totales: ${kpis.totalComandas}`, 14, 65);
     doc.text(`Ticket Medio: ${kpis.ticketMedio.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}`, 100, 58);
-    doc.text(`T. Medio Servicio: ${kpis.tiempoMedioServicio.toFixed(1)} min`, 100, 65);
+    doc.text(`T. Medio Servicio: ${kpis.tiempoMedioEstancia.toFixed(1)} min`, 100, 65);
 
     // Tabla de ranking de productos
     doc.setFontSize(14);
@@ -91,14 +95,19 @@ export class DashboardMetricasComponent {
 
     const bodyData = productos.map((producto, index) => [
       index + 1,
-      producto.nombre,
+      getTranslation(producto.nombre, this.translate.currentLang),
       producto.cantidad.toString(),
       producto.totalRecaudado.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })
     ]);
 
     autoTable(doc, {
       startY: 85,
-      head: [['#', 'Producto', 'Unidades', 'Recaudacion']],
+      head: [[
+        '#', 
+        this.translate.instant('ADMIN.FORM.NOMBRE'), 
+        this.translate.instant('GESTION_CUENTAS.PRODUCTOS'), 
+        this.translate.instant('TICKET.TOTAL')
+      ]],
       body: bodyData,
       theme: 'grid',
       headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255] },

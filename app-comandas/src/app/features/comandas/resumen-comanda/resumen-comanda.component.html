@@ -63,21 +63,21 @@
               <button class="btn-accion btn-notas"
                 [class.tiene-notas]="linea.notasEspeciales"
                 (click)="abrirNotas(linea)"
-                [attr.aria-label]="linea.notasEspeciales ? 'Editar nota de cocina para ' + linea.nombreProducto : 'Añadir nota de cocina para ' + linea.nombreProducto">
+                [attr.aria-label]="linea.notasEspeciales ? 'Editar nota de cocina para ' + nombreLegible(linea) : 'Añadir nota de cocina para ' + nombreLegible(linea)">
                 <ion-icon name="chatbubble-ellipses-outline" aria-hidden="true"></ion-icon>
                 <span>{{ (linea.notasEspeciales ? 'COMANDAS.EDITAR_NOTA' : 'COMANDAS.ADD_NOTA') | translate }}</span>
               </button>
-              <div class="control-cantidad" role="group" [attr.aria-label]="'Cantidad de ' + linea.nombreProducto">
+              <div class="control-cantidad" role="group" [attr.aria-label]="'Cantidad de ' + nombreLegible(linea)">
                 <button class="btn-paso"
                   [class.eliminar]="linea.cantidad === 1"
                   (click)="actualizarCantidad(linea, 'decrementar')"
-                  [attr.aria-label]="linea.cantidad === 1 ? 'Eliminar ' + linea.nombreProducto : 'Reducir cantidad de ' + linea.nombreProducto">
+                  [attr.aria-label]="linea.cantidad === 1 ? 'Eliminar ' + nombreLegible(linea) : 'Reducir cantidad de ' + nombreLegible(linea)">
                   <ion-icon [name]="linea.cantidad === 1 ? 'trash-outline' : 'remove-outline'" aria-hidden="true"></ion-icon>
                 </button>
                 <span class="cantidad" aria-live="polite">{{ linea.cantidad }}</span>
                 <button class="btn-paso"
                   (click)="actualizarCantidad(linea, 'incrementar')"
-                  [attr.aria-label]="'Aumentar cantidad de ' + linea.nombreProducto">
+                  [attr.aria-label]="'Aumentar cantidad de ' + nombreLegible(linea)">
                   <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
                 </button>
               </div>
