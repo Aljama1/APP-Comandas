@@ -23,4 +23,16 @@ yarn-error.log*
 .cache/
 dist/
 tmp/
-app-comandas/AGENTS.md
+
+# Raíz - generados por herramientas auxiliares
+node_modules/
+package.json
+package-lock.json
+gen-slides.mjs
+
+# Capacitor - recursos fuente de iconos
+app-comandas/resources/
+app-comandas/gen-icon.mjs
+
+# Documentación local (no publicar en repo)
+docs/documentacion/
