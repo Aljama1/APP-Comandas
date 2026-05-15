@@ -18,9 +18,7 @@ Trace es una aplicación híbrida (PWA + app nativa Android) que digitaliza el c
 
 ## Acceso a la aplicación
 
-App desplegada en **<https://trace-6a41a.web.app>**.
-
-- **Comensal:** escanea el código QR de la mesa o accede con el parámetro `?mesa=N` (ej. `https://trace-6a41a.web.app/?mesa=5`). Será redirigido al check-in.
+- **Comensal:** escanea el código QR de la mesa o accede con el parámetro `?mesa=N` (ej. `http://localhost:8100/?mesa=5`). Será redirigido al check-in.
 - **Staff / admin:** navega a `/admin/login` e introduce las credenciales del establecimiento.
 
 ---
@@ -103,9 +101,9 @@ La app estará disponible en `http://localhost:8100`.
 
 ---
 
-## Despliegue en Firebase Hosting
+## Despliegue en Firebase Hosting (Opcional)
 
-El proyecto se despliega en **Firebase Hosting** (sitio estático), **no en Firebase App Hosting**: la app es una SPA Angular compilada a `www/`, sin SSR ni buildpacks Node. Los buildpacks de App Hosting fallarán con `No buildpack groups passed detection` porque no hay servidor Node en la raíz.
+El proyecto está preparado para poder desplegarse en **Firebase Hosting** (sitio estático). La app es una SPA Angular compilada a `www/`.
 
 ```bash
 cd app-comandas
