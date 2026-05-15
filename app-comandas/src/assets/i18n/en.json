@@ -167,6 +167,7 @@
     },
     "CERRAR_SESION_TITULO": "Sign Out",
     "CERRAR_SESION_MSG": "Are you sure you want to exit?",
+    "CERRAR_SESION_MSG_PEDIDOS": "You have active orders in the kitchen. If you log out, you will not be able to track their status from this device. Continue?",
     "FILTRO_ACTIVO": "Active filter"
   },
   "LANDING": {

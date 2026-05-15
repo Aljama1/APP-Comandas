@@ -307,11 +307,13 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
     const alert = await this.alertCtrl.create({
       header: '¿Eliminar producto?',
       message: `¿Estás seguro de que quieres eliminar "${linea.nombreProducto?.[this.idiomaActual] ?? linea.nombreProducto?.['es'] ?? linea.nombreProducto}"?`,
+      cssClass: 'admin-app-alert',
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Cancelar', role: 'cancel', cssClass: 'admin-alert-btn-cancel' },
         {
           text: 'Eliminar',
           role: 'destructive',
+          cssClass: 'admin-alert-btn-danger',
           handler: async () => {
             const loading = await this.loadingCtrl.create({ message: 'Eliminando...' });
             await loading.present();

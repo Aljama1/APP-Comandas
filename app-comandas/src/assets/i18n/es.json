@@ -167,6 +167,7 @@
     },
     "CERRAR_SESION_TITULO": "Cerrar sesión",
     "CERRAR_SESION_MSG": "¿Estás seguro de que deseas salir?",
+    "CERRAR_SESION_MSG_PEDIDOS": "Tienes pedidos activos en cocina. Si cierras sesión, no podrás seguir su estado desde este dispositivo. ¿Continuar?",
     "FILTRO_ACTIVO": "Filtro activo"
   },
   "LANDING": {

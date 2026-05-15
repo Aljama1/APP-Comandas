@@ -44,12 +44,13 @@ export class AdminConfigBarComponent {
     this.popover.dismiss();
     const alert = await this.alertCtrl.create({
       header: 'Cambiar Contraseña',
+      cssClass: 'admin-app-alert',
       inputs: [
         { name: 'newPassword', type: 'password', placeholder: 'Nueva contraseña' },
         { name: 'confirmPassword', type: 'password', placeholder: 'Confirmar contraseña' }
       ],
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Cancelar', role: 'cancel', cssClass: 'admin-alert-btn-cancel' },
         {
           text: 'Actualizar',
           handler: async (data) => {
@@ -85,11 +86,12 @@ export class AdminConfigBarComponent {
     const alert = await this.alertCtrl.create({
       header: 'Cerrar Sesión',
       message: '¿Estás seguro de que quieres salir?',
+      cssClass: 'admin-app-alert',
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Cancelar', role: 'cancel', cssClass: 'admin-alert-btn-cancel' },
         {
           text: 'Salir',
-          cssClass: 'alert-button-confirm',
+          cssClass: 'admin-alert-btn-danger',
           handler: () => { this.authService.logout(); }
         }
       ]

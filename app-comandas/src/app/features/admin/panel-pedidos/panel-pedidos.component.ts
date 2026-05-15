@@ -264,10 +264,17 @@ export class PanelPedidosComponent implements OnInit, OnDestroy {
     const alert = await this.alertCtrl.create({
       header: this.translate.instant('ALERTAS.ANULAR_TITULO'),
       message: this.translate.instant('ALERTAS.ANULAR_MENSAJE'),
+      cssClass: 'admin-app-alert',
       buttons: [
-        { text: this.translate.instant('ACCIONES.CANCELAR'), role: 'cancel' },
+        { 
+          text: this.translate.instant('ACCIONES.CANCELAR'), 
+          role: 'cancel',
+          cssClass: 'admin-alert-btn-cancel'
+        },
         {
-          text: this.translate.instant('ALERTAS.ANULAR'), role: 'destructive',
+          text: this.translate.instant('ALERTAS.ANULAR'), 
+          role: 'destructive',
+          cssClass: 'admin-alert-btn-danger',
           handler: () => {
             this.adminComandaService.actualizarEstado(idComanda, 'CANCELADO');
             this.toastCtrl.create({ message: this.translate.instant('TOASTS.COMANDA_ANULADA'), duration: 2000, color: 'medium', icon: 'close-circle-outline' }).then(t => t.present());
