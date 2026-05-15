@@ -157,6 +157,18 @@ npm test
 
 ---
 
+## Consideraciones
+
+Aunque el proyecto está completamente preparado técnica y estructuralmente para su **compilación a APK Android nativo** y su **despliegue en producción en Firebase Hosting**, es posible que en estos entornos finales empaquetados se observen leves discrepancias visuales (especialmente relativas a la inversión de colores del modo oscuro y la precedencia de ciertos estilos SCSS) en comparación con el servidor de desarrollo local.
+
+Estas diferencias son normales en el desarrollo híbrido y se justifican técnicamente por:
+1. **PurgeCSS y Compilación AOT:** El proceso estricto de `ng build --configuration=production` minimiza y reordena el CSS. En ocasiones, esto altera la especificidad de clases dinámicas (`:host-context`) frente a las utilidades precompiladas de Ionic.
+2. **WebViews y Preferencias del SO:** Los motores web empaquetados (Android WebView) y los navegadores en modo producción suelen forzar las media queries del sistema (`prefers-color-scheme`) de manera más estricta que un entorno local, sobrescribiendo variables de entorno de Ionic (como `--ion-background-color`) e interfiriendo con el tema personalizado.
+
+Por ello, para asegurar la máxima fidelidad visual y de UX según el diseño original, **se recomienda evaluar la interfaz utilizando el entorno de desarrollo local** (`ionic serve`).
+
+---
+
 ## Licencia
 
 Este proyecto se distribuye bajo licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
