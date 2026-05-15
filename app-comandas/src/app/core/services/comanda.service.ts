@@ -75,7 +75,7 @@ export class ComandaService {
           subtotal: precioUnitario * cantidad,
           destino: destino,
           notasEspeciales: notasEspeciales,
-          varianteSeleccionada: variante,
+          ...(variante ? { varianteSeleccionada: variante } : {}),
           modificadoresSeleccionados: modificadores
         };
         return [...lineas, nuevaLinea];

@@ -73,3 +73,6 @@ Thumbs.db
 .firebase
 *-debug.log
 .runtimeconfig.json
+
+# Reglas de agentes IA (local-only)
+.antigravityrules

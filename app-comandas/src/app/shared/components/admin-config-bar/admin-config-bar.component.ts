@@ -1,10 +1,9 @@
-import { Component, inject, signal, ViewChild, OnInit } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController, ToastController, IonPopover } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { UserSettingsService } from '../../../core/services/user-settings.service';
-import { ProductoAdminService } from '../../../core/services/producto-admin.service';
 import { updatePassword } from '@angular/fire/auth';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 
@@ -15,10 +14,9 @@ import { TranslateService, TranslateModule } from '@ngx-translate/core';
   templateUrl: './admin-config-bar.component.html',
   styleUrls: ['./admin-config-bar.component.scss']
 })
-export class AdminConfigBarComponent implements OnInit {
+export class AdminConfigBarComponent {
   authService = inject(AdminAuthService);
   settingsService = inject(UserSettingsService);
-  productoAdminService = inject(ProductoAdminService);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
   private router = inject(Router);
@@ -31,15 +29,6 @@ export class AdminConfigBarComponent implements OnInit {
   }
 
   constructor() {  }
-
-  ngOnInit() {
-    // Ejecutar migración de productos antiguos (Fase 10)
-    this.productoAdminService.migrarProductosAntiguos().then(() => {
-
-    }).catch(err => {
-      console.error('Error en migración:', err);
-    });
-  }
 
   get idiomaActual(): string {
     return this.translate.currentLang || this.translate.defaultLang || 'es';

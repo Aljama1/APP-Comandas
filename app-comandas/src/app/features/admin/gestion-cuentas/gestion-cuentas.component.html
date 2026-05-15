@@ -213,11 +213,11 @@
               <ion-card-content>
                 <ion-item lines="none" class="price-breakdown">
                   <ion-label color="medium">{{ 'GESTION_CUENTAS.BASE_IMPONIBLE' | translate }}</ion-label>
-                  <ion-note slot="end" color="dark">{{ (totalAcumuladoMesa() / 1.1) | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</ion-note>
+                  <ion-note slot="end" color="dark">{{ desgloseIva().baseImponible | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</ion-note>
                 </ion-item>
                 <ion-item lines="none" class="price-breakdown">
                   <ion-label color="medium">{{ 'GESTION_CUENTAS.IVA' | translate }}</ion-label>
-                  <ion-note slot="end" color="dark">{{ (totalAcumuladoMesa() - (totalAcumuladoMesa() / 1.1)) | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</ion-note>
+                  <ion-note slot="end" color="dark">{{ desgloseIva().cuotaIva | currency:(idiomaActual === 'es' ? 'EUR' : 'USD'):'symbol':'1.2-2' }}</ion-note>
                 </ion-item>
                 <ion-item lines="none" class="total-item">
                   <ion-label><strong>{{ 'GESTION_CUENTAS.TOTAL_COBRAR' | translate }}</strong></ion-label>

@@ -1,7 +1,7 @@
-import { Injectable, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Injectable, inject, signal, computed, OnDestroy, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import {
   Firestore, collection, addDoc, updateDoc, deleteDoc,
-  doc, query, orderBy, onSnapshot, Unsubscribe, increment
+  doc, query, orderBy, onSnapshot, Unsubscribe, runTransaction
 } from '@angular/fire/firestore';
 import { UploadTask, ref, uploadBytesResumable, getDownloadURL } from '@angular/fire/storage';
 import { Storage } from '@angular/fire/storage';
@@ -13,6 +13,7 @@ import { Producto, CategoriaProducto } from '../models/producto.model';
 export class ProductoAdminService implements OnDestroy {
   private firestore = inject(Firestore);
   private storage = inject(Storage);
+  private injector = inject(EnvironmentInjector);
 
   public productos = signal<Producto[]>([]);
   public cargando = signal(false);
@@ -41,33 +42,6 @@ export class ProductoAdminService implements OnDestroy {
       this.cancelarEscucha();
       this.cancelarEscucha = null;
     }
-  }
-
-  /**
-   * UTILIDAD PARA MIGRAR PRODUCTOS ANTIGUOS
-   * Convierte nombres y descripciones tipo string a {es: '...', en: ''}
-   */
-  async migrarProductosAntiguos(): Promise<void> {
-    const lista = this.productos();
-    for (const prod of lista) {
-      let necesitaUpdate = false;
-      const updates: Partial<Producto> = {};
-
-      if (typeof prod.nombre === 'string') {
-        updates.nombre = { es: prod.nombre, en: '' };
-        necesitaUpdate = true;
-      }
-      if (typeof prod.descripcion === 'string') {
-        updates.descripcion = { es: prod.descripcion, en: '' };
-        necesitaUpdate = true;
-      }
-
-      if (necesitaUpdate && prod.id) {
-
-        await this.actualizarProducto(prod.id, updates);
-      }
-    }
-
   }
 
   private cargarProductos(): void {
@@ -152,18 +126,28 @@ export class ProductoAdminService implements OnDestroy {
     });
   }
 
+  /**
+   * Descuenta stock de forma atómica usando una transacción Firestore.
+   * Lee el stock actual del servidor y escribe el nuevo valor en la misma
+   * operación, evitando race conditions cuando dos cocineros marcan platos
+   * del mismo producto simultáneamente.
+   */
   async descontarStock(idProducto: string, cantidad: number): Promise<void> {
-    const producto = this.productos().find(p => p.id === idProducto);
-    if (!producto || producto.stock === undefined || producto.stock === null) return;
-
     const docRef = doc(this.firestore, 'productos', idProducto);
-    const nuevoStock = Math.max(0, producto.stock - cantidad);
-    
-    const updates: any = { stock: nuevoStock };
-    if (nuevoStock <= 0) {
-      updates.disponible = false;
-    }
+    await runInInjectionContext(this.injector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const snap = await tx.get(docRef);
+        if (!snap.exists()) return;
+        const data = snap.data() as Producto;
+        if (data.stock === undefined || data.stock === null) return;
 
-    await updateDoc(docRef, updates);
+        const nuevoStock = Math.max(0, data.stock - cantidad);
+        const updates: Partial<Producto> = { stock: nuevoStock };
+        if (nuevoStock <= 0) {
+          updates.disponible = false;
+        }
+        tx.update(docRef, updates);
+      })
+    );
   }
 }

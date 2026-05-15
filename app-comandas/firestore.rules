@@ -14,16 +14,40 @@ service cloud.firestore {
       return isAuth() && request.auth.token.firebase.sign_in_provider == 'anonymous';
     }
 
+    // ─── Asignaciones de mesa por cliente ─────────────────────────────
+    // El cliente, al hacer check-in, crea /asignaciones-mesa/{uid} con su
+    // mesaId. Una vez creado NO puede modificarlo (las reglas lo impiden),
+    // así el idMesa queda "anclado" server-side al uid del usuario. Esto
+    // permite validar las comandas en el servidor (ver regla create de
+    // /comandas más abajo) y cerrar el agujero de un cliente que cambie
+    // mesaId manualmente desde DevTools.
+    match /asignaciones-mesa/{uid} {
+      allow read: if isStaff() || (isAuth() && request.auth.uid == uid);
+      allow create: if isAuth()
+                    && request.auth.uid == uid
+                    && request.resource.data.idMesa is number
+                    && request.resource.data.idMesa > 0;
+      // El cliente no puede reasignarse mesa. Sólo staff puede liberar/cambiar
+      // (por si hay que reubicar a un comensal manualmente).
+      allow update, delete: if isStaff();
+    }
+
     // ─── Comandas ─────────────────────────────────────────────────────
-    // - Cliente anónimo: crea su propia comanda (idCliente == uid) y la lee.
+    // - Cliente anónimo: crea su propia comanda (idCliente == uid) y SOLO
+    //   para la mesa que tiene asignada en /asignaciones-mesa/{uid}.
     //   Solo puede ACTUALIZAR mientras la comanda está en PENDIENTE y
-    //   exclusivamente para añadir notas (no puede tocar precio, estado,
-    //   líneas críticas ni reasignar la comanda a otra mesa/cliente).
-    //   El cliente NO puede borrar comandas.
+    //   exclusivamente para añadir notas, o marcar solicitaCuenta=true.
+    //   No puede tocar precio, estado, líneas críticas, reasignar la
+    //   comanda a otra mesa/cliente, ni borrar.
     // - Staff (no anónimo): control total sobre las comandas.
     match /comandas/{comandaId} {
       allow create: if isStaff() || (
-        isCliente() && request.resource.data.idCliente == request.auth.uid
+        isCliente()
+        && request.resource.data.idCliente == request.auth.uid
+        // El idMesa debe coincidir EXACTAMENTE con el asignado al uid.
+        // idMesa se guarda como string en la comanda; en asignaciones-mesa
+        // como number — string() los normaliza para comparar.
+        && string(get(/databases/$(database)/documents/asignaciones-mesa/$(request.auth.uid)).data.idMesa) == request.resource.data.idMesa
       );
 
       allow read: if isStaff() || (
@@ -40,9 +64,11 @@ service cloud.firestore {
             && request.resource.data.estado == resource.data.estado
             && request.resource.data.precioTotal == resource.data.precioTotal
             && request.resource.data.lineasComanda == resource.data.lineasComanda)
-        // Cliente puede marcar solicitaCuenta=true en cualquier estado de SU comanda
+        // Cliente puede marcar solicitaCuenta=true solo en comandas activas
         || (isCliente()
             && resource.data.idCliente == request.auth.uid
+            && resource.data.estado != 'PAGADO'
+            && resource.data.estado != 'CANCELADO'
             && request.resource.data.solicitaCuenta == true
             && request.resource.data.idCliente == resource.data.idCliente
             && request.resource.data.idMesa == resource.data.idMesa

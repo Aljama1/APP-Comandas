@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
+import { Firestore } from '@angular/fire/firestore';
 import { TranslateService } from '@ngx-translate/core';
 import { CheckInComponent } from './check-in.component';
 import { UsuarioService } from '../../core/services/usuario.service';
@@ -32,6 +33,7 @@ describe('CheckInComponent', () => {
         { provide: UserSettingsService, useValue: settingsMock },
         { provide: TranslateService, useValue: translateMock },
         { provide: Auth, useValue: {} },
+        { provide: Firestore, useValue: {} },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => null } } } }
       ]
     }).compileComponents();
@@ -59,6 +61,7 @@ describe('CheckInComponent', () => {
         { provide: UserSettingsService, useValue: settingsMock },
         { provide: TranslateService, useValue: translateMock },
         { provide: Auth, useValue: {} },
+        { provide: Firestore, useValue: {} },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => '7' } } } }
       ]
     }).compileComponents();

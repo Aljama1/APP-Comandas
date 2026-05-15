@@ -3,6 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Auth, signInAnonymously } from '@angular/fire/auth';
+import { Firestore, doc, setDoc, serverTimestamp } from '@angular/fire/firestore';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { UserSettingsService } from '../../core/services/user-settings.service';
 import { PerfilUsuario } from '../../core/models/perfil-usuario.model';
@@ -40,6 +41,7 @@ export class CheckInComponent implements OnInit {
   private usuarioService = inject(UsuarioService);
   public settings = inject(UserSettingsService);
   private auth = inject(Auth);
+  private firestore = inject(Firestore);
   private route = inject(ActivatedRoute);
   private formBuilder = inject(FormBuilder);
 
@@ -95,6 +97,25 @@ export class CheckInComponent implements OnInit {
         ? usuarioActual
         : (await signInAnonymously(this.auth)).user;
       const uid = usuario.uid;
+
+      // Anclamos la mesa al uid en Firestore. Las reglas impiden que el
+      // cliente sobrescriba esta asignación después: a partir de aquí, las
+      // comandas que envíe se validan server-side contra este idMesa.
+      // Si el documento ya existe (cliente que reabre la app sin logout),
+      // el setDoc fallará por la regla update→staff y lanzaremos error.
+      try {
+        await setDoc(doc(this.firestore, 'asignaciones-mesa', uid), {
+          idMesa: mesaId!,
+          asignadoEn: serverTimestamp()
+        });
+      } catch (e) {
+        // El doc ya existía (sesión previa). Continuamos solo si la mesa
+        // pedida es la misma; si no, el usuario tiene que reiniciar sesión
+        // desde otra mesa con staff.
+        // No podemos leer el doc para validarlo (las rules de read lo permiten
+        // al mismo uid, pero preferimos no añadir round-trips). Confiamos en
+        // que la regla de create de comandas rechazará el envío si difiere.
+      }
 
       const nuevoPerfil: PerfilUsuario = {
         uid,

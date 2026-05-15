@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed, NgZone, runInInjectionContext, EnvironmentInjector, OnDestroy } from '@angular/core';
-import { Firestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, serverTimestamp } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, runTransaction } from '@angular/fire/firestore';
 import { Comanda, EstadoComanda } from '../models/comanda.model';
 import { UserSettingsService } from './user-settings.service';
 import { AudioService } from './audio.service';
@@ -223,66 +223,51 @@ export class AdminComandaService implements OnDestroy {
   }
 
   /**
-   * @deprecated Usar generarFactura(), que cierra las comandas dentro de su
-   * propia transacción atómica. Llamar a este método por separado provoca
-   * un doble cierre o un cierre sin factura asociada.
-   */
-  private async finalizarCuentaMesa(idMesa: string): Promise<void> {
-    const comandasDeLaMesa = this._comandasActivas().filter(c => c.idMesa === idMesa);
-    
-    const promesas = comandasDeLaMesa.map(comanda => {
-      if (!comanda.id) return Promise.resolve();
-      return this.actualizarEstado(comanda.id, 'PAGADO');
-    });
-
-    try {
-      await Promise.all(promesas);
-
-    } catch (error) {
-      console.error(`Error al cerrar la mesa ${idMesa}:`, error);
-      throw error;
-    }
-  }
-
-  /**
    * Marca un plato específico de una comanda como preparado o no.
-   * Si al marcarlo se completan todos los platos de cocina de esa comanda,
-   * se cambia el estado global de la comanda a SERVIDO de forma automática.
+   *
+   * Usa una transacción Firestore para leer el documento fresco antes de
+   * sobreescribir `lineasComanda`. Esto evita la race condition en la que
+   * cocina y barra tickean líneas distintas de la misma comanda al mismo
+   * tiempo y una pisa el tick de la otra.
+   *
+   * Si al marcarla se completan todos los platos (cocina + barra), el estado
+   * global de la comanda pasa a SERVIDO de forma automática.
    */
   async marcarLineaPreparada(idComanda: string, indexLinea: number, preparado: boolean): Promise<void> {
-    const comanda = this._comandasActivas().find(c => c.id === idComanda);
-    if (!comanda) return;
-
-    // Clonamos el array de líneas para modificarlo de forma inmutable
-    const nuevasLineas = [...comanda.lineasComanda];
-    const lineaAnterior = nuevasLineas[indexLinea];
-    nuevasLineas[indexLinea] = { ...lineaAnterior, preparado };
-
-    // Si se está marcando como preparado por PRIMERA VEZ, descontamos stock
-    if (preparado && !lineaAnterior.preparado) {
-      this.productoAdminService.descontarStock(lineaAnterior.idProducto, lineaAnterior.cantidad);
-    }
-
     const docRef = doc(this.firestore, `comandas/${idComanda}`);
-    
-    // Auto-Marchar: cuando cocina Y barra han ticked todos sus ítems, la comanda pasa
-    // directamente a SERVIDO. Marcar un ítem = el producto ya salió a la mesa.
-    const todasLasLineas = nuevasLineas.filter(l => l.destino === 'COCINA' || l.destino === 'BARRA');
-    const todosListos = todasLasLineas.length > 0 && todasLasLineas.every(l => l.preparado);
+    const localComanda = this._comandasActivas().find(c => c.id === idComanda);
+    const lineaAnterior = localComanda?.lineasComanda[indexLinea];
+    if (!lineaAnterior) return;
 
     try {
-      if (todosListos) {
-        await updateDoc(docRef, {
-          lineasComanda: nuevasLineas,
-          estado: 'SERVIDO',
-          fechaActualizacion: serverTimestamp()
-        });
-      } else {
-        // Solo actualizamos el tick de la línea
-        await updateDoc(docRef, {
-          lineasComanda: nuevasLineas,
-          fechaActualizacion: serverTimestamp()
-        });
+      await runInInjectionContext(this.inyector, () =>
+        runTransaction(this.firestore, async (tx) => {
+          const snap = await tx.get(docRef);
+          if (!snap.exists()) throw new Error('Comanda no encontrada');
+          const data = snap.data() as Comanda;
+          const lineas = [...data.lineasComanda];
+          if (indexLinea < 0 || indexLinea >= lineas.length) return;
+
+          lineas[indexLinea] = { ...lineas[indexLinea], preparado };
+
+          const cocinaBarra = lineas.filter(l => l.destino === 'COCINA' || l.destino === 'BARRA');
+          const todosListos = cocinaBarra.length > 0 && cocinaBarra.every(l => l.preparado);
+
+          const updates: { lineasComanda: typeof lineas; fechaActualizacion: unknown; estado?: EstadoComanda } = {
+            lineasComanda: lineas,
+            fechaActualizacion: serverTimestamp()
+          };
+          if (todosListos) updates.estado = 'SERVIDO';
+          tx.update(docRef, updates);
+        })
+      );
+
+      // Stock se descuenta SOLO si la transacción tuvo éxito y es la primera
+      // vez que se marca esta línea como preparada. Si la transacción falla
+      // por conflicto Firestore reintenta automáticamente, así que llegar
+      // aquí significa que el tick está persistido.
+      if (preparado && !lineaAnterior.preparado) {
+        await this.productoAdminService.descontarStock(lineaAnterior.idProducto, lineaAnterior.cantidad);
       }
     } catch (error) {
       console.error('Error al marcar plato preparado:', error);
@@ -292,59 +277,70 @@ export class AdminComandaService implements OnDestroy {
 
   /**
    * Edita una línea específica de una comanda y recalcula el total.
+   * Usa transacción para basar el cálculo en el array de líneas vigente en
+   * Firestore (no en el snapshot local), evitando que dos ediciones simultáneas
+   * desde dos terminales se pisen.
    */
   async editarLineaComanda(idComanda: string, indexLinea: number, nuevosDatos: { cantidad?: number; precioUnitario?: number }): Promise<void> {
-    const comanda = this._comandasActivas().find(c => c.id === idComanda);
-    if (!comanda) throw new Error('Comanda no encontrada');
-
-    const nuevasLineas = [...comanda.lineasComanda];
-    const linea = { ...nuevasLineas[indexLinea] };
-
-    if (nuevosDatos.cantidad !== undefined) linea.cantidad = nuevosDatos.cantidad;
-    if (nuevosDatos.precioUnitario !== undefined) linea.precioUnitario = nuevosDatos.precioUnitario;
-    
-    linea.subtotal = linea.cantidad * linea.precioUnitario;
-    nuevasLineas[indexLinea] = linea;
-
-    const nuevoTotal = nuevasLineas.reduce((sum, l) => sum + l.subtotal, 0);
-
     const docRef = doc(this.firestore, `comandas/${idComanda}`);
-    await updateDoc(docRef, {
-      lineasComanda: nuevasLineas,
-      precioTotal: nuevoTotal,
-      fechaActualizacion: serverTimestamp()
-    });
+    await runInInjectionContext(this.inyector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const snap = await tx.get(docRef);
+        if (!snap.exists()) throw new Error('Comanda no encontrada');
+        const data = snap.data() as Comanda;
+        const lineas = [...data.lineasComanda];
+        if (indexLinea < 0 || indexLinea >= lineas.length) return;
+
+        const linea = { ...lineas[indexLinea] };
+        if (nuevosDatos.cantidad !== undefined) linea.cantidad = nuevosDatos.cantidad;
+        if (nuevosDatos.precioUnitario !== undefined) linea.precioUnitario = nuevosDatos.precioUnitario;
+        linea.subtotal = linea.cantidad * linea.precioUnitario;
+        lineas[indexLinea] = linea;
+
+        const nuevoTotal = lineas.reduce((sum, l) => sum + l.subtotal, 0);
+        tx.update(docRef, {
+          lineasComanda: lineas,
+          precioTotal: nuevoTotal,
+          fechaActualizacion: serverTimestamp()
+        });
+      })
+    );
   }
 
   /**
-   * Elimina una línea de una comanda y recalcula el total.
+   * Elimina una línea de una comanda y recalcula el total dentro de una
+   * transacción. Si tras la eliminación no quedan líneas, marca la comanda
+   * como CANCELADO.
    */
   async eliminarLineaComanda(idComanda: string, indexLinea: number): Promise<void> {
-    const comanda = this._comandasActivas().find(c => c.id === idComanda);
-    if (!comanda) throw new Error('Comanda no encontrada');
-
-    const nuevasLineas = [...comanda.lineasComanda];
-    nuevasLineas.splice(indexLinea, 1);
-
-    const nuevoTotal = nuevasLineas.reduce((sum, l) => sum + l.subtotal, 0);
     const docRef = doc(this.firestore, `comandas/${idComanda}`);
+    await runInInjectionContext(this.inyector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const snap = await tx.get(docRef);
+        if (!snap.exists()) throw new Error('Comanda no encontrada');
+        const data = snap.data() as Comanda;
+        const lineas = [...data.lineasComanda];
+        if (indexLinea < 0 || indexLinea >= lineas.length) return;
 
-    if (nuevasLineas.length === 0) {
-      // Si no quedan líneas, podríamos cancelar la comanda o dejarla vacía. 
-      // Por ahora la dejamos vacía con total 0.
-      await updateDoc(docRef, {
-        lineasComanda: [],
-        precioTotal: 0,
-        estado: 'CANCELADO',
-        fechaActualizacion: serverTimestamp()
-      });
-    } else {
-      await updateDoc(docRef, {
-        lineasComanda: nuevasLineas,
-        precioTotal: nuevoTotal,
-        fechaActualizacion: serverTimestamp()
-      });
-    }
+        lineas.splice(indexLinea, 1);
+        const nuevoTotal = lineas.reduce((sum, l) => sum + l.subtotal, 0);
+
+        if (lineas.length === 0) {
+          tx.update(docRef, {
+            lineasComanda: [],
+            precioTotal: 0,
+            estado: 'CANCELADO',
+            fechaActualizacion: serverTimestamp()
+          });
+        } else {
+          tx.update(docRef, {
+            lineasComanda: lineas,
+            precioTotal: nuevoTotal,
+            fechaActualizacion: serverTimestamp()
+          });
+        }
+      })
+    );
   }
 
   /**

@@ -9,6 +9,7 @@ import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { Comanda } from '../../../core/models/comanda.model';
 import { MetricasService } from '../../../core/services/metricas.service';
 import { TicketService } from '../../../core/services/ticket.service';
+import { calcularDesgloseIva } from '../../../core/models/factura.model';
 import { addIcons } from 'ionicons';
 import {
   walletOutline, searchOutline, closeOutline, trashOutline, createOutline,
@@ -223,7 +224,12 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
     return productos;
   }
 
-  totalAcumuladoMesa(): number {
+  /**
+   * Total acumulado real de la mesa seleccionada. Computed para que el desglose
+   * de IVA y el botón de cobro se sincronicen automáticamente cuando llegan
+   * cambios en tiempo real desde Firestore.
+   */
+  totalAcumuladoMesa = computed<number>(() => {
     const mesa = this.mesaSeleccionada();
     if (!mesa) return 0;
 
@@ -232,7 +238,15 @@ export class GestionCuentasComponent implements OnInit, OnDestroy {
     const servidos = this.adminComandaService.pedidosHistorial().filter(c => c.idMesa === mesa.idMesa);
 
     return [...pendientes, ...enCurso, ...servidos].reduce((sum, c) => sum + (c.precioTotal || 0), 0);
-  }
+  });
+
+  /**
+   * Desglose de IVA derivado del total. Reutiliza la función oficial del modelo
+   * de factura para que el modal de cobro y el ticket impreso muestren EXACTAMENTE
+   * los mismos importes al céntimo (la cuota se obtiene por diferencia tras redondear
+   * la base, garantizando base + cuota == total).
+   */
+  desgloseIva = computed(() => calcularDesgloseIva(this.totalAcumuladoMesa(), 10));
 
   iniciarEdicionLinea(linea: any, event: Event) {
     event.stopPropagation();

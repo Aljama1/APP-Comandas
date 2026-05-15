@@ -4,6 +4,7 @@ import {
 } from '@angular/fire/firestore';
 import { FacturaLegal, ContadorFacturas, calcularDesgloseIva, generarHashFactura } from '../models/factura.model';
 import { AdminComandaService } from './admin-comanda.service';
+import { Comanda } from '../models/comanda.model';
 import { getTranslation } from '../models/common.model';
 
 /**
@@ -62,48 +63,26 @@ export class FacturacionService {
    * @throws Error si no hay consumiciones, contador no existe, o transacción falla
    */
   async generarFactura(idMesa: string, metodoPago: string): Promise<FacturaLegal> {
-    const comandasDeMesa = this.adminComandaService.obtenerComandasPorMesa(idMesa);
-    
-    if (comandasDeMesa.length === 0) {
+    // Identificamos las comandas a cerrar a partir del snapshot local; los
+    // CÁLCULOS (total, productos, hash) se basarán después en lecturas frescas
+    // dentro de la transacción para garantizar coherencia con el documento real.
+    const comandasLocales = this.adminComandaService.obtenerComandasPorMesa(idMesa);
+
+    if (comandasLocales.length === 0) {
       throw new Error(`No hay consumiciones registradas para la mesa ${idMesa}`);
     }
 
-    // Cálculo del total y productos
-    const totalConIva = comandasDeMesa.reduce((suma, c) => suma + (c.precioTotal || 0), 0);
-    const productos = comandasDeMesa
-      .map((c) => c.lineasComanda)
-      .reduce((acumulado, val) => acumulado.concat(val), []);
-
-    // Desglose de IVA (actualmente 10%)
-    const desglose = calcularDesgloseIva(totalConIva, 10);
-
-    // Normalización de datos de productos para la factura
-    const snapshotProductos = productos.map((p: any) => ({
-      idProducto: p.idProducto,
-      nombre: getTranslation(p.nombreProducto, 'es'),
-      cantidad: p.cantidad,
-      precioUnitario: p.precioUnitario,
-      subtotal: p.subtotal
-    }));
-
-    // Referencias a documentos Firestore
     const refContador = doc(this.firestore, 'metadatos/contadores_facturas');
     const refNuevaFactura = doc(collection(this.firestore, 'facturas'));
-
-    // Pre-resolvemos las referencias de las comandas a marcar como PAGADO
-    // para incluir el cierre de mesa DENTRO de la misma transacción atómica
-    // que genera la factura. Así evitamos el escenario en que la factura se
-    // emite pero las comandas siguen activas (cobro doble).
-    const refsComandas = comandasDeMesa
+    const refsComandas = comandasLocales
       .filter(c => !!c.id)
       .map(c => doc(this.firestore, `comandas/${c.id}`));
 
     try {
       const facturaGenerada = await runInInjectionContext(this.inyector, () =>
         runTransaction(this.firestore, async (transaccion) => {
-          // 1. Leer contador actual (DEBE ser el primer paso)
+          // ─── 1. LECTURAS (todas antes de cualquier escritura) ───────────
           const docContador = await transaccion.get(refContador);
-
           if (!docContador.exists()) {
             throw new Error(
               'Error crítico: Contador de facturas no existe. ' +
@@ -111,15 +90,42 @@ export class FacturacionService {
             );
           }
 
-          const datosContador = docContador.data() as ContadorFacturas;
+          const snapsComandas = await Promise.all(
+            refsComandas.map(ref => transaccion.get(ref))
+          );
+          const comandasFrescas = snapsComandas
+            .filter(s => s.exists())
+            .map(s => s.data() as Comanda);
 
-          // 2. Incrementar contador y generar número de factura
+          if (comandasFrescas.length === 0) {
+            throw new Error('Las comandas de la mesa ya no existen en Firestore.');
+          }
+
+          // ─── 2. CÁLCULOS basados en datos FRESCOS ───────────────────────
+          // El total y el snapshot de productos derivan exclusivamente del
+          // estado autoritativo (Firestore) en el instante de la transacción.
+          // Si otra terminal editó una línea entre el clic de cobrar y este
+          // punto, Firestore detectará el conflicto y reintentará.
+          const totalConIva = comandasFrescas.reduce((suma, c) => suma + (c.precioTotal || 0), 0);
+          const productos = comandasFrescas
+            .map(c => c.lineasComanda)
+            .reduce((acumulado, val) => acumulado.concat(val), []);
+          const desglose = calcularDesgloseIva(totalConIva, 10);
+          const snapshotProductos = productos.map((p) => ({
+            idProducto: p.idProducto,
+            nombre: getTranslation(p.nombreProducto, 'es'),
+            cantidad: p.cantidad,
+            precioUnitario: p.precioUnitario,
+            subtotal: p.subtotal
+          }));
+
+          const datosContador = docContador.data() as ContadorFacturas;
           const nuevoNumero = datosContador.ultimoNumero + 1;
           const numeroFormateado = `${datosContador.serieActual}-${nuevoNumero.toString().padStart(6, '0')}`;
           const fechaExpedicion = Date.now();
           const hashAnterior = datosContador.ultimoHash;
 
-          // 3. Generar hash encadenado (VeriFactu)
+          // Hash encadenado (VeriFactu) computado con el total fresco
           const hashActual = await generarHashFactura(
             numeroFormateado,
             fechaExpedicion,
@@ -127,32 +133,27 @@ export class FacturacionService {
             hashAnterior
           );
 
-          // 4. Construir documento FacturaLegal
           const facturaLegal: FacturaLegal = {
             id: refNuevaFactura.id,
-            idMesa: idMesa,
+            idMesa,
             numeroFactura: numeroFormateado,
-            fechaExpedicion: fechaExpedicion,
+            fechaExpedicion,
             baseImponible: desglose.baseImponible,
             cuotaIva: desglose.cuotaIva,
             porcentajeIva: 10,
             importeTotal: totalConIva,
-            metodoPago: metodoPago,
-            hashAnterior: hashAnterior,
-            hashActual: hashActual,
+            metodoPago,
+            hashAnterior,
+            hashActual,
             productos: snapshotProductos
           };
 
-          // 5. Ejecutar escrituras dentro de transacción
+          // ─── 3. ESCRITURAS (atomic: factura + contador + cierre) ────────
           transaccion.set(refNuevaFactura, facturaLegal);
           transaccion.update(refContador, {
             ultimoNumero: nuevoNumero,
             ultimoHash: hashActual
           });
-
-          // 6. Cerrar todas las comandas de la mesa como PAGADO en la misma
-          // transacción. Si cualquiera falla, la factura no se persiste y
-          // el contador no avanza.
           for (const refComanda of refsComandas) {
             transaccion.update(refComanda, {
               estado: 'PAGADO',
